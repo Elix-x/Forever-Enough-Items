@@ -1,0 +1,88 @@
+fei.gui.override.grid.utils=Utilities Grid
+fei.gui.override.grid.utils.leftclick=Left Click: Cycle
+fei.gui.override.grid.utils.rightclick=Right Click: Select
+
+fei.gui.override.grid.utils.bin=Bin (WIP)
+
+fei.gui.override.grid.utils.gamemode.survival=Survival
+fei.gui.override.grid.utils.gamemode.creative=Creative
+fei.gui.override.grid.utils.gamemode.adventure=Adventure
+fei.gui.override.grid.utils.gamemode.spectator=Spectator
+
+fei.gui.override.grid.utils.time.sunrise=Sunrise
+fei.gui.override.grid.utils.time.noon=Noon
+fei.gui.override.grid.utils.time.sunset=Sunset
+fei.gui.override.grid.utils.time.midnight=Midnight
+
+fei.gui.override.grid.utils.weather.clear=Clear
+fei.gui.override.grid.utils.weather.rain=Rain
+fei.gui.override.grid.utils.weather.thunderstorm=Thunderstorm
+
+fei.gui.override.grid.utils.magnet.off=Magnet: Off
+fei.gui.override.grid.utils.magnet.on=Magnet: On
+
+fei.gui.override.grid.utils.heal=Heal
+
+fei.gui.override.grid.utils.saturate=Saturate
+
+fei.gui.override.grid.utils.llor.off=Light Level Overlay Off
+fei.gui.override.grid.utils.llor.on=Light Level Overlay On
+
+fei.gui.override.grid.utils.cei.off=Chunk Edge Indicator: Off
+fei.gui.override.grid.utils.cei.corners=Chunk Edge Indicator: Corners
+fei.gui.override.grid.utils.cei.all=Chunk Edge Indicator: All
+
+fei.gui.override.list.inventorysaves=Inventory Saves
+fei.gui.override.list.inventorysaves.new=New
+fei.gui.override.list.inventorysaves.leftlick=Left Click: Load to inventory
+fei.gui.override.list.inventorysaves.rightclick=Right Click: Rename
+fei.gui.override.list.inventorysaves.shiftleftclick=Shift + Left Click: Reload from inventory
+fei.gui.override.list.inventorysaves.shiftrightclick=Shift + Right Click: Delete
+
+
+fei.gui.override.dropdown.modsitems=Item SubSets
+fei.gui.override.dropdown.modsitems.mods=Item SubSets
+
+
+fei.gui.override.selector.profile=Profile Selector
+
+
+fei.gui.override.jei.override=JEI Override
+fei.gui.override.jei.override.jei=JEI
+fei.gui.override.jei.override.cangiveitems=Can Give Items (WIP)
+fei.gui.override.jei.override.candeleteitemsaboveitemslist=Can Delete Items Above Items List:
+fei.gui.override.jei.override.movesearchfieldtocenter=Move Search Field To Center:
+fei.gui.override.jei.override.searchfieldwidth=Search Field Width:
+fei.gui.override.jei.override.searchfieldheight=Search Field Height:
+
+
+fei.gui.profiles.leftlick=Left Click: Select
+fei.gui.profiles.rightclick=Right Click: Edit
+fei.gui.profiles.shiftleftclick=Shift + Left Click: New Copy
+fei.gui.profiles.shiftrightclick=Shift + Right Click: Delete
+
+fei.gui.profile.settings.name=Name:
+fei.gui.profile.settings.icon=Icon:
+fei.gui.profile.settings.elements=Elements:
+fei.gui.profile.settings.elements.leftlick=Left Click: Enable/Disable
+fei.gui.profile.settings.elements.rightclick=Right Click: Element Settings
+
+fei.gui.settings.possize=Position And Size
+fei.gui.settings.borderx=Border X:
+fei.gui.settings.bordery=Border Y:
+fei.gui.settings.backgroundcolor=Background Color
+fei.gui.settings.textcolor=Text Color
+fei.gui.settings.tooltipbackground=Tooltip Background:
+fei.gui.settings.grid.utilities=Utilities
+fei.gui.settings.grid.elementx=Element X Size:
+fei.gui.settings.elementy=Element Y Size:
+
+fei.profile.new.copyof=Copy Of %s
+
+
+fei.lowlevel.inventorysaves=You do not have required permission level to load to your inventory. Required level: %s.
+
+
+fei.command.feiop.error.toohighlevel=You are not allowed to set somebody's permission level higher then yours.
+fei.command.feiop.error.wronglevel=Wrong level. Should be USER, MODERATOR or ADMINISTRATOR.
+fei.command.feiop.error.generic=Something Went Wrong.
