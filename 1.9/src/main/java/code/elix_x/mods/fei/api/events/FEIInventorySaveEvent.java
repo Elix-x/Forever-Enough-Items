@@ -1,4 +1,4 @@
-package code.elix_x.mods.fei.client.events;
+package code.elix_x.mods.fei.api.events;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;

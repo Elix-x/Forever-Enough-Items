@@ -1,10 +1,10 @@
 package code.elix_x.mods.fei.proxy;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.concurrent.ConcurrentHashMap;
 
-import cei.ChunkEdgeRenderer;
+import com.mmyzd.llor.LightLevelOverlayReloaded;
+
+import cei.ChunkEdgeIndicator;
 import code.elix_x.excore.utils.proxy.IProxy;
 import code.elix_x.excore.utils.reflection.AdvancedReflectionHelper.AField;
 import code.elix_x.mods.fei.ForeverEnoughItemsBase;
@@ -12,6 +12,7 @@ import code.elix_x.mods.fei.api.FEIApi;
 import code.elix_x.mods.fei.api.gui.FEIGuiOverride;
 import code.elix_x.mods.fei.api.permission.IFEIPermissionsManager;
 import code.elix_x.mods.fei.api.profile.Profile;
+import code.elix_x.mods.fei.api.utils.ForFEIUtil;
 import code.elix_x.mods.fei.api.utils.IFEIUtil;
 import code.elix_x.mods.fei.client.events.FEIGuiOverrideEvents;
 import code.elix_x.mods.fei.client.events.FEIProfileEvents;
@@ -26,20 +27,17 @@ import code.elix_x.mods.fei.utils.CEICycle;
 import code.elix_x.mods.fei.utils.LLORToggle;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.EventBus;
-import net.minecraftforge.fml.common.eventhandler.IEventListener;
 
 public class ClientProxy implements IProxy {
-
-	public static ChunkEdgeRenderer cei;
 
 	public FEIUtilsGrid grid;
 
 	public LLORToggle llorToggle;
-	public CEICycle ceiCycle;
+	public ForFEIUtil ceiCycle;
 
 	public ClientProxy(){
 		new AField<FEIApi>(FEIApi.class, "INSTANCE").setFinal(false).set(null, new FEIApi(){
@@ -77,8 +75,8 @@ public class ClientProxy implements IProxy {
 		grid.addElement(FEIConfiguration.magnet);
 		grid.addElement(FEIConfiguration.heal);
 		grid.addElement(FEIConfiguration.saturate);
-		grid.addElement(llorToggle = new LLORToggle());
-		grid.addElement(ceiCycle = new CEICycle());
+		if(Loader.isModLoaded(LightLevelOverlayReloaded.MODID)) grid.addElement(llorToggle = new LLORToggle());
+		if(Loader.isModLoaded(ChunkEdgeIndicator.MODID)) grid.addElement(ceiCycle = new CEICycle());
 	}
 
 	@Override
@@ -89,12 +87,7 @@ public class ClientProxy implements IProxy {
 
 	@Override
 	public void postInit(FMLPostInitializationEvent event){
-		for(Object o : ((ConcurrentHashMap<Object, ArrayList<IEventListener>>) new AField<ConcurrentHashMap<Object, ArrayList<IEventListener>>>(EventBus.class, "listeners").setAccessible(true).get(MinecraftForge.EVENT_BUS)).keySet()){
-			if(o instanceof ChunkEdgeRenderer){
-				cei = (ChunkEdgeRenderer) o;
-				break;
-			}
-		}
+		if(ceiCycle != null) CEICycle.initChunkRenderer();
 
 		FEIGuiOverride.addElement(grid);
 

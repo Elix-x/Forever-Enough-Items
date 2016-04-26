@@ -13,16 +13,17 @@ import cei.ChunkEdgeIndicator;
 import code.elix_x.excore.EXCore;
 import code.elix_x.excore.utils.packets.SmartNetworkWrapper;
 import code.elix_x.excore.utils.proxy.IProxy;
+import code.elix_x.mods.fei.api.events.VanillaInventorySaveEvent;
 import code.elix_x.mods.fei.api.permission.FEIPermissionLevel;
 import code.elix_x.mods.fei.api.utils.SyncedFEIUtilProperty;
 import code.elix_x.mods.fei.capabilities.MagnetCapability;
 import code.elix_x.mods.fei.command.FEIOpCommand;
 import code.elix_x.mods.fei.config.FEIConfiguration;
 import code.elix_x.mods.fei.events.AttachMagnetCapabilityEvent;
+import code.elix_x.mods.fei.events.BaublesInventorySaveEvent;
 import code.elix_x.mods.fei.events.FEIInventoryLoadEvent;
 import code.elix_x.mods.fei.events.OnPlayerJoinEvent;
 import code.elix_x.mods.fei.events.OnPlayerTickEvent;
-import code.elix_x.mods.fei.events.VanillaInventorySaveEvent;
 import code.elix_x.mods.fei.net.FEIGiveItemStackPacket;
 import code.elix_x.mods.fei.net.LoadInventoryPacket;
 import code.elix_x.mods.fei.net.SyncPermissionsManagerPacket;
@@ -38,6 +39,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.Capability.IStorage;
 import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -48,14 +50,15 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
-@Mod(modid = ForeverEnoughItemsBase.MODID, name = ForeverEnoughItemsBase.NAME, version = ForeverEnoughItemsBase.VERSION, dependencies = "required-after:" + EXCore.DEPENDENCY + ";required-after:" + ForeverEnoughItemsBase.JEIDEPENDENCY + ";after:" + ForeverEnoughItemsBase.LLORDEPENDENCY + ";after:" + ForeverEnoughItemsBase.CEIDEPENDENCY)
+@Mod(modid = ForeverEnoughItemsBase.MODID, name = ForeverEnoughItemsBase.NAME, version = ForeverEnoughItemsBase.VERSION, dependencies = "required-after:" + EXCore.DEPENDENCY + ";required-after:" + ForeverEnoughItemsBase.JEIDEPENDENCY + ";after:" + ForeverEnoughItemsBase.BAUBLESDEPENDENCY + ";after:" + ForeverEnoughItemsBase.LLORDEPENDENCY + ";after:" + ForeverEnoughItemsBase.CEIDEPENDENCY)
 public class ForeverEnoughItemsBase {
 
 	public static final String MODID = "FEI";
 	public static final String NAME = "Forever Enough Items";
-	public static final String VERSION = "1.0";
+	public static final String VERSION = "1.0.1";
 
 	public static final String JEIDEPENDENCY = mezz.jei.config.Constants.MOD_ID;
+	public static final String BAUBLESDEPENDENCY = "Baubles";
 	public static final String CEIDEPENDENCY = ChunkEdgeIndicator.MODID + "@[" + ChunkEdgeIndicator.VERSION + ",)";
 	public static final String LLORDEPENDENCY = LightLevelOverlayReloaded.MODID;
 
@@ -173,6 +176,8 @@ public class ForeverEnoughItemsBase {
 		MinecraftForge.EVENT_BUS.register(new AttachMagnetCapabilityEvent());
 		MinecraftForge.EVENT_BUS.register(new VanillaInventorySaveEvent());
 		MinecraftForge.EVENT_BUS.register(new OnPlayerTickEvent());
+
+		if(Loader.isModLoaded("Baubles")) MinecraftForge.EVENT_BUS.register(new BaublesInventorySaveEvent());
 
 		proxy.init(event);
 	}

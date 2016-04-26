@@ -1,6 +1,6 @@
-package code.elix_x.mods.fei.events;
+package code.elix_x.mods.fei.api.events;
 
-import code.elix_x.mods.fei.client.events.FEIInventorySaveEvent;
+import code.elix_x.mods.fei.events.FEIInventoryLoadEvent;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 

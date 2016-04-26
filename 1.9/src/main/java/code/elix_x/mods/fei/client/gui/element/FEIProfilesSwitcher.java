@@ -83,6 +83,8 @@ public class FEIProfilesSwitcher extends ListGuiElement<FEIGuiOverride> implemen
 
 	@Override
 	public void initGui(FEIGuiOverride fei, GuiScreen gui){
+		if(getBottom() > screenHeight()) xPos = screenHeight() - getHeight();
+
 		reInitElements();
 		for(Profile profile : Profile.getProfiles()){
 			add(new FEIProfilesSwitchListElement(profile));
