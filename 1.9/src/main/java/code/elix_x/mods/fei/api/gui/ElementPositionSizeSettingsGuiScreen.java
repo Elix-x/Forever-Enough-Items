@@ -22,6 +22,8 @@ public class ElementPositionSizeSettingsGuiScreen extends BasicGuiScreen {
 		resizeCursor = CursorHelper.createCursor(new ResourceLocation(ForeverEnoughItemsBase.MODID, "textures/cursors/resize.png"));
 	}
 
+	protected GuiScreen behindScreen = null;
+
 	protected Rectangle element;
 	protected boolean resizeable;
 
@@ -36,11 +38,16 @@ public class ElementPositionSizeSettingsGuiScreen extends BasicGuiScreen {
 		super(parent, 0, 0);
 		this.element = element;
 		this.resizeable = resizeable;
+
+		behindScreen = parent;
+		while(behindScreen instanceof BasicGuiScreen) behindScreen = ((BasicGuiScreen) behindScreen).parent;
 	}
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks){
-		drawBackground(0);
+		if(behindScreen != null) behindScreen.drawScreen(mouseX, mouseY, partialTicks);
+		else drawBackground(0);
+
 		if(moving){
 			element.setX(Math.max(mouseX - grabRelX, 0));
 			element.setY(Math.max(mouseY - grabRelY, 0));
@@ -166,7 +173,11 @@ public class ElementPositionSizeSettingsGuiScreen extends BasicGuiScreen {
 				break;
 			}
 		} else {
-			super.keyTyped(c, key);
+			if(key == Keyboard.KEY_LEFT) element.setX(0);
+			else if(key == Keyboard.KEY_RIGHT) element.setX(width - element.getWidth());
+			else if(key == Keyboard.KEY_UP) element.setY(0);
+			else if(key == Keyboard.KEY_DOWN) element.setY(height - element.getHeight());
+			else super.keyTyped(c, key);
 		}
 	}
 

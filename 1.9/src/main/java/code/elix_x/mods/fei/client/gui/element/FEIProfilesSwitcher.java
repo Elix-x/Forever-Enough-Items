@@ -1,5 +1,7 @@
 package code.elix_x.mods.fei.client.gui.element;
 
+import org.lwjgl.input.Keyboard;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
@@ -83,8 +85,6 @@ public class FEIProfilesSwitcher extends ListGuiElement<FEIGuiOverride> implemen
 
 	@Override
 	public void initGui(FEIGuiOverride fei, GuiScreen gui){
-		if(getBottom() > screenHeight()) xPos = screenHeight() - getHeight();
-
 		reInitElements();
 		for(Profile profile : Profile.getProfiles()){
 			add(new FEIProfilesSwitchListElement(profile));
@@ -117,6 +117,10 @@ public class FEIProfilesSwitcher extends ListGuiElement<FEIGuiOverride> implemen
 
 	@Override
 	public boolean handleKeyboardEvent(FEIGuiOverride fei, GuiScreen gui, boolean down, int key, char c){
+		if(down && key == Keyboard.KEY_P){
+			gui.mc.displayGuiScreen(new ProfilesGuiScreen(gui, fei));
+			return true;
+		}
 		if(focused){
 			return super.handleKeyboardEvent(fei, gui, down, key, c);
 		} else {

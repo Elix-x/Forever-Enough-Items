@@ -14,9 +14,11 @@ public class OnPlayerJoinEvent {
 	public void join(PlayerLoggedInEvent event){
 		if(!event.player.worldObj.isRemote){
 			if(event.player.worldObj.getMinecraftServer() instanceof IntegratedServer){
-				if(EntityPlayer.getUUID(Minecraft.getMinecraft().thePlayer.getGameProfile()).equals(EntityPlayer.getUUID(event.player.getGameProfile()))){
-					if(event.player.canCommandSenderUseCommand(4, "feiop")){
-						FEIPermissionsManager.setPermissionLevels(event.player, FEIPermissionLevel.OWNER);
+				if(Minecraft.getMinecraft().thePlayer != null){
+					if(EntityPlayer.getUUID(Minecraft.getMinecraft().thePlayer.getGameProfile()).equals(EntityPlayer.getUUID(event.player.getGameProfile()))){
+						if(event.player.canCommandSenderUseCommand(4, "feiop")){
+							FEIPermissionsManager.setPermissionLevels(event.player, FEIPermissionLevel.OWNER);
+						}
 					}
 				}
 			}
