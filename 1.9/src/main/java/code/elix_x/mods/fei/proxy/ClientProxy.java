@@ -4,6 +4,7 @@ import java.io.File;
 
 import com.mmyzd.llor.LightLevelOverlayReloaded;
 
+import at.feldim2425.moreoverlays.MoreOverlays;
 import cei.ChunkEdgeIndicator;
 import code.elix_x.excore.utils.proxy.IProxy;
 import code.elix_x.excore.utils.reflection.AdvancedReflectionHelper.AField;
@@ -24,7 +25,8 @@ import code.elix_x.mods.fei.config.FEIConfiguration;
 import code.elix_x.mods.fei.net.SyncedFEIUtilPropertyPacket;
 import code.elix_x.mods.fei.permission.FEIPermissionsManager;
 import code.elix_x.mods.fei.utils.CEICycle;
-import code.elix_x.mods.fei.utils.LLORToggle;
+import code.elix_x.mods.fei.utils.LightLevelOverlayToggle;
+import code.elix_x.mods.fei.utils.MOCBCycle;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Loader;
@@ -36,8 +38,8 @@ public class ClientProxy implements IProxy {
 
 	public FEIUtilsGrid grid;
 
-	public LLORToggle llorToggle;
-	public ForFEIUtil ceiCycle;
+	public LightLevelOverlayToggle llorToggle;
+	public ForFEIUtil chunkEdgesCycle;
 
 	public ClientProxy(){
 		new AField<FEIApi>(FEIApi.class, "INSTANCE").setFinal(false).set(null, new FEIApi(){
@@ -75,8 +77,11 @@ public class ClientProxy implements IProxy {
 		grid.addElement(FEIConfiguration.magnet);
 		grid.addElement(FEIConfiguration.heal);
 		grid.addElement(FEIConfiguration.saturate);
-		if(Loader.isModLoaded(LightLevelOverlayReloaded.MODID)) grid.addElement(llorToggle = new LLORToggle());
-		if(Loader.isModLoaded(ChunkEdgeIndicator.MODID)) grid.addElement(ceiCycle = new CEICycle());
+		if(Loader.isModLoaded(LightLevelOverlayReloaded.MODID) || Loader.isModLoaded(MoreOverlays.MOD_ID)) grid.addElement(llorToggle = new LightLevelOverlayToggle(Loader.isModLoaded(LightLevelOverlayReloaded.MODID), Loader.isModLoaded(MoreOverlays.MOD_ID)));
+
+		if(Loader.isModLoaded(ChunkEdgeIndicator.MODID)) chunkEdgesCycle = new CEICycle();
+		else if(Loader.isModLoaded(MoreOverlays.MOD_ID)) chunkEdgesCycle = new MOCBCycle();
+		if(Loader.isModLoaded(ChunkEdgeIndicator.MODID) || Loader.isModLoaded(MoreOverlays.MOD_ID)) grid.addElement(chunkEdgesCycle);
 	}
 
 	@Override
@@ -87,7 +92,7 @@ public class ClientProxy implements IProxy {
 
 	@Override
 	public void postInit(FMLPostInitializationEvent event){
-		if(ceiCycle != null) CEICycle.initChunkRenderer();
+		if(Loader.isModLoaded(ChunkEdgeIndicator.MODID)) CEICycle.initChunkRenderer();
 
 		FEIGuiOverride.addElement(grid);
 

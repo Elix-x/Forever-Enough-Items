@@ -9,6 +9,7 @@ import com.google.common.base.Function;
 import com.mmyzd.llor.LightLevelOverlayReloaded;
 import com.mojang.realmsclient.gui.ChatFormatting;
 
+import at.feldim2425.moreoverlays.MoreOverlays;
 import cei.ChunkEdgeIndicator;
 import code.elix_x.excore.EXCore;
 import code.elix_x.excore.utils.packets.SmartNetworkWrapper;
@@ -50,17 +51,18 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
-@Mod(modid = ForeverEnoughItemsBase.MODID, name = ForeverEnoughItemsBase.NAME, version = ForeverEnoughItemsBase.VERSION, dependencies = "required-after:" + EXCore.DEPENDENCY + ";required-after:" + ForeverEnoughItemsBase.JEIDEPENDENCY + ";after:" + ForeverEnoughItemsBase.BAUBLESDEPENDENCY + ";after:" + ForeverEnoughItemsBase.LLORDEPENDENCY + ";after:" + ForeverEnoughItemsBase.CEIDEPENDENCY)
+@Mod(modid = ForeverEnoughItemsBase.MODID, name = ForeverEnoughItemsBase.NAME, version = ForeverEnoughItemsBase.VERSION, dependencies = "required-after:" + EXCore.DEPENDENCY + ";required-after:" + ForeverEnoughItemsBase.JEIDEPENDENCY + ";after:" + ForeverEnoughItemsBase.BAUBLESDEPENDENCY + ";after:" + ForeverEnoughItemsBase.LLORDEPENDENCY + ";after:" + ForeverEnoughItemsBase.CEIDEPENDENCY + ";after:" + ForeverEnoughItemsBase.MOREOVERLAYSDEPENDENCY)
 public class ForeverEnoughItemsBase {
 
 	public static final String MODID = "FEI";
 	public static final String NAME = "Forever Enough Items";
-	public static final String VERSION = "1.0.2";
+	public static final String VERSION = "1.0.3";
 
 	public static final String JEIDEPENDENCY = mezz.jei.config.Constants.MOD_ID;
 	public static final String BAUBLESDEPENDENCY = "Baubles";
 	public static final String CEIDEPENDENCY = ChunkEdgeIndicator.MODID + "@[" + ChunkEdgeIndicator.VERSION + ",)";
 	public static final String LLORDEPENDENCY = LightLevelOverlayReloaded.MODID;
+	public static final String MOREOVERLAYSDEPENDENCY = MoreOverlays.MOD_ID + "@[" + MoreOverlays.VERSION + ",)";
 
 	@SidedProxy(modId = MODID, serverSide = "code.elix_x.mods.fei.proxy.ServerProxy", clientSide = "code.elix_x.mods.fei.proxy.ClientProxy")
 	public static IProxy proxy;

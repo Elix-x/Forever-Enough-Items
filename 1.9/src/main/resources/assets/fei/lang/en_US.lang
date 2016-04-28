@@ -25,12 +25,13 @@ fei.gui.override.grid.utils.heal=Heal
 
 fei.gui.override.grid.utils.saturate=Saturate
 
-fei.gui.override.grid.utils.llor.off=Light Level Overlay Off
-fei.gui.override.grid.utils.llor.on=Light Level Overlay On
+fei.gui.override.grid.utils.lightoverlay.off=Light Level Overlay Off
+fei.gui.override.grid.utils.lightoverlay.cross=Light Level Overlay Cross
+fei.gui.override.grid.utils.lightoverlay.number=Light Level Overlay Number
 
-fei.gui.override.grid.utils.cei.off=Chunk Edge Indicator: Off
-fei.gui.override.grid.utils.cei.corners=Chunk Edge Indicator: Corners
-fei.gui.override.grid.utils.cei.all=Chunk Edge Indicator: All
+fei.gui.override.grid.utils.chunkedge.off=Chunk Edge: Off
+fei.gui.override.grid.utils.chunkedge.corners=Chunk Edge: Corners
+fei.gui.override.grid.utils.chunkedge.all=Chunk Edge: All
 
 fei.gui.override.list.inventorysaves=Inventory Saves
 fei.gui.override.list.inventorysaves.new=New
