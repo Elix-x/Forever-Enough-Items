@@ -14,6 +14,7 @@ import code.elix_x.mods.fei.api.gui.elements.ISaveableFEIGuiElement;
 import code.elix_x.mods.fei.api.profile.Profile;
 import code.elix_x.mods.fei.client.gui.FEIProfilesSwitcherSettingsGui;
 import code.elix_x.mods.fei.client.gui.ProfilesGuiScreen;
+import mezz.jei.Internal;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.fml.client.config.GuiButtonExt;
 
@@ -118,8 +119,10 @@ public class FEIProfilesSwitcher extends ListGuiElement<FEIGuiOverride> implemen
 	@Override
 	public boolean handleKeyboardEvent(FEIGuiOverride fei, GuiScreen gui, boolean down, int key, char c){
 		if(down && key == Keyboard.KEY_P){
-			gui.mc.displayGuiScreen(new ProfilesGuiScreen(gui, fei));
-			return true;
+			if(!Internal.getRuntime().getItemListOverlay().hasKeyboardFocus()){
+				gui.mc.displayGuiScreen(new ProfilesGuiScreen(gui, fei));
+				return true;
+			}
 		}
 		if(focused){
 			return super.handleKeyboardEvent(fei, gui, down, key, c);

@@ -97,7 +97,7 @@ public class ItemListOverlayOverride extends ItemListOverlay {
 		this.itemFilter = itemFilter;
 		this.advancedGuiHandlers = advancedGuiHandlers;
 
-		this.canGiveItems = canDeleteItems;
+		this.canGiveItems = canGiveItems;
 		this.canDeleteItems = canDeleteItems;
 		this.moveSearchFieldToCenter = moveSearchFieldToCenter;
 		this.searchFieldWidth = searchFieldWidth;
