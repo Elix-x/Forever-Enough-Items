@@ -22,7 +22,7 @@ public class FEIUtilsGridSettingsGui extends ElementBasicSettingsGuiScreen {
 	}
 
 	@Override
-	protected void initElements(){
+	public void addElements(){
 		add(new ButtonGuiElement("Utilities", xPos, nextY, guiWidth - 4, 20, 2, 2, I18n.translateToLocal("fei.gui.settings.grid.utilities")){
 
 			@Override
@@ -34,7 +34,7 @@ public class FEIUtilsGridSettingsGui extends ElementBasicSettingsGuiScreen {
 		});
 		nextY += 2 + 20 + 2;
 
-		super.initElements();
+		super.addElements();
 
 		String ex;
 		String ey;

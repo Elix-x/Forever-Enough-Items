@@ -369,7 +369,8 @@ public class ItemListOverlayOverride extends ItemListOverlay {
 		}
 
 		Focus focus = guiItemStacks.getFocusUnderMouse(mouseX, mouseY);
-		if(focus != null && (Config.isEditModeEnabled() || !canGiveItems || !FEIConfiguration.canGiveItems(Minecraft.getMinecraft().thePlayer))){
+		boolean key = Thread.currentThread().getStackTrace()[1].getMethodName().equals("getFocusUnderMouseForKey");
+		if(focus != null && (key || Config.isEditModeEnabled() || !canGiveItems || !FEIConfiguration.canGiveItems(Minecraft.getMinecraft().thePlayer))){
 			setKeyboardFocus(false);
 			return focus;
 		}

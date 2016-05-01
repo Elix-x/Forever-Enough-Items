@@ -19,7 +19,17 @@ public class ProfilesGuiScreen extends ElementalGuiScreen {
 	public ProfilesGuiScreen(GuiScreen parent, FEIGuiOverride fei){
 		super(parent, 256, 192);
 		this.fei = fei;
+	}
 
+	@Override
+	public void initGui(){
+		super.initGui();
+		list.center();
+		prevCurrentProfile = Profile.getCurrentProfile();
+	}
+
+	@Override
+	public void addElements(){
 		add(list = new ListGuiElement<ElementalGuiScreen>("Profiles List", 0, 0, 256, 192, 20, 2, 2, new RGBA(0, 0, 0, 0)){
 
 			@Override
@@ -86,13 +96,6 @@ public class ProfilesGuiScreen extends ElementalGuiScreen {
 			}
 
 		});
-	}
-
-	@Override
-	public void initGui(){
-		list.center();
-		prevCurrentProfile = Profile.getCurrentProfile();
-		super.initGui();
 	}
 
 	@Override

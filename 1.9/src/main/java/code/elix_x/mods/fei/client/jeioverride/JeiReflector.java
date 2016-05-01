@@ -41,16 +41,16 @@ public class JeiReflector implements IModPlugin, IGuiElement<FEIGuiOverride>, IN
 
 	public static final Gson gson = new Gson();
 
-	private static final AField<ItemListOverlay> itemListOverlay = new AField(JeiRuntime.class, "itemListOverlay").setAccessible(true).setFinal(false);
-	private static final AField<Boolean> uidCacheEnabled = new AField(StackHelper.class, "uidCacheEnabled").setAccessible(true);
-	private static final AField<ItemFilter> itemFilter = new AField(ItemListOverlay.class, "itemFilter").setAccessible(true);
-	private static final AField<List<IAdvancedGuiHandler<?>>> advancedGuiHandlers = new AField(ItemListOverlay.class, "advancedGuiHandlers").setAccessible(true);
-	private static final AField<List<IModPlugin>> plugins = new AField(ProxyCommonClient.class, "plugins").setAccessible(true);
-	public static final AField<File> jeiConfigurationDir = new AField(Config.class, "jeiConfigurationDir").setAccessible(true);
-	private static final AField<LocalizedConfiguration> itemBlacklistConfig = new AField(Config.class, "itemBlacklistConfig").setAccessible(true);
-	private static final AField<LocalizedConfiguration> searchColorsConfig = new AField(Config.class, "searchColorsConfig").setAccessible(true);
-	public static final AField<File> file = new AField(Configuration.class, "file").setAccessible(true);
-	public static final AField<Boolean> changed = new AField<>(Configuration.class, "changed").setAccessible(true);
+	private static final AField<JeiRuntime, ItemListOverlay> itemListOverlay = new AField(JeiRuntime.class, "itemListOverlay").setAccessible(true).setFinal(false);
+	private static final AField<StackHelper, Boolean> uidCacheEnabled = new AField(StackHelper.class, "uidCacheEnabled").setAccessible(true);
+	private static final AField<ItemListOverlay, ItemFilter> itemFilter = new AField(ItemListOverlay.class, "itemFilter").setAccessible(true);
+	private static final AField<ItemListOverlay, List<IAdvancedGuiHandler<?>>> advancedGuiHandlers = new AField(ItemListOverlay.class, "advancedGuiHandlers").setAccessible(true);
+	private static final AField<ProxyCommonClient, List<IModPlugin>> plugins = new AField(ProxyCommonClient.class, "plugins").setAccessible(true);
+	public static final AField<Config, File> jeiConfigurationDir = new AField(Config.class, "jeiConfigurationDir").setAccessible(true);
+	private static final AField<Config, LocalizedConfiguration> itemBlacklistConfig = new AField(Config.class, "itemBlacklistConfig").setAccessible(true);
+	private static final AField<Config, LocalizedConfiguration> searchColorsConfig = new AField(Config.class, "searchColorsConfig").setAccessible(true);
+	public static final AField<Configuration, File> file = new AField(Configuration.class, "file").setAccessible(true);
+	public static final AField<Configuration, Boolean> changed = new AField(Configuration.class, "changed").setAccessible(true);
 
 	public boolean canGiveItems;
 	public boolean canDeleteItemsAboveItemsList;
@@ -80,10 +80,10 @@ public class JeiReflector implements IModPlugin, IGuiElement<FEIGuiOverride>, IN
 
 					}
 				}
-				ItemListOverlayOverride overlay = new ItemListOverlayOverride(itemFilter.get(jeiRuntime.getItemListOverlay()), advancedGuiHandlers.get(jeiRuntime.getItemListOverlay()), canGiveItems, canDeleteItemsAboveItemsList, moveSearchFieldToCenter, searchFieldWidth, searchFieldHeight);
-				itemListOverlay.set(jeiRuntime, overlay);
+				ItemListOverlayOverride overlay = new ItemListOverlayOverride(itemFilter.get((ItemListOverlay) jeiRuntime.getItemListOverlay()), advancedGuiHandlers.get((ItemListOverlay) jeiRuntime.getItemListOverlay()), canGiveItems, canDeleteItemsAboveItemsList, moveSearchFieldToCenter, searchFieldWidth, searchFieldHeight);
+				itemListOverlay.set((JeiRuntime) jeiRuntime, overlay);
 
-				Iterator<IModPlugin> iterator = plugins.get(JustEnoughItems.getProxy()).iterator();
+				Iterator<IModPlugin> iterator = plugins.get((ProxyCommonClient) JustEnoughItems.getProxy()).iterator();
 				while (iterator.hasNext()) {
 					IModPlugin plugin = iterator.next();
 					if(plugin != JeiReflector.this){

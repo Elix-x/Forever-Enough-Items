@@ -22,14 +22,8 @@ public class JEIOverrideConfigurationGui extends ElementalGuiScreen {
 	}
 
 	@Override
-	public void initGui(){
-		super.initGui();
-
-		elements.clear();
-
-		int nextY = yPos;
-
-		elements.add(new ButtonGuiElement("JEI", xPos, nextY, guiWidth - 4, 20, 2, 2, I18n.translateToLocal("fei.gui.override.jei.override.jei")){
+	public void addElements(){
+		add(new ButtonGuiElement("JEI", xPos, nextY, guiWidth - 4, 20, 2, 2, I18n.translateToLocal("fei.gui.override.jei.override.jei")){
 
 			@Override
 			public void onButtonPressed(){
@@ -42,8 +36,8 @@ public class JEIOverrideConfigurationGui extends ElementalGuiScreen {
 		nextY += 2 + 20 + 2;
 
 		StringGuiElement se;
-		elements.add(se = new StringGuiElement("Can Give Items", xPos, nextY + 12 - 8, 2, 2, I18n.translateToLocal("fei.gui.override.jei.override.cangiveitems") + " ", fontRendererObj, new RGBA(1f, 1f, 1f, 1f)));
-		elements.add(new CheckBoxGuiElement("Can Give Items Check Box", xPos + se.getWidth(), nextY, 12, 12, 2, 2, jeiRelfector.canGiveItems){
+		add(se = new StringGuiElement("Can Give Items", xPos, nextY + 12 - 8, 2, 2, I18n.translateToLocal("fei.gui.override.jei.override.cangiveitems") + " ", fontRendererObj, new RGBA(1f, 1f, 1f, 1f)));
+		add(new CheckBoxGuiElement("Can Give Items Check Box", xPos + se.getWidth(), nextY, 12, 12, 2, 2, jeiRelfector.canGiveItems){
 
 			@Override
 			public void setChecked(boolean checked){
@@ -54,8 +48,8 @@ public class JEIOverrideConfigurationGui extends ElementalGuiScreen {
 		});
 		nextY += 2 + 12 + 2;
 
-		elements.add(se = new StringGuiElement("Can Delete Items Above Items List", xPos, nextY + 12 - 8, 2, 2, I18n.translateToLocal("fei.gui.override.jei.override.candeleteitemsaboveitemslist") + " ", fontRendererObj, new RGBA(1f, 1f, 1f, 1f)));
-		elements.add(new CheckBoxGuiElement("Can Delete Items Above Items List Check Box", xPos + se.getWidth(), nextY, 12, 12, 2, 2, jeiRelfector.canDeleteItemsAboveItemsList){
+		add(se = new StringGuiElement("Can Delete Items Above Items List", xPos, nextY + 12 - 8, 2, 2, I18n.translateToLocal("fei.gui.override.jei.override.candeleteitemsaboveitemslist") + " ", fontRendererObj, new RGBA(1f, 1f, 1f, 1f)));
+		add(new CheckBoxGuiElement("Can Delete Items Above Items List Check Box", xPos + se.getWidth(), nextY, 12, 12, 2, 2, jeiRelfector.canDeleteItemsAboveItemsList){
 
 			@Override
 			public void setChecked(boolean checked){
@@ -66,8 +60,8 @@ public class JEIOverrideConfigurationGui extends ElementalGuiScreen {
 		});
 		nextY += 2 + 12 + 2;
 
-		elements.add(se = new StringGuiElement("Move Search Field To Center", xPos, nextY + 12 - 8, 2, 2, I18n.translateToLocal("fei.gui.override.jei.override.movesearchfieldtocenter") + " ", fontRendererObj, new RGBA(1f, 1f, 1f, 1f)));
-		elements.add(new CheckBoxGuiElement("Move Search Field To Center Check Box", xPos + se.getWidth(), nextY, 12, 12, 2, 2, jeiRelfector.moveSearchFieldToCenter){
+		add(se = new StringGuiElement("Move Search Field To Center", xPos, nextY + 12 - 8, 2, 2, I18n.translateToLocal("fei.gui.override.jei.override.movesearchfieldtocenter") + " ", fontRendererObj, new RGBA(1f, 1f, 1f, 1f)));
+		add(new CheckBoxGuiElement("Move Search Field To Center Check Box", xPos + se.getWidth(), nextY, 12, 12, 2, 2, jeiRelfector.moveSearchFieldToCenter){
 
 			@Override
 			public void setChecked(boolean checked){
@@ -78,8 +72,8 @@ public class JEIOverrideConfigurationGui extends ElementalGuiScreen {
 		});
 		nextY += 2 + 12 + 2;
 
-		elements.add(se = new StringGuiElement("Search Field Width", xPos, nextY + 16 - 8, 2, 2, I18n.translateToLocal("fei.gui.override.jei.override.searchfieldwidth") + " ", fontRendererObj, new RGBA(1f, 1f, 1f, 1f)));
-		elements.add(new IntegralIncrementerGuiElement("Search Field Width Incrementer", xPos + se.getWidth(), nextY, 24, 8, 16, 2, 2, 1, 0, 1024, jeiRelfector.searchFieldWidth){
+		add(se = new StringGuiElement("Search Field Width", xPos, nextY + 16 - 8, 2, 2, I18n.translateToLocal("fei.gui.override.jei.override.searchfieldwidth") + " ", fontRendererObj, new RGBA(1f, 1f, 1f, 1f)));
+		add(new IntegralIncrementerGuiElement("Search Field Width Incrementer", xPos + se.getWidth(), nextY, 24, 8, 16, 2, 2, 1, 0, 1024, jeiRelfector.searchFieldWidth){
 
 			@Override
 			public int getValue(){
@@ -95,8 +89,8 @@ public class JEIOverrideConfigurationGui extends ElementalGuiScreen {
 		});
 		nextY += 2 + 16 + 2;
 
-		elements.add(se = new StringGuiElement("Search Field Height", xPos, nextY + 16 - 8, 2, 2, I18n.translateToLocal("fei.gui.override.jei.override.searchfieldheight") + " ", fontRendererObj, new RGBA(1f, 1f, 1f, 1f)));
-		elements.add(new IntegralIncrementerGuiElement("Search Field Height Incrementer", xPos + se.getWidth(), nextY, 24, 8, 16, 2, 2, 1, 0, 1024, jeiRelfector.searchFieldHeight){
+		add(se = new StringGuiElement("Search Field Height", xPos, nextY + 16 - 8, 2, 2, I18n.translateToLocal("fei.gui.override.jei.override.searchfieldheight") + " ", fontRendererObj, new RGBA(1f, 1f, 1f, 1f)));
+		add(new IntegralIncrementerGuiElement("Search Field Height Incrementer", xPos + se.getWidth(), nextY, 24, 8, 16, 2, 2, 1, 0, 1024, jeiRelfector.searchFieldHeight){
 
 			@Override
 			public int getValue(){
@@ -110,8 +104,6 @@ public class JEIOverrideConfigurationGui extends ElementalGuiScreen {
 			}
 
 		});
-
-		super.initGui();
 	}
 
 	@Override

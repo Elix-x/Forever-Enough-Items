@@ -41,13 +41,7 @@ public class ProfileSettingsGuiScreen extends ElementalGuiScreen {
 	}
 
 	@Override
-	public void initGui(){
-		super.initGui();
-
-		elements.clear();
-
-		int nextY = yPos;
-
+	public void addElements(){
 		int w;
 
 		String nameSetting = I18n.translateToLocal("fei.gui.profile.settings.name") + " ";
@@ -127,8 +121,6 @@ public class ProfileSettingsGuiScreen extends ElementalGuiScreen {
 			}
 
 		});
-
-		super.initGui();
 	}
 
 	@Override

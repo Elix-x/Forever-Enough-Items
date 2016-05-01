@@ -21,8 +21,8 @@ public class FEIProfilesSwitcherSettingsGui extends ElementBasicSettingsGuiScree
 	}
 
 	@Override
-	protected void initElements(){
-		super.initElements();
+	public void addElements(){
+		super.addElements();
 
 		StringGuiElement s;
 		add(s = new StringGuiElement("Element Y Size", xPos, nextY + 16 - 8, 2, 2, I18n.translateToLocal("fei.gui.settings.elementy") + " ", fontRendererObj, new RGBA(1f, 1f, 1f, 1f)));

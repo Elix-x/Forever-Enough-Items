@@ -17,7 +17,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 public class ServerProxy implements IProxy {
 
 	public ServerProxy(){
-		new AField<FEIApi>(FEIApi.class, "INSTANCE").setFinal(false).set(null, new FEIApi(){
+		new AField<FEIApi, FEIApi>(FEIApi.class, "INSTANCE").setFinal(false).set(null, new FEIApi(){
 
 			@Override
 			public void onUtilPropertySelect(int id){

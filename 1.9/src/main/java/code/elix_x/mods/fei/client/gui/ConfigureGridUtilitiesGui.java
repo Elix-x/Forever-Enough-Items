@@ -46,8 +46,6 @@ public class ConfigureGridUtilitiesGui extends ElementalGuiScreen {
 
 		super.initGui();
 
-		elements.clear();
-
 		add(new ColoredRectangleGuiElement("Used Grid Background", xPos, yPos, guiWidth, grid.getHeight(), 0, 0, grid.backgroundColor));
 		for(int x = 0; x < used.length; x++){
 			FEIUtilsGridElement[] usedd = used[x];
@@ -82,8 +80,6 @@ public class ConfigureGridUtilitiesGui extends ElementalGuiScreen {
 		UnusedGridGuiElement ugrid;
 		add(ugrid = new UnusedGridGuiElement("Unused Grid", xPos, yPos + grid.getHeight(), grid.elementX, grid.elementY, grid.getElementsX(), (int) Math.ceil(unused.size() / (double) grid.getElementsX())));
 		for(FEIUtilsGridElement element : unused) ugrid.addElement(ugrid.new UnusedGridElement(element));
-
-		super.initGui();
 	}
 
 	@Override

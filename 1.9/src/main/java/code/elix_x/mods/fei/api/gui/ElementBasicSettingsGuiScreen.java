@@ -2,8 +2,8 @@ package code.elix_x.mods.fei.api.gui;
 
 import org.lwjgl.util.Rectangle;
 
+import code.elix_x.excore.utils.client.gui.ColorSelectorGuiScreen;
 import code.elix_x.excore.utils.client.gui.ElementalGuiScreen;
-import code.elix_x.excore.utils.client.gui.GuiScreenColorSelector;
 import code.elix_x.excore.utils.client.gui.elements.ButtonGuiElement;
 import code.elix_x.excore.utils.client.gui.elements.CenteredStringGuiElement;
 import code.elix_x.excore.utils.client.gui.elements.CheckBoxGuiElement;
@@ -23,8 +23,6 @@ public class ElementBasicSettingsGuiScreen extends ElementalGuiScreen {
 	protected RGBA textColor;
 	protected boolean tooltipBackground;
 
-	protected int nextY;
-
 	public ElementBasicSettingsGuiScreen(GuiScreen parent, Rectangle element, boolean resizeable, int borderX, int borderY, RGBA backgroundColor, RGBA textColor, boolean tooltipBackground){
 		super(parent, 256, 192);
 		this.element = element;
@@ -37,19 +35,7 @@ public class ElementBasicSettingsGuiScreen extends ElementalGuiScreen {
 	}
 
 	@Override
-	public void initGui(){
-		super.initGui();
-
-		elements.clear();
-
-		nextY = yPos;
-
-		initElements();
-
-		super.initGui();
-	}
-
-	protected void initElements(){
+	public void addElements(){
 		add(new ButtonGuiElement("Position And Size", xPos, nextY, guiWidth - 4, 20, 2, 2, I18n.translateToLocal("fei.gui.settings.possize")){
 
 			@Override
@@ -119,7 +105,7 @@ public class ElementBasicSettingsGuiScreen extends ElementalGuiScreen {
 			@Override
 			public void onButtonPressed(){
 				super.onButtonPressed();
-				mc.displayGuiScreen(new GuiScreenColorSelector(ElementBasicSettingsGuiScreen.this, backgroundColor));
+				mc.displayGuiScreen(new ColorSelectorGuiScreen(ElementBasicSettingsGuiScreen.this, backgroundColor));
 			}
 
 		});
@@ -131,7 +117,7 @@ public class ElementBasicSettingsGuiScreen extends ElementalGuiScreen {
 			@Override
 			public void onButtonPressed(){
 				super.onButtonPressed();
-				mc.displayGuiScreen(new GuiScreenColorSelector(ElementBasicSettingsGuiScreen.this, textColor));
+				mc.displayGuiScreen(new ColorSelectorGuiScreen(ElementBasicSettingsGuiScreen.this, textColor));
 			}
 
 		});

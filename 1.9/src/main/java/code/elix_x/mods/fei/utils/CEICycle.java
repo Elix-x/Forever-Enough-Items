@@ -19,12 +19,12 @@ public class CEICycle extends ForFEIUtil<Integer> {
 	public static final String[] descs = {"off", "corners", "all"};
 	public static final ResourceLocation[] icons = {new ResourceLocation(ForeverEnoughItemsBase.MODID, FEIConfiguration.icons + "chunkedge_off.png"), new ResourceLocation(ForeverEnoughItemsBase.MODID, FEIConfiguration.icons + "chunkedge_corners.png"), new ResourceLocation(ForeverEnoughItemsBase.MODID, FEIConfiguration.icons + "chunkedge_all.png")};
 
-	public static final AField<Integer> chunkEdgeState = new AField<>(ChunkEdgeRenderer.class, "chunkEdgeState").setAccessible(true);
+	public static final AField<ChunkEdgeRenderer, Integer> chunkEdgeState = new AField(ChunkEdgeRenderer.class, "chunkEdgeState").setAccessible(true);
 
 	public static ChunkEdgeRenderer cei;
 
 	public static void initChunkRenderer(){
-		for(Object o : ((ConcurrentHashMap<Object, ArrayList<IEventListener>>) new AField<ConcurrentHashMap<Object, ArrayList<IEventListener>>>(EventBus.class, "listeners").setAccessible(true).get(MinecraftForge.EVENT_BUS)).keySet()){
+		for(Object o : ((ConcurrentHashMap<Object, ArrayList<IEventListener>>) new AField<EventBus, ConcurrentHashMap<Object, ArrayList<IEventListener>>>(EventBus.class, "listeners").setAccessible(true).get(MinecraftForge.EVENT_BUS)).keySet()){
 			if(o instanceof ChunkEdgeRenderer){
 				cei = (ChunkEdgeRenderer) o;
 				break;
