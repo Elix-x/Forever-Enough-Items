@@ -31,7 +31,7 @@ public class ProfileSettingsGuiScreen extends ElementalGuiScreen {
 	private ListGuiElement<ElementalGuiScreen> elementsList;
 
 	public ProfileSettingsGuiScreen(ProfilesGuiScreen parent, FEIGuiOverride fei, Profile profile){
-		super(parent, 256, 192);
+		super(parent, 256, 180);
 		this.fei = fei;
 		this.profile = profile;
 	}
@@ -46,14 +46,14 @@ public class ProfileSettingsGuiScreen extends ElementalGuiScreen {
 
 		String nameSetting = I18n.translateToLocal("fei.gui.profile.settings.name") + " ";
 		w = mc.fontRendererObj.getStringWidth(nameSetting);
-		elements.add(new StringGuiElement("Profile Name", xPos, nextY + 12 - 8, 2, 2, nameSetting, fontRendererObj, textColor));
-		elements.add(name = new TextFieldGuiElement("Profile Name Text Box", xPos + 2 + w, nextY, guiWidth - w - 6, 12, 2, 2, mc.fontRendererObj, name != null ? name.getCurrentText() : profile.getName()));
+		add(new StringGuiElement("Profile Name", xPos, nextY + 12 - 8, 2, 2, nameSetting, fontRendererObj, textColor));
+		add(name = new TextFieldGuiElement("Profile Name Text Box", xPos + 2 + w, nextY, guiWidth - w - 6, 12, 2, 2, mc.fontRendererObj, name != null ? name.getCurrentText() : profile.getName()));
 		nextY += 2 + 12 + 2;
 
 		String iconSetting = I18n.translateToLocal("fei.gui.profile.settings.icon") + " ";
 		w = mc.fontRendererObj.getStringWidth(iconSetting);
-		elements.add(new StringGuiElement("Profile Icon", xPos, nextY + 20 - 8, 2, 2, iconSetting, fontRendererObj, textColor));
-		elements.add(icon = new ItemStackButtonGuiElement("Profile Icon Text Box", xPos + 2 + w, yPos + 2 + 12 + 2, 20, 20, 2, 2, icon != null ? icon.getItemStack() : profile.getIcon()){
+		add(new StringGuiElement("Profile Icon", xPos, nextY + 20 - 8, 2, 2, iconSetting, fontRendererObj, textColor));
+		add(icon = new ItemStackButtonGuiElement("Profile Icon Text Box", xPos + 2 + w, yPos + 2 + 12 + 2, 20, 20, 2, 2, icon != null ? icon.getItemStack() : profile.getIcon()){
 
 			@Override
 			public void onButtonPressed(){
@@ -64,10 +64,10 @@ public class ProfileSettingsGuiScreen extends ElementalGuiScreen {
 		});
 		nextY += 2 + 20 + 2;
 
-		elements.add(new StringGuiElement("Elements", xPos, nextY, 2, 2, I18n.translateToLocal("fei.gui.profile.settings.elements"), fontRendererObj, textColor));
+		add(new StringGuiElement("Elements", xPos, nextY, 2, 2, I18n.translateToLocal("fei.gui.profile.settings.elements"), fontRendererObj, textColor));
 		nextY += 2 + 8 + 2;
 
-		elements.add(elementsList = new ListGuiElement("Elements List", xPos, nextY, guiWidth - 4, guiHeight - 2 - nextY - 2, 20, 2, 2, new RGBA(0, 0, 0, 0)){
+		add(elementsList = new ListGuiElement("Elements List", xPos, nextY, guiWidth, 128, 20, 2, 2, new RGBA(0, 0, 0, 0)){
 
 			@Override
 			public void initGui(IGuiElementsHandler handler, GuiScreen gui){
@@ -121,6 +121,7 @@ public class ProfileSettingsGuiScreen extends ElementalGuiScreen {
 			}
 
 		});
+		nextY += 2 + 128 + 2;
 	}
 
 	@Override

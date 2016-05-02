@@ -78,6 +78,10 @@ public class FEIModsItemsDropdown extends RectangularGuiElement<FEIGuiOverride> 
 		return focused ? borderY + 128 + borderY : borderY + 20 + borderY;
 	}
 
+	public void reInitModsList(){
+		modsList = new ModsListGuiElement();
+	}
+
 	@Override
 	public void load(Profile profile, JsonObject json){
 		JsonData data = gson.fromJson(json, JsonData.class);

@@ -8,7 +8,7 @@ import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 
-@Mod(modid="cei", name="ChunkEdgeIndicator", version="1.1", acceptedMinecraftVersions="[1.9]")
+@Mod(modid="cei", name="ChunkEdgeIndicator", version="1.1", acceptedMinecraftVersions="[1.9]", clientSideOnly = true)
 public class ChunkEdgeIndicator
 {
 	public static final String MODID = "cei";

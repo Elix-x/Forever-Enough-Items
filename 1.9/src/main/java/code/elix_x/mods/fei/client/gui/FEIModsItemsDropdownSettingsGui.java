@@ -50,6 +50,7 @@ public class FEIModsItemsDropdownSettingsGui extends ElementBasicSettingsGuiScre
 		dropdown.setBorderX(borderX);
 		dropdown.setBorderY(borderY);
 		dropdown.tooltipBackground = tooltipBackground;
+		dropdown.reInitModsList();
 	}
 
 }
