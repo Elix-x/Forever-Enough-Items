@@ -9,8 +9,8 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.Rectangle;
 
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.TreeMultimap;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
@@ -22,6 +22,7 @@ import code.elix_x.mods.fei.api.gui.elements.IConfigurableFEIGuiElement;
 import code.elix_x.mods.fei.api.gui.elements.ISaveableFEIGuiElement;
 import code.elix_x.mods.fei.api.profile.Profile;
 import code.elix_x.mods.fei.client.gui.FEIModsItemsDropdownSettingsGui;
+import mezz.jei.Internal;
 import mezz.jei.gui.ingredients.ItemStackRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -51,12 +52,29 @@ public class FEIModsItemsDropdown extends RectangularGuiElement<FEIGuiOverride> 
 
 	public boolean tooltipBackground = false;
 
-	private boolean focused;
+	public int dropdownSize = 128;
+
+	public boolean focused;
 
 	public FEIModsItemsDropdown(){
-		super("FEI Mods Items Dropdown", 60, 0, 128, 100, 2, 2);
+		super("FEI Mods Items Dropdown", 60, 0, 20, 100, 2, 2);
 
-		modItemsMap = HashMultimap.create();
+		modItemsMap = TreeMultimap.create(new Comparator<String>(){
+
+			@Override
+			public int compare(String o1, String o2){
+				return o1.compareTo(o2);
+			}
+
+		}, new Comparator<ItemStack>(){
+
+			@Override
+			public int compare(ItemStack e1, ItemStack e2){
+				int iid = GameData.getItemRegistry().getId(e2.getItem()) - GameData.getItemRegistry().getId(e1.getItem());
+				return iid == 0 ? (e2.getItemDamage() - e1.getItemDamage() < 0 ? 1 : -1) : iid < 0 ? 1 : -1;
+			}
+
+		});
 
 		for(Item item : GameData.getItemRegistry()){
 			if(item != null){
@@ -75,11 +93,21 @@ public class FEIModsItemsDropdown extends RectangularGuiElement<FEIGuiOverride> 
 
 	@Override
 	public int getHeight(){
-		return focused ? borderY + 128 + borderY : borderY + 20 + borderY;
+		return focused ? super.getHeight() + borderX + dropdownSize + borderX : super.getHeight();
+	}
+
+	public int getFoldedHeight(){
+		return super.getHeight();
 	}
 
 	public void reInitModsList(){
 		modsList = new ModsListGuiElement();
+	}
+
+	public Rectangle toFoldedRectangle(){
+		Rectangle rect = super.toRectangle();
+		if(focused) rect.setHeight(super.getHeight());
+		return rect;
 	}
 
 	@Override
@@ -97,6 +125,7 @@ public class FEIModsItemsDropdown extends RectangularGuiElement<FEIGuiOverride> 
 		backgroundColor = data.backgroundColor;
 		textColor = data.textColor;
 		tooltipBackground = data.tooltipBackground;
+		dropdownSize = data.dropdownSize;
 
 		modsList = new ModsListGuiElement();
 	}
@@ -116,6 +145,7 @@ public class FEIModsItemsDropdown extends RectangularGuiElement<FEIGuiOverride> 
 		data.backgroundColor = backgroundColor;
 		data.textColor = textColor;
 		data.tooltipBackground = tooltipBackground;
+		data.dropdownSize = dropdownSize;
 
 		return gson.toJsonTree(data).getAsJsonObject();
 	}
@@ -161,7 +191,7 @@ public class FEIModsItemsDropdown extends RectangularGuiElement<FEIGuiOverride> 
 		if(backgroundColor.a > 0){
 			fill(backgroundColor);
 		}
-		new GuiButtonExt(0, xPos + borderX, yPos + borderY, width, 20, I18n.translateToLocal("fei.gui.override.dropdown.modsitems.mods")).drawButton(gui.mc, mouseX, mouseY);
+		new GuiButtonExt(0, xPos + borderX, yPos + borderY, width, getFoldedHeight() - borderY - borderY, I18n.translateToLocal("fei.gui.override.dropdown.modsitems.mods")).drawButton(gui.mc, mouseX, mouseY);
 		if(focused){
 			modsList.drawGuiPost(fei, gui, mouseX, mouseY);
 			if(itemsList != null) itemsList.drawGuiPost(fei, gui, mouseX, mouseY);
@@ -219,7 +249,7 @@ public class FEIModsItemsDropdown extends RectangularGuiElement<FEIGuiOverride> 
 	public class ModsListGuiElement extends ListGuiElement<FEIGuiOverride> {
 
 		public ModsListGuiElement(){
-			super("Mods List", FEIModsItemsDropdown.this.xPos + FEIModsItemsDropdown.this.borderX, FEIModsItemsDropdown.this.borderY + 20 + FEIModsItemsDropdown.this.borderY, FEIModsItemsDropdown.this.width / 2, 128 - 20 - FEIModsItemsDropdown.this.borderY * 3, 20, FEIModsItemsDropdown.this.borderX, FEIModsItemsDropdown.this.borderY, new RGBA(0, 0, 0, 0));
+			super("Mods List", FEIModsItemsDropdown.this.xPos + FEIModsItemsDropdown.this.borderX, FEIModsItemsDropdown.this.yPos + FEIModsItemsDropdown.this.getFoldedHeight(), FEIModsItemsDropdown.this.width / 2, dropdownSize, 20, FEIModsItemsDropdown.this.borderX, FEIModsItemsDropdown.this.borderY, new RGBA(0, 0, 0, 0));
 
 			this.clickTimeThreshold = FEIModsItemsDropdown.this.clickTimeThreshold;
 			this.clickDistanceThreshold = FEIModsItemsDropdown.this.clickDistanceThreshold;
@@ -245,9 +275,14 @@ public class FEIModsItemsDropdown extends RectangularGuiElement<FEIGuiOverride> 
 
 			@Override
 			public boolean handleMouseEvent(FEIGuiOverride fei, GuiScreen gui, int index, int x, int relY, int mouseX, int mouseY, boolean down, int key){
-				if(down && key == 0 && inside(relY, mouseX, mouseY)){
-					itemsList = new ItemsListGuiElement(mod);
-					return true;
+				if(down && inside(relY, mouseX, mouseY)){
+					if(key == 0){
+						itemsList = new ItemsListGuiElement(mod);
+						return true;
+					}
+					if(key == 1){
+						Internal.getRuntime().getItemListOverlay().setFilterText(Internal.getRuntime().getItemListOverlay().getFilterText() + "@" + mod);
+					}
 				}
 				return false;
 			}
@@ -261,7 +296,7 @@ public class FEIModsItemsDropdown extends RectangularGuiElement<FEIGuiOverride> 
 		private ItemStackRenderer renderer = new ItemStackRenderer();
 
 		public ItemsListGuiElement(String mod){
-			super("Items List", FEIModsItemsDropdown.this.xPos + FEIModsItemsDropdown.this.getWidth() / 2 + FEIModsItemsDropdown.this.borderX, FEIModsItemsDropdown.this.borderY + 20 + FEIModsItemsDropdown.this.borderY, 16, 128 - 20 - FEIModsItemsDropdown.this.borderY * 3, 16, FEIModsItemsDropdown.this.borderX, FEIModsItemsDropdown.this.borderY, new RGBA(0, 0, 0, 0));
+			super("Items List", FEIModsItemsDropdown.this.xPos + FEIModsItemsDropdown.this.getWidth() / 2 + FEIModsItemsDropdown.this.borderX, FEIModsItemsDropdown.this.yPos + FEIModsItemsDropdown.this.getFoldedHeight(), 16, dropdownSize, 16, FEIModsItemsDropdown.this.borderX, FEIModsItemsDropdown.this.borderY, new RGBA(0, 0, 0, 0));
 
 			this.clickTimeThreshold = FEIModsItemsDropdown.this.clickTimeThreshold;
 			this.clickDistanceThreshold = FEIModsItemsDropdown.this.clickDistanceThreshold;
@@ -338,6 +373,8 @@ public class FEIModsItemsDropdown extends RectangularGuiElement<FEIGuiOverride> 
 		private RGBA textColor;
 
 		private boolean tooltipBackground;
+
+		private int dropdownSize;
 
 		private JsonData(){
 

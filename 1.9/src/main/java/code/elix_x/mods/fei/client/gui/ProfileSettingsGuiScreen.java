@@ -41,7 +41,7 @@ public class ProfileSettingsGuiScreen extends ElementalGuiScreen {
 	}
 
 	@Override
-	public void addElements(){
+	protected void addElements(){
 		int w;
 
 		String nameSetting = I18n.translateToLocal("fei.gui.profile.settings.name") + " ";

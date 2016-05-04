@@ -1,18 +1,10 @@
 package mezz.jei.input;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiRepair;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.GuiTextField;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.gui.inventory.GuiContainerCreative;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.item.ItemStack;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -27,6 +19,13 @@ import mezz.jei.gui.RecipeClickableArea;
 import mezz.jei.gui.RecipesGui;
 import mezz.jei.util.Commands;
 import mezz.jei.util.MouseHelper;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiRepair;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.gui.inventory.GuiContainerCreative;
+import net.minecraft.item.ItemStack;
 
 public class InputHandler {
 

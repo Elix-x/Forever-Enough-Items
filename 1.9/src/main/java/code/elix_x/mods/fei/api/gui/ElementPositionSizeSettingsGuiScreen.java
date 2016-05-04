@@ -15,29 +15,36 @@ import net.minecraft.util.ResourceLocation;
 public class ElementPositionSizeSettingsGuiScreen extends BasicGuiScreen {
 
 	public static final Cursor moveCursor;
-	public static final Cursor resizeCursor;
+	public static final Cursor resizeXCursor;
+	public static final Cursor resizeYCursor;
+	public static final Cursor resizeXYCursor;
 
 	static {
 		moveCursor = CursorHelper.createCursor(new ResourceLocation(ForeverEnoughItemsBase.MODID, "textures/cursors/move.png"));
-		resizeCursor = CursorHelper.createCursor(new ResourceLocation(ForeverEnoughItemsBase.MODID, "textures/cursors/resize.png"));
+		resizeXCursor = CursorHelper.createCursor(new ResourceLocation(ForeverEnoughItemsBase.MODID, "textures/cursors/resize_x.png"));
+		resizeYCursor = CursorHelper.createCursor(new ResourceLocation(ForeverEnoughItemsBase.MODID, "textures/cursors/resize_y.png"));
+		resizeXYCursor = CursorHelper.createCursor(new ResourceLocation(ForeverEnoughItemsBase.MODID, "textures/cursors/resize_xy.png"));
 	}
 
 	protected GuiScreen behindScreen = null;
 
 	protected Rectangle element;
-	protected boolean resizeable;
+	protected boolean resizeableX;
+	protected boolean resizeableY;
 
 	protected boolean moving;
-	protected boolean resizing;
+	protected boolean resizingX;
+	protected boolean resizingY;
 	protected int grabRelX;
 	protected int grabRelY;
 	protected int grabX;
 	protected int grabY;
 
-	public ElementPositionSizeSettingsGuiScreen(GuiScreen parent, Rectangle element, boolean resizeable){
+	public ElementPositionSizeSettingsGuiScreen(GuiScreen parent, Rectangle element, boolean resizeableX, boolean resizeableY){
 		super(parent, 0, 0);
 		this.element = element;
-		this.resizeable = resizeable;
+		this.resizeableX = resizeableX;
+		this.resizeableY = resizeableY;
 
 		behindScreen = parent;
 		while(behindScreen instanceof BasicGuiScreen) behindScreen = ((BasicGuiScreen) behindScreen).parent;
@@ -54,20 +61,31 @@ public class ElementPositionSizeSettingsGuiScreen extends BasicGuiScreen {
 			if(element.getX() + element.getWidth() > width) element.setX(element.getX() - (element.getX() + element.getWidth() - width));
 			if(element.getY() + element.getHeight() > height) element.setY(element.getY() - (element.getY() + element.getHeight() - height));
 			CursorHelper.setCursor(moveCursor);
-		} else if(resizing){
-			element.setWidth(Math.max(grabRelX + mouseX - grabX, 0));
-			element.setHeight(Math.max(grabRelY + mouseY - grabY, 0));
-			if(element.getX() + element.getWidth() > width) element.setWidth(width - element.getX());
-			if(element.getY() + element.getHeight() > height) element.setHeight(height - element.getY());
-			element.setWidth(checkSizeX(element.getWidth()));
-			element.setHeight(checkSizeY(element.getHeight()));
-			CursorHelper.setCursor(resizeCursor);
+		} else if(resizingX || resizingY){
+			if(resizingX){
+				element.setWidth(Math.max(grabRelX + mouseX - grabX, 0));
+				if(element.getX() + element.getWidth() > width) element.setWidth(width - element.getX());
+				element.setWidth(checkSizeX(element.getWidth()));
+			}
+			if(resizingY){
+				element.setHeight(Math.max(grabRelY + mouseY - grabY, 0));
+				if(element.getY() + element.getHeight() > height) element.setHeight(height - element.getY());
+				element.setHeight(checkSizeY(element.getHeight()));
+			}
+			if(resizingX && resizingY) CursorHelper.setCursor(resizeXYCursor);
+			else if(resizingX) CursorHelper.setCursor(resizeXCursor);
+			else if(resizingY) CursorHelper.setCursor(resizeYCursor);
 		} else if(element.contains(mouseX, mouseY)){
-			Rectangle rr = new Rectangle(element);
-			rr.setWidth(rr.getWidth() - 2);
-			rr.setHeight(rr.getHeight() - 2);
-			if(resizeable && !rr.contains(mouseX, mouseY)){
-				CursorHelper.setCursor(resizeCursor);
+			if(resizeableX || resizeableY){
+				if(resizeableX && resizeableY && new Rectangle(element.getX() + element.getWidth() - 2, element.getY() + element.getHeight() - 2, 2, 2).contains(mouseX, mouseY)){
+					CursorHelper.setCursor(resizeXYCursor);
+				} else if(resizeableX && !(new Rectangle(element.getX(), element.getY(), element.getWidth() - 2, element.getHeight()).contains(mouseX, mouseY))){
+					CursorHelper.setCursor(resizeXCursor);
+				} else if(resizeableY && !(new Rectangle(element.getX(), element.getY(), element.getWidth(), element.getHeight() - 2).contains(mouseX, mouseY))){
+					CursorHelper.setCursor(resizeYCursor);
+				} else {
+					CursorHelper.setCursor(moveCursor);
+				}
 			} else {
 				CursorHelper.setCursor(moveCursor);
 			}
@@ -97,11 +115,17 @@ public class ElementPositionSizeSettingsGuiScreen extends BasicGuiScreen {
 	@Override
 	protected void mouseClicked(int mouseX, int mouseY, int button) throws IOException {
 		if(button == 0 && element.contains(mouseX, mouseY)){
-			Rectangle rr = new Rectangle(element);
-			rr.setWidth(rr.getWidth() - 2);
-			rr.setHeight(rr.getHeight() - 2);
-			if(resizeable && !rr.contains(mouseX, mouseY)){
-				resizing = true;
+			if(resizeableX || resizeableY){
+				if(resizeableX && resizeableY && new Rectangle(element.getX() + element.getWidth() - 2, element.getY() + element.getHeight() - 2, 2, 2).contains(mouseX, mouseY)){
+					resizingX = true;
+					resizingY = true;
+				} else if(resizeableX && !(new Rectangle(element.getX(), element.getY(), element.getWidth() - 2, element.getHeight()).contains(mouseX, mouseY))){
+					resizingX = true;
+				} else if(resizeableY && !(new Rectangle(element.getX(), element.getY(), element.getWidth(), element.getHeight() - 2).contains(mouseX, mouseY))){
+					resizingY = true;
+				} else {
+					moving = true;
+				}
 			} else {
 				moving = true;
 			}
@@ -115,14 +139,19 @@ public class ElementPositionSizeSettingsGuiScreen extends BasicGuiScreen {
 	@Override
 	protected void mouseReleased(int mouseX, int mouseY, int button){
 		if(button == 0){
-			if(resizing){
-				resizing = false;
-				element.setWidth(Math.max(grabRelX + mouseX - grabX, 0));
-				element.setHeight(Math.max(grabRelY + mouseY - grabY, 0));
-				if(element.getX() + element.getWidth() > width) element.setWidth(width - element.getX());
-				if(element.getY() + element.getHeight() > height) element.setHeight(height - element.getY());
-				element.setWidth(checkSizeX(element.getWidth()));
-				element.setHeight(checkSizeY(element.getHeight()));
+			if(resizingX || resizingY){
+				if(resizingX){
+					element.setWidth(Math.max(grabRelX + mouseX - grabX, 0));
+					if(element.getX() + element.getWidth() > width) element.setWidth(width - element.getX());
+					element.setWidth(checkSizeX(element.getWidth()));
+					resizingX = false;
+				}
+				if(resizingY){
+					element.setHeight(Math.max(grabRelY + mouseY - grabY, 0));
+					if(element.getY() + element.getHeight() > height) element.setHeight(height - element.getY());
+					element.setHeight(checkSizeY(element.getHeight()));
+					resizingY = false;
+				}
 			} else if(moving){
 				moving = false;
 				element.setX(Math.max(mouseX - grabRelX, 0));

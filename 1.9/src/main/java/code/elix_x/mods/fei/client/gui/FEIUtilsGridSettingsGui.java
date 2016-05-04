@@ -17,12 +17,12 @@ public class FEIUtilsGridSettingsGui extends ElementBasicSettingsGuiScreen {
 	private FEIUtilsGrid grid;
 
 	public FEIUtilsGridSettingsGui(GuiScreen parent, FEIUtilsGrid grid){
-		super(parent, grid.toRectangle(), true, grid.getBorderX(), grid.getBorderY(), grid.backgroundColor, grid.textColor, grid.tooltipBackground);
+		super(parent, grid.toRectangle(), true, true, grid.getBorderX(), grid.getBorderY(), grid.backgroundColor, grid.textColor, grid.tooltipBackground);
 		this.grid = grid;
 	}
 
 	@Override
-	public void addElements(){
+	protected void addElements(){
 		add(new ButtonGuiElement("Utilities", xPos, nextY, guiWidth - 4, 20, 2, 2, I18n.translateToLocal("fei.gui.settings.grid.utilities")){
 
 			@Override

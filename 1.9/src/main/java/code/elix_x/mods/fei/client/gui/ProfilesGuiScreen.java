@@ -29,7 +29,7 @@ public class ProfilesGuiScreen extends ElementalGuiScreen {
 	}
 
 	@Override
-	public void addElements(){
+	protected void addElements(){
 		add(list = new ListGuiElement<ElementalGuiScreen>("Profiles List", 0, 0, 256, 192, 20, 2, 2, new RGBA(0, 0, 0, 0)){
 
 			@Override

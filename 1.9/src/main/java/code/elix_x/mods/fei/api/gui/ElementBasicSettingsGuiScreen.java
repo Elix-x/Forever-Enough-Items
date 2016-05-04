@@ -16,17 +16,19 @@ import net.minecraft.util.text.translation.I18n;
 public class ElementBasicSettingsGuiScreen extends ElementalGuiScreen {
 
 	protected Rectangle element;
-	protected boolean resizeable;
+	protected boolean resizeableX;
+	protected boolean resizeableY;
 	protected int borderX;
 	protected int borderY;
 	protected RGBA backgroundColor;
 	protected RGBA textColor;
 	protected boolean tooltipBackground;
 
-	public ElementBasicSettingsGuiScreen(GuiScreen parent, Rectangle element, boolean resizeable, int borderX, int borderY, RGBA backgroundColor, RGBA textColor, boolean tooltipBackground){
+	public ElementBasicSettingsGuiScreen(GuiScreen parent, Rectangle element, boolean resizeableX, boolean resizeableY, int borderX, int borderY, RGBA backgroundColor, RGBA textColor, boolean tooltipBackground){
 		super(parent, 256, 192);
 		this.element = element;
-		this.resizeable = resizeable;
+		this.resizeableX = resizeableX;
+		this.resizeableY = resizeableY;
 		this.borderX = borderX;
 		this.borderY = borderY;
 		this.backgroundColor = backgroundColor;
@@ -35,13 +37,13 @@ public class ElementBasicSettingsGuiScreen extends ElementalGuiScreen {
 	}
 
 	@Override
-	public void addElements(){
+	protected void addElements(){
 		add(new ButtonGuiElement("Position And Size", xPos, nextY, guiWidth - 4, 20, 2, 2, I18n.translateToLocal("fei.gui.settings.possize")){
 
 			@Override
 			public void onButtonPressed(){
 				super.onButtonPressed();
-				mc.displayGuiScreen(new ElementPositionSizeSettingsGuiScreen(ElementBasicSettingsGuiScreen.this, element, resizeable){
+				mc.displayGuiScreen(new ElementPositionSizeSettingsGuiScreen(ElementBasicSettingsGuiScreen.this, element, resizeableX, resizeableY){
 
 					protected int checkSizeX(int prevSize){
 						return ElementBasicSettingsGuiScreen.this.checkSizeX(prevSize);

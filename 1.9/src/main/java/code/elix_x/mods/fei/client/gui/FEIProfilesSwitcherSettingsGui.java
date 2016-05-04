@@ -16,12 +16,12 @@ public class FEIProfilesSwitcherSettingsGui extends ElementBasicSettingsGuiScree
 	private FEIProfilesSwitcher switcher;
 
 	public FEIProfilesSwitcherSettingsGui(GuiScreen parent, FEIProfilesSwitcher switcher){
-		super(parent, switcher.toRectangle(), false, switcher.getBorderX(), switcher.getBorderY(), switcher.backgroundColor, switcher.textColor, switcher.tooltipBackground);
+		super(parent, switcher.toRectangle(), false, false, switcher.getBorderX(), switcher.getBorderY(), switcher.backgroundColor, switcher.textColor, switcher.tooltipBackground);
 		this.switcher = switcher;
 	}
 
 	@Override
-	public void addElements(){
+	protected void addElements(){
 		super.addElements();
 
 		StringGuiElement s;

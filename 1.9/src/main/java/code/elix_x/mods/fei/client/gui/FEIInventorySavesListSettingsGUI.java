@@ -16,12 +16,12 @@ public class FEIInventorySavesListSettingsGUI extends ElementBasicSettingsGuiScr
 	private FEIInventorySavesList list;
 
 	public FEIInventorySavesListSettingsGUI(GuiScreen parent, FEIInventorySavesList list){
-		super(parent, list.toRectangle(), true, list.getBorderX(), list.getBorderY(), list.backgroundColor, list.textColor, list.tooltipBackground);
+		super(parent, list.toRectangle(), true, true, list.getBorderX(), list.getBorderY(), list.backgroundColor, list.textColor, list.tooltipBackground);
 		this.list = list;
 	}
 
 	@Override
-	public void addElements(){
+	protected void addElements(){
 		super.addElements();
 
 		StringGuiElement s;
