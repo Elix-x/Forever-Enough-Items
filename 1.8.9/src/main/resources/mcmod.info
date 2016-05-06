@@ -1,0 +1,16 @@
+[
+{
+  "modid": "FEI",
+  "name": "Forever Enough Items",
+  "description": "FEI === NEI for 1.9 === JEI + Chunk Edge Indicator + Light Level Overlay Reloaded + More",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Elix_x"],
+  "credits": "mezz for JEI, 42Scope42 for Chunk Edge Indicator, oldjunyi for Light Level Overlay Reloaded and Elix_x for wrapping everything together.",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

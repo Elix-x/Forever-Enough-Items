@@ -34,6 +34,8 @@ public class FEIConfiguration {
 	private static FEIPermissionLevel deletePermissonLevel;
 	private static FEIPermissionLevel loadInventoryPermissionLevel;
 
+	public static boolean developerMode;
+
 	public static boolean loadJeiFromProfileConfig;
 	public static boolean loadJeiFromProfileWorld;
 	public static boolean loadJeiFromProfileBlacklist;
@@ -74,6 +76,8 @@ public class FEIConfiguration {
 	}
 
 	public static void load(Configuration config){
+		developerMode = config.getBoolean("Developer Mode", "Dev", false, "Only activate it in deobf environment, though not compulsory.\nIn any case, do not activate it if you don't understand statement above.");
+
 		ConfigCategory permissions = config.getCategory("Permission Levels");
 		permissions.setComment("Permission Levels: USER < MODERATOR < ADMINISTRATOR < OWNER");
 

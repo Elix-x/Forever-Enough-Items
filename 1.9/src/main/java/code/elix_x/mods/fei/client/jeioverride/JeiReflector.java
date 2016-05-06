@@ -46,11 +46,11 @@ public class JeiReflector implements IModPlugin, IGuiElement<FEIGuiOverride>, IN
 	private static final AField<ItemListOverlay, ItemFilter> itemFilter = new AField(ItemListOverlay.class, "itemFilter").setAccessible(true);
 	private static final AField<ItemListOverlay, List<IAdvancedGuiHandler<?>>> advancedGuiHandlers = new AField(ItemListOverlay.class, "advancedGuiHandlers").setAccessible(true);
 	private static final AField<ProxyCommonClient, List<IModPlugin>> plugins = new AField(ProxyCommonClient.class, "plugins").setAccessible(true);
-	public static final AField<Config, File> jeiConfigurationDir = new AField(Config.class, "jeiConfigurationDir").setAccessible(true);
+	private static final AField<Config, File> jeiConfigurationDir = new AField(Config.class, "jeiConfigurationDir").setAccessible(true);
 	private static final AField<Config, LocalizedConfiguration> itemBlacklistConfig = new AField(Config.class, "itemBlacklistConfig").setAccessible(true);
 	private static final AField<Config, LocalizedConfiguration> searchColorsConfig = new AField(Config.class, "searchColorsConfig").setAccessible(true);
-	public static final AField<Configuration, File> file = new AField(Configuration.class, "file").setAccessible(true);
-	public static final AField<Configuration, Boolean> changed = new AField(Configuration.class, "changed").setAccessible(true);
+	private static final AField<Configuration, File> file = new AField(Configuration.class, "file").setAccessible(true);
+	private static final AField<Configuration, Boolean> changed = new AField(Configuration.class, "changed").setAccessible(true);
 
 	public boolean canGiveItems;
 	public boolean canDeleteItemsAboveItemsList;
