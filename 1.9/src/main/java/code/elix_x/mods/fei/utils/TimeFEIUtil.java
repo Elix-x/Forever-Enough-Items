@@ -8,6 +8,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.translation.I18n;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class TimeFEIUtil extends PermissionRequiredSyncedForFEIUtil<Integer> {
 
@@ -50,6 +52,7 @@ public class TimeFEIUtil extends PermissionRequiredSyncedForFEIUtil<Integer> {
 	}
 
 	@Override
+	@SideOnly(Side.CLIENT)
 	public Integer getCurrent(){
 		return Math.min((int) Minecraft.getMinecraft().theWorld.getWorldTime() / 6000, 3);
 	}

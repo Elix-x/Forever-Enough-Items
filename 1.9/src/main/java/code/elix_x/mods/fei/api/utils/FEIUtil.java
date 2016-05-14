@@ -2,7 +2,7 @@ package code.elix_x.mods.fei.api.utils;
 
 import code.elix_x.mods.fei.api.utils.IFEIUtil.IFEIUtilProperty;
 
-public class FEIUtil<U extends IFEIUtilProperty> implements IFEIUtil<U> {
+public abstract class FEIUtil<U extends IFEIUtilProperty> implements IFEIUtil<U> {
 
 	protected String name;
 	protected U[] properties;
@@ -28,11 +28,6 @@ public class FEIUtil<U extends IFEIUtilProperty> implements IFEIUtil<U> {
 
 	public void setProperties(U... properties){
 		this.properties = properties;
-	}
-
-	@Override
-	public U getCurrentProperty(){
-		return null;
 	}
 
 }

@@ -5,6 +5,8 @@ import code.elix_x.mods.fei.permission.FEIPermissionsManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class PermissionRequiredSyncedFEIUtilProperty extends SyncedFEIUtilProperty {
 
@@ -30,6 +32,7 @@ public abstract class PermissionRequiredSyncedFEIUtilProperty extends SyncedFEIU
 	}
 
 	@Override
+	@SideOnly(Side.CLIENT)
 	public boolean isEnabled(){
 		return FEIPermissionsManager.getPermissionLevels(Minecraft.getMinecraft().thePlayer).isHigherOrEqual(getPermissionLevel());
 	}

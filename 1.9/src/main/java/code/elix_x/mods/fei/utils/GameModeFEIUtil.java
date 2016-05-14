@@ -11,6 +11,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.WorldSettings.GameType;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class GameModeFEIUtil extends PermissionRequiredSyncedForFEIUtil<GameType> {
 
@@ -27,6 +29,7 @@ public class GameModeFEIUtil extends PermissionRequiredSyncedForFEIUtil<GameType
 	}
 
 	@Override
+	@SideOnly(Side.CLIENT)
 	public GameType getCurrent(){
 		return Minecraft.getMinecraft().playerController.getCurrentGameType();
 	}

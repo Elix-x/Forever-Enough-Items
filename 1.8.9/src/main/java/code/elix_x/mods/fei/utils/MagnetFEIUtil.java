@@ -8,6 +8,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class MagnetFEIUtil extends PermissionRequiredSyncedForFEIUtil<Boolean> {
 
@@ -25,6 +27,7 @@ public class MagnetFEIUtil extends PermissionRequiredSyncedForFEIUtil<Boolean> {
 	}
 
 	@Override
+	@SideOnly(Side.CLIENT)
 	public Boolean getCurrent(){
 		return Minecraft.getMinecraft().thePlayer.getCapability(MagnetCapability.CAPABILITY, null).active;
 	}

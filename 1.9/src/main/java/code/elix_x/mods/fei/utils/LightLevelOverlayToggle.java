@@ -7,6 +7,8 @@ import code.elix_x.mods.fei.ForeverEnoughItemsBase;
 import code.elix_x.mods.fei.api.utils.ForFEIUtil;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.translation.I18n;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LightLevelOverlayToggle extends ForFEIUtil<Integer> {
 
@@ -23,6 +25,7 @@ public class LightLevelOverlayToggle extends ForFEIUtil<Integer> {
 	}
 
 	@Override
+	@SideOnly(Side.CLIENT)
 	public Integer getCurrent(){
 		return moreoverlays && LightOverlayHandler.enabled ? 1 : llor && LightLevelOverlayReloaded.instance.active ? 2 : 0;
 	}
@@ -38,6 +41,7 @@ public class LightLevelOverlayToggle extends ForFEIUtil<Integer> {
 	}
 
 	@Override
+	@SideOnly(Side.CLIENT)
 	public void onSelect(Integer i){
 		if(i == 0){
 			if(moreoverlays) LightOverlayHandler.enabled = false;

@@ -1,6 +1,8 @@
 package code.elix_x.mods.fei.api.utils;
 
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class SingleSyncedFEIUtilProperty extends SyncedFEIUtilProperty implements IFEIUtil<SingleSyncedFEIUtilProperty> {
 
@@ -32,6 +34,7 @@ public abstract class SingleSyncedFEIUtilProperty extends SyncedFEIUtilProperty 
 	}
 
 	@Override
+	@SideOnly(Side.CLIENT)
 	public SingleSyncedFEIUtilProperty getCurrentProperty(){
 		return this;
 	}

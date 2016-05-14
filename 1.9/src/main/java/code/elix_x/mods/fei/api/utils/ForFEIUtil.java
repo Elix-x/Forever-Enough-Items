@@ -6,6 +6,8 @@ import com.google.common.collect.Iterables;
 
 import code.elix_x.mods.fei.api.utils.ForFEIUtil.CirculatingFEIUtilProperty;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class ForFEIUtil<T> extends FEIUtil<CirculatingFEIUtilProperty> {
 
@@ -28,16 +30,20 @@ public abstract class ForFEIUtil<T> extends FEIUtil<CirculatingFEIUtilProperty> 
 	}
 
 	@Override
+	@SideOnly(Side.CLIENT)
 	public CirculatingFEIUtilProperty getCurrentProperty(){
 		return properties[ArrayUtils.indexOf(ts, getCurrent())];
 	}
 
+	@SideOnly(Side.CLIENT)
 	public abstract T getCurrent();
 
 	public abstract String getDesc(T t);
 
+	@SideOnly(Side.CLIENT)
 	public abstract boolean isEnabled(T t);
 
+	@SideOnly(Side.CLIENT)
 	public abstract void onSelect(T t);
 
 	public abstract ResourceLocation getTexture(T t);
@@ -59,11 +65,13 @@ public abstract class ForFEIUtil<T> extends FEIUtil<CirculatingFEIUtilProperty> 
 		}
 
 		@Override
+		@SideOnly(Side.CLIENT)
 		public boolean isEnabled(){
 			return ForFEIUtil.this.isEnabled(t);
 		}
 
 		@Override
+		@SideOnly(Side.CLIENT)
 		public void onSelect(){
 			ForFEIUtil.this.onSelect(t);
 		}

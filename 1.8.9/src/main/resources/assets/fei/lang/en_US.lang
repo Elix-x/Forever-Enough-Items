@@ -25,9 +25,9 @@ fei.gui.override.grid.utils.heal=Heal
 
 fei.gui.override.grid.utils.saturate=Saturate
 
-fei.gui.override.grid.utils.lightoverlay.off=Light Level Overlay Off
-fei.gui.override.grid.utils.lightoverlay.cross=Light Level Overlay Cross
-fei.gui.override.grid.utils.lightoverlay.number=Light Level Overlay Number
+fei.gui.override.grid.utils.lightoverlay.off=Light Level Overlay: Off
+fei.gui.override.grid.utils.lightoverlay.cross=Light Level Overlay: Cross
+fei.gui.override.grid.utils.lightoverlay.number=Light Level Overlay: Number
 
 fei.gui.override.grid.utils.chunkedge.off=Chunk Edge: Off
 fei.gui.override.grid.utils.chunkedge.corners=Chunk Edge: Corners
@@ -50,7 +50,7 @@ fei.gui.override.selector.profile=Profile Selector
 
 fei.gui.override.jei.override=JEI Override
 fei.gui.override.jei.override.jei=JEI
-fei.gui.override.jei.override.cangiveitems=Can Give Items
+fei.gui.override.jei.override.cangiveitems=Can Give Items:
 fei.gui.override.jei.override.candeleteitemsaboveitemslist=Can Delete Items Above Items List:
 fei.gui.override.jei.override.movesearchfieldtocenter=Move Search Field To Center:
 fei.gui.override.jei.override.searchfieldwidth=Search Field Width:
@@ -77,7 +77,7 @@ fei.gui.settings.tooltipbackground=Tooltip Background:
 fei.gui.settings.grid.utilities=Utilities
 fei.gui.settings.grid.elementx=Element X Size:
 fei.gui.settings.elementy=Element Y Size:
-fei.gui.settings.dropdown.dropdownsize=Drop Down Size:
+fei.gui.settings.dropdown.dropdownsize=Dropdown Size:
 
 fei.profile.new.copyof=Copy Of %s
 

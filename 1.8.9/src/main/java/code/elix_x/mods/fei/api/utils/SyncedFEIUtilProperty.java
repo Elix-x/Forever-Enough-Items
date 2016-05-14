@@ -6,6 +6,8 @@ import java.util.Map;
 import code.elix_x.mods.fei.api.FEIApi;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class SyncedFEIUtilProperty extends FEIUtilProperty {
 
@@ -35,6 +37,7 @@ public abstract class SyncedFEIUtilProperty extends FEIUtilProperty {
 	}
 
 	@Override
+	@SideOnly(Side.CLIENT)
 	public void onSelect(){
 		FEIApi.INSTANCE.onUtilPropertySelect(id);
 	}

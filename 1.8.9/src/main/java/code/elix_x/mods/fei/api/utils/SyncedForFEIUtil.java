@@ -7,6 +7,8 @@ import com.google.common.collect.Iterables;
 import code.elix_x.mods.fei.api.utils.SyncedForFEIUtil.SyncedCirculatingFEIUtilProperty;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class SyncedForFEIUtil<T> extends FEIUtil<SyncedCirculatingFEIUtilProperty> {
 
@@ -29,14 +31,17 @@ public abstract class SyncedForFEIUtil<T> extends FEIUtil<SyncedCirculatingFEIUt
 	}
 
 	@Override
+	@SideOnly(Side.CLIENT)
 	public SyncedCirculatingFEIUtilProperty getCurrentProperty(){
 		return properties[ArrayUtils.indexOf(ts, getCurrent())];
 	}
 
+	@SideOnly(Side.CLIENT)
 	public abstract T getCurrent();
 
 	public abstract String getDesc(T t);
 
+	@SideOnly(Side.CLIENT)
 	public abstract boolean isEnabled(T t);
 
 	public abstract ResourceLocation getTexture(T t);
@@ -60,6 +65,7 @@ public abstract class SyncedForFEIUtil<T> extends FEIUtil<SyncedCirculatingFEIUt
 		}
 
 		@Override
+		@SideOnly(Side.CLIENT)
 		public boolean isEnabled(){
 			return SyncedForFEIUtil.this.isEnabled(t);
 		}

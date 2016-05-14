@@ -6,6 +6,8 @@ import code.elix_x.mods.fei.api.utils.ForFEIUtil;
 import code.elix_x.mods.fei.config.FEIConfiguration;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class MOCBCycle extends ForFEIUtil<Integer> {
 
@@ -17,6 +19,7 @@ public class MOCBCycle extends ForFEIUtil<Integer> {
 	}
 
 	@Override
+	@SideOnly(Side.CLIENT)
 	public Integer getCurrent(){
 		return (int) ChunkBoundsHandler.mode;
 	}
@@ -32,6 +35,7 @@ public class MOCBCycle extends ForFEIUtil<Integer> {
 	}
 
 	@Override
+	@SideOnly(Side.CLIENT)
 	public void onSelect(Integer i){
 		ChunkBoundsHandler.mode = i.byteValue();
 	}

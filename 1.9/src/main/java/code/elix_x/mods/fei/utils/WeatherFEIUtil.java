@@ -8,6 +8,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.translation.I18n;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class WeatherFEIUtil extends PermissionRequiredSyncedForFEIUtil<Integer> {
 
@@ -25,6 +27,7 @@ public class WeatherFEIUtil extends PermissionRequiredSyncedForFEIUtil<Integer> 
 	}
 
 	@Override
+	@SideOnly(Side.CLIENT)
 	public Integer getCurrent(){
 		return Minecraft.getMinecraft().theWorld.isThundering() ? 2 : Minecraft.getMinecraft().theWorld.isRaining() ? 1 : 0;
 	}

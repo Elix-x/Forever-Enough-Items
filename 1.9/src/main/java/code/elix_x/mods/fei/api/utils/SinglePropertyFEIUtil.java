@@ -3,6 +3,8 @@ package code.elix_x.mods.fei.api.utils;
 import code.elix_x.mods.fei.api.utils.IFEIUtil.IFEIUtilProperty;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.translation.I18n;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class SinglePropertyFEIUtil implements IFEIUtil<SinglePropertyFEIUtil>, IFEIUtilProperty {
 
@@ -38,6 +40,7 @@ public abstract class SinglePropertyFEIUtil implements IFEIUtil<SinglePropertyFE
 	}
 
 	@Override
+	@SideOnly(Side.CLIENT)
 	public SinglePropertyFEIUtil getCurrentProperty(){
 		return this;
 	}
