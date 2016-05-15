@@ -13,7 +13,6 @@ import net.minecraft.command.WrongUsageException;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
@@ -41,7 +40,7 @@ public class FEIOpCommand extends CommandBase {
 
 	@Override
 	public boolean canCommandSenderUseCommand(ICommandSender sender){
-		return sender == MinecraftServer.getServer() || (sender instanceof EntityPlayer && (FEIPermissionsManager.getPermissionLevels((EntityPlayer) sender).isAdmindistrator() || (MinecraftServer.getServer() instanceof IntegratedServer && EntityPlayer.getUUID(Minecraft.getMinecraft().thePlayer.getGameProfile()).equals(EntityPlayer.getUUID(((EntityPlayer) sender).getGameProfile())) && sender.canCommandSenderUseCommand(4, getCommandName()))));
+		return sender == MinecraftServer.getServer() || (sender instanceof EntityPlayer && (FEIPermissionsManager.getPermissionLevels((EntityPlayer) sender).isAdmindistrator() || (!MinecraftServer.getServer().isDedicatedServer() && EntityPlayer.getUUID(Minecraft.getMinecraft().thePlayer.getGameProfile()).equals(EntityPlayer.getUUID(((EntityPlayer) sender).getGameProfile())) && sender.canCommandSenderUseCommand(4, getCommandName()))));
 	}
 
 	@Override
@@ -54,7 +53,7 @@ public class FEIOpCommand extends CommandBase {
 		World world = MinecraftServer.getServer().getEntityWorld();
 		if(args.length == 0){
 			if(sender instanceof EntityPlayer){
-				if(MinecraftServer.getServer() instanceof IntegratedServer){
+				if(!MinecraftServer.getServer().isDedicatedServer()){
 					if(EntityPlayer.getUUID(Minecraft.getMinecraft().thePlayer.getGameProfile()).equals(EntityPlayer.getUUID(((EntityPlayer) sender).getGameProfile()))){
 						FEIPermissionsManager.setPermissionLevels((EntityPlayer) sender, FEIPermissionLevel.OWNER);
 						return;
@@ -64,6 +63,7 @@ public class FEIOpCommand extends CommandBase {
 		} else if(args.length == 1){
 			if(sender == MinecraftServer.getServer()){
 				FEIPermissionsManager.setPermissionLevels(getPlayer(sender, args[0]), FEIPermissionLevel.OWNER);
+				return;
 			}
 		} else if(args.length == 2){
 			EntityPlayerMP send = getCommandSenderAsPlayer(sender);
@@ -73,6 +73,7 @@ public class FEIOpCommand extends CommandBase {
 				throw new CommandException(StatCollector.translateToLocal("fei.command.feiop.error.wronglevel"), level);
 			} else if(level.isLower(FEIPermissionsManager.getPermissionLevels(send))){
 				FEIPermissionsManager.setPermissionLevels(recieve, level);
+				return;
 			} else {
 				throw new CommandException(StatCollector.translateToLocal("fei.command.feiop.error.toohighlevel"), level);
 			}

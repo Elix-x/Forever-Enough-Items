@@ -16,6 +16,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSavedData;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class FEIPermissionsManager extends WorldSavedData implements IFEIPermissionsManager {
 
@@ -44,6 +46,7 @@ public class FEIPermissionsManager extends WorldSavedData implements IFEIPermiss
 		ForeverEnoughItemsBase.net.sendToAll(new SyncPermissionsManagerPacket(nbt));
 	}
 
+	@SideOnly(Side.CLIENT)
 	public static void onSync(SyncPermissionsManagerPacket packet){
 		get(Minecraft.getMinecraft().theWorld).readFromNBT(packet.nbt);
 	}

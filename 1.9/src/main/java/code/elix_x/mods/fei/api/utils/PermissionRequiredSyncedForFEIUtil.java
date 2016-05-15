@@ -55,7 +55,6 @@ public abstract class PermissionRequiredSyncedForFEIUtil<T> extends FEIUtil<Perm
 
 	public abstract String getText(T t);
 
-	@SideOnly(Side.CLIENT)
 	public abstract void onSelect(T t, EntityPlayer player, boolean permission);
 
 	public class PermissionRequiredSyncedCirculatingFEIUtilProperty extends PermissionRequiredSyncedFEIUtilProperty {

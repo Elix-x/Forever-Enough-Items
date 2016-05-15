@@ -15,7 +15,7 @@ public class OnPlayerJoinEvent {
 	@SubscribeEvent
 	public void join(PlayerLoggedInEvent event){
 		if(!event.player.worldObj.isRemote){
-			if(FEIConfiguration.developerMode || MinecraftServer.getServer() instanceof IntegratedServer){
+			if(FEIConfiguration.developerMode || !MinecraftServer.getServer().isDedicatedServer()){
 				if(FEIConfiguration.developerMode || Minecraft.getMinecraft().thePlayer != null){
 					if(FEIConfiguration.developerMode || EntityPlayer.getUUID(Minecraft.getMinecraft().thePlayer.getGameProfile()).equals(EntityPlayer.getUUID(event.player.getGameProfile()))){
 						if(FEIConfiguration.developerMode || event.player.canCommandSenderUseCommand(4, "feiop")){
