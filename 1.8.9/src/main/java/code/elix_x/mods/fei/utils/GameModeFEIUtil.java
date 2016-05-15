@@ -1,13 +1,12 @@
 package code.elix_x.mods.fei.utils;
 
-import com.mojang.realmsclient.gui.ChatFormatting;
-
 import code.elix_x.mods.fei.ForeverEnoughItemsBase;
 import code.elix_x.mods.fei.api.permission.FEIPermissionLevel;
 import code.elix_x.mods.fei.api.utils.PermissionRequiredSyncedForFEIUtil;
 import code.elix_x.mods.fei.config.FEIConfiguration;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.WorldSettings.GameType;
@@ -56,7 +55,7 @@ public class GameModeFEIUtil extends PermissionRequiredSyncedForFEIUtil<GameType
 
 	@Override
 	public String getText(GameType type){
-		return ChatFormatting.BOLD + (type == GameType.SPECTATOR ? "S" : "?");
+		return EnumChatFormatting.BOLD + (type == GameType.SPECTATOR ? "S" : "?");
 	}
 
 }
