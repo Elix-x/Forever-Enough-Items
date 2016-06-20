@@ -2,13 +2,13 @@ package code.elix_x.mods.fei.client.jeioverride;
 
 import java.awt.Color;
 import java.awt.Rectangle;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import org.lwjgl.input.Keyboard;
 
 import com.google.common.collect.ImmutableList;
 
@@ -80,8 +80,8 @@ public class ItemListOverlayOverride extends ItemListOverlay {
 	private GuiProperties guiProperties;
 	@Nullable
 	private List<Rectangle> guiAreas;
-	@Nullable
-	IAdvancedGuiHandler advancedGuiHandler;
+	@Nonnull
+	private List<IAdvancedGuiHandler<?>> activeAdvancedGuiHandlers = Collections.emptyList();
 
 	private boolean open = false;
 
@@ -112,11 +112,10 @@ public class ItemListOverlayOverride extends ItemListOverlay {
 		}
 
 		this.guiProperties = guiProperties;
-		this.advancedGuiHandler = getAdvancedGuiHandler(guiScreen);
-		if(advancedGuiHandler != null && guiScreen instanceof GuiContainer){
+		this.activeAdvancedGuiHandlers = getActiveAdvancedGuiHandlers(guiScreen);
+		if (!activeAdvancedGuiHandlers.isEmpty() && guiScreen instanceof GuiContainer) {
 			GuiContainer guiContainer = (GuiContainer) guiScreen;
-			//noinspection unchecked
-			guiAreas = advancedGuiHandler.getGuiExtraAreas(guiContainer);
+			guiAreas = getGuiAreas(guiContainer);
 		} else {
 			guiAreas = null;
 		}
@@ -162,15 +161,35 @@ public class ItemListOverlayOverride extends ItemListOverlay {
 		open();
 	}
 
-	@Nullable
-	private IAdvancedGuiHandler<?> getAdvancedGuiHandler(@Nonnull GuiScreen guiScreen){
-		if(guiScreen instanceof GuiContainer){
+	@Nonnull
+	private List<IAdvancedGuiHandler<?>> getActiveAdvancedGuiHandlers(@Nonnull GuiScreen guiScreen) {
+		List<IAdvancedGuiHandler<?>> activeAdvancedGuiHandler = new ArrayList<>();
+		if (guiScreen instanceof GuiContainer) {
 			GuiContainer guiContainer = (GuiContainer) guiScreen;
 			for (IAdvancedGuiHandler<?> advancedGuiHandler : advancedGuiHandlers){
 				if(advancedGuiHandler.getGuiContainerClass().isAssignableFrom(guiContainer.getClass())){
-					return advancedGuiHandler;
+					activeAdvancedGuiHandler.add(advancedGuiHandler);
 				}
 			}
+		}
+		return activeAdvancedGuiHandler;
+	}
+
+	private List<Rectangle> getGuiAreas(GuiContainer guiContainer) {
+		List<Rectangle> guiAreas = new ArrayList<>();
+		for (IAdvancedGuiHandler<?> advancedGuiHandler : activeAdvancedGuiHandlers) {
+			List<Rectangle> guiExtraAreas = getGuiAreas(guiContainer, advancedGuiHandler);
+			if (guiExtraAreas != null) {
+				guiAreas.addAll(guiExtraAreas);
+			}
+		}
+		return guiAreas;
+	}
+
+	private <T extends GuiContainer> List<Rectangle> getGuiAreas(GuiContainer guiContainer, IAdvancedGuiHandler<T> advancedGuiHandler) {
+		if (advancedGuiHandler.getGuiContainerClass().isAssignableFrom(guiContainer.getClass())) {
+			T guiT = advancedGuiHandler.getGuiContainerClass().cast(guiContainer);
+			return advancedGuiHandler.getGuiExtraAreas(guiT);
 		}
 		return null;
 	}
@@ -186,10 +205,9 @@ public class ItemListOverlayOverride extends ItemListOverlay {
 			}
 			if(!this.guiProperties.equals(guiProperties)){
 				initGui(guiScreen);
-			} else if(advancedGuiHandler != null && guiScreen instanceof GuiContainer){
+			} else if (!activeAdvancedGuiHandlers.isEmpty() && guiScreen instanceof GuiContainer) {
 				GuiContainer guiContainer = (GuiContainer) guiScreen;
-				//noinspection unchecked
-				List<Rectangle> guiAreas = advancedGuiHandler.getGuiExtraAreas(guiContainer);
+				List<Rectangle> guiAreas = getGuiAreas(guiContainer);
 				if(!Objects.equals(this.guiAreas, guiAreas)){
 					initGui(guiContainer);
 				}
@@ -269,6 +287,10 @@ public class ItemListOverlayOverride extends ItemListOverlay {
 		}
 
 		firstItemIndex = itemsPerPage * pageNum;
+		if (firstItemIndex > 0 && firstItemIndex == itemsCount) {
+			pageNum--;
+			firstItemIndex = itemsPerPage * pageNum;
+		}
 		updateLayout();
 	}
 
@@ -472,17 +494,14 @@ public class ItemListOverlayOverride extends ItemListOverlay {
 	}
 
 	@Override
-	public boolean onKeyPressed(int keyCode){
-		if(hasKeyboardFocus()){
-			char character = Keyboard.getEventCharacter();
-			boolean changed = searchField.textboxKeyTyped(character, Keyboard.getEventKey());
-			if(changed){
-				while (firstItemIndex >= itemFilter.size() && firstItemIndex > 0){
-					previousPage();
-				}
+	public boolean onKeyPressed(char typedChar, int keyCode) {
+		if (hasKeyboardFocus()) {
+			boolean changed = searchField.textboxKeyTyped(typedChar, keyCode);
+			if (changed) {
+				firstItemIndex = 0;
 				updateLayout();
 			}
-			return changed || ChatAllowedCharacters.isAllowedCharacter(character);
+			return changed || ChatAllowedCharacters.isAllowedCharacter(typedChar);
 		}
 		return false;
 	}

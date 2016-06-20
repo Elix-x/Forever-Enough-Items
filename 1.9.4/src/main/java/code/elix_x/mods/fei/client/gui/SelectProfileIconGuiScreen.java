@@ -75,7 +75,7 @@ public class SelectProfileIconGuiScreen extends GuiScreen {
 			this.mc.displayGuiScreen(parent);
 			return;
 		}
-		list.onKeyPressed(key);
+		list.onKeyPressed(c, key);
 	}
 
 	@Override
@@ -381,7 +381,7 @@ public class SelectProfileIconGuiScreen extends GuiScreen {
 		}
 
 		@Override
-		public boolean onKeyPressed(int keyCode){
+		public boolean onKeyPressed(char typedChar, int keyCode){
 			if (hasKeyboardFocus()){
 				char character = Keyboard.getEventCharacter();
 				boolean changed = searchField.textboxKeyTyped(character, Keyboard.getEventKey());
