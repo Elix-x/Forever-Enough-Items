@@ -1,20 +1,23 @@
 package mezz.jei.util;
 
-import mezz.jei.Internal;
-import mezz.jei.api.recipe.IRecipeHandler;
-import mezz.jei.api.recipe.IRecipeWrapper;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+import mezz.jei.Internal;
+import mezz.jei.api.recipe.IRecipeHandler;
+import mezz.jei.api.recipe.IRecipeWrapper;
+import net.minecraft.block.Block;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+
 public class ErrorUtil {
 	@Nonnull
-	public static String getInfoFromBrokenRecipe(@Nonnull Object recipe, @Nonnull IRecipeHandler recipeHandler) {
+	public static <T> String getInfoFromBrokenRecipe(@Nonnull T recipe, @Nonnull IRecipeHandler<T> recipeHandler) {
 		StringBuilder recipeInfoBuilder = new StringBuilder();
 		try {
 			recipeInfoBuilder.append(recipe);
@@ -26,7 +29,6 @@ public class ErrorUtil {
 		IRecipeWrapper recipeWrapper;
 
 		try {
-			//noinspection unchecked
 			recipeWrapper = recipeHandler.getRecipeWrapper(recipe);
 		} catch (RuntimeException ignored) {
 			recipeInfoBuilder.append("\nFailed to create recipe wrapper");
@@ -36,7 +38,7 @@ public class ErrorUtil {
 		recipeInfoBuilder.append("\nOutput ItemStacks: ");
 		try {
 			List outputs = recipeWrapper.getOutputs();
-			Object itemStackIngredientsInfo = getItemStackIngredientsInfo(outputs);
+			List<String> itemStackIngredientsInfo = getItemStackIngredientsInfo(outputs);
 			recipeInfoBuilder.append(itemStackIngredientsInfo);
 		} catch (RuntimeException e) {
 			recipeInfoBuilder.append(e.getMessage());
@@ -52,7 +54,7 @@ public class ErrorUtil {
 		recipeInfoBuilder.append("\nInput ItemStacks: ");
 		try {
 			List inputs = recipeWrapper.getInputs();
-			Object itemStackIngredientsInfo = getItemStackIngredientsInfo(inputs);
+			List<String> itemStackIngredientsInfo = getItemStackIngredientsInfo(inputs);
 			recipeInfoBuilder.append(itemStackIngredientsInfo);
 		} catch (RuntimeException e) {
 			recipeInfoBuilder.append(e.getMessage());
@@ -68,13 +70,13 @@ public class ErrorUtil {
 		return recipeInfoBuilder.toString();
 	}
 
-	public static List<List<String>> getItemStackIngredientsInfo(@Nullable List list) {
+	public static List<String> getItemStackIngredientsInfo(@Nullable List list) {
 		if (list == null) {
 			return null;
 		}
 		StackHelper stackHelper = Internal.getStackHelper();
 
-		List<List<String>> ingredientsInfo = new ArrayList<>();
+		List<String> ingredientsInfo = new ArrayList<>();
 		for (Object ingredient : list) {
 			List<String> ingredientInfo = new ArrayList<>();
 
@@ -88,7 +90,8 @@ public class ErrorUtil {
 				String itemStackInfo = getItemStackInfo(stack);
 				ingredientInfo.add(itemStackInfo);
 			}
-			ingredientsInfo.add(ingredientInfo);
+
+			ingredientsInfo.add(ingredientInfo.toString() + "\n");
 		}
 		return ingredientsInfo;
 	}
@@ -103,9 +106,28 @@ public class ErrorUtil {
 		ResourceLocation registryName = item.getRegistryName();
 		if (registryName != null) {
 			itemName = registryName.toString();
+		} else if (item instanceof ItemBlock) {
+			final String blockName;
+			Block block = ((ItemBlock) item).getBlock();
+			if (block == null) {
+				blockName = "null";
+			} else {
+				ResourceLocation blockRegistryName = block.getRegistryName();
+				if (blockRegistryName != null) {
+					blockName = blockRegistryName.toString();
+				} else {
+					blockName = block.getClass().getName();
+				}
+			}
+			itemName = "ItemBlock(" + blockName + ")";
 		} else {
 			itemName = item.getClass().getName();
 		}
-		return itemStack.toString().replace(item.getUnlocalizedName(), itemName);
+
+		NBTTagCompound nbt = itemStack.getTagCompound();
+		if (nbt != null) {
+			return itemStack + " " + itemName + " nbt:" + nbt;
+		}
+		return itemStack + " " + itemName;
 	}
 }

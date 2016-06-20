@@ -3,13 +3,12 @@ package mezz.jei.plugins.vanilla.crafting;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-import mezz.jei.util.ErrorUtil;
-import mezz.jei.util.Log;
-import net.minecraftforge.oredict.ShapedOreRecipe;
-
 import mezz.jei.api.recipe.IRecipeHandler;
 import mezz.jei.api.recipe.IRecipeWrapper;
 import mezz.jei.api.recipe.VanillaRecipeCategoryUid;
+import mezz.jei.util.ErrorUtil;
+import mezz.jei.util.Log;
+import net.minecraftforge.oredict.ShapedOreRecipe;
 
 public class ShapedOreRecipeHandler implements IRecipeHandler<ShapedOreRecipe> {
 
@@ -22,6 +21,12 @@ public class ShapedOreRecipeHandler implements IRecipeHandler<ShapedOreRecipe> {
 	@Nonnull
 	@Override
 	public String getRecipeCategoryUid() {
+		return VanillaRecipeCategoryUid.CRAFTING;
+	}
+
+	@Nonnull
+	@Override
+	public String getRecipeCategoryUid(@Nonnull ShapedOreRecipe recipe) {
 		return VanillaRecipeCategoryUid.CRAFTING;
 	}
 
@@ -41,9 +46,8 @@ public class ShapedOreRecipeHandler implements IRecipeHandler<ShapedOreRecipe> {
 		int inputCount = 0;
 		for (Object input : recipe.getInput()) {
 			if (input instanceof List) {
-				if (((List) input).size() == 0) {
-					String recipeInfo = ErrorUtil.getInfoFromBrokenRecipe(recipe, this);
-					Log.error("Recipe has an empty list as an input. {}", recipeInfo);
+				if (((List) input).isEmpty()) {
+					// missing items for an oreDict name. This is normal behavior, but the recipe is invalid.
 					return false;
 				}
 			}

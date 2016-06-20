@@ -1,17 +1,5 @@
 package mezz.jei.util;
 
-import mezz.jei.Internal;
-import mezz.jei.api.recipe.IStackHelper;
-import mezz.jei.gui.ingredients.IGuiIngredient;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.Slot;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.oredict.OreDictionary;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -26,7 +14,21 @@ import java.util.Objects;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import mezz.jei.Internal;
+import mezz.jei.api.recipe.IStackHelper;
+import mezz.jei.gui.ingredients.IGuiIngredient;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.inventory.Container;
+import net.minecraft.inventory.Slot;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.oredict.OreDictionary;
+
 public class StackHelper implements IStackHelper {
+	public static final String nullItemInStack = "Found an itemStack with a null item. This is an error from another mod.";
+
 	/** Uids are cached during loading to improve startup performance. */
 	private final Map<UidMode, Map<ItemStack, String>> uidCache = new EnumMap<>(UidMode.class);
 	private boolean uidCacheEnabled = true;
@@ -312,17 +314,13 @@ public class StackHelper implements IStackHelper {
 	public String getModId(@Nonnull ItemStack stack) {
 		Item item = stack.getItem();
 		if (item == null) {
-			throw new NullPointerException("Found an itemStack with a null item. This is an error from another mod.");
+			throw new NullPointerException(nullItemInStack);
 		}
 
-		return getModId(item);
-	}
-
-	@Nonnull
-	public String getModId(@Nonnull Item item) {
 		ResourceLocation itemName = Item.REGISTRY.getNameForObject(item);
 		if (itemName == null) {
-			throw new NullPointerException("Item.itemRegistry.getNameForObject returned null for: " + item.getClass());
+			String stackInfo = ErrorUtil.getItemStackInfo(stack);
+			throw new NullPointerException("Item.itemRegistry.getNameForObject returned null for: " + stackInfo);
 		}
 
 		return itemName.getResourceDomain();
@@ -344,33 +342,40 @@ public class StackHelper implements IStackHelper {
 
 		Item item = stack.getItem();
 		if (item == null) {
-			throw new NullPointerException("Found an itemStack with a null item. This is an error from another mod.");
+			throw new NullPointerException(nullItemInStack);
 		}
 
-		ResourceLocation itemName = Item.REGISTRY.getNameForObject(item);
-		if (itemName == null) {
-			throw new NullPointerException("Item.itemRegistry.getNameForObject returned null for: " + item.getClass());
-		}
-
-		String itemNameString = itemName.toString();
 		int metadata = stack.getMetadata();
 		if (mode == UidMode.WILDCARD || metadata == OreDictionary.WILDCARD_VALUE) {
-			return itemNameString;
+			ResourceLocation itemName = Item.REGISTRY.getNameForObject(item);
+			if (itemName == null) {
+				String stackInfo = ErrorUtil.getItemStackInfo(stack);
+				throw new NullPointerException("Item is not registered. Item.REGISTRY.getNameForObject returned null for: " + stackInfo);
+			}
+			return itemName.toString();
 		}
 
-		StringBuilder itemKey = new StringBuilder(itemNameString);
-		if (mode == UidMode.FULL || stack.getHasSubtypes()) {
+		NBTTagCompound serializedNbt = stack.serializeNBT();
+		StringBuilder itemKey = new StringBuilder(serializedNbt.getString("id"));
+		if (mode == UidMode.FULL) {
 			itemKey.append(':').append(metadata);
-			if (stack.hasTagCompound()) {
-				NBTTagCompound nbtTagCompound;
-				if (mode == UidMode.FULL) {
-					nbtTagCompound = stack.getTagCompound();
-				} else {
-					nbtTagCompound = Internal.getHelpers().getNbtIgnoreList().getNbt(stack);
+
+			NBTTagCompound nbtTagCompound = serializedNbt.getCompoundTag("tag");
+			if (serializedNbt.hasKey("ForgeCaps")) {
+				if (nbtTagCompound == null) {
+					nbtTagCompound = new NBTTagCompound();
 				}
-				if (nbtTagCompound != null && !nbtTagCompound.hasNoTags()) {
-					itemKey.append(':').append(nbtTagCompound);
-				}
+				nbtTagCompound.setTag("ForgeCaps", serializedNbt.getCompoundTag("ForgeCaps"));
+			}
+			if (nbtTagCompound != null && !nbtTagCompound.hasNoTags()) {
+				itemKey.append(':').append(nbtTagCompound);
+			}
+		} else if (stack.getHasSubtypes()) {
+			itemKey.append(':').append(metadata);
+
+			String subtypeInfo = Internal.getHelpers().getSubtypeRegistry().getSubtypeInfo(stack);
+			if (subtypeInfo != null) {
+				itemKey.append(':').append(subtypeInfo);
 			}
 		}
 
@@ -417,7 +422,8 @@ public class StackHelper implements IStackHelper {
 			}
 
 			int remain = stack.stackSize - added;
-			int space = inventoryStack.getMaxStackSize() - inventoryStack.stackSize;
+			int maxStackSize = Math.min(slot.getItemStackLimit(inventoryStack), inventoryStack.getMaxStackSize());
+			int space = maxStackSize - inventoryStack.stackSize;
 			if (space <= 0) {
 				continue;
 			}

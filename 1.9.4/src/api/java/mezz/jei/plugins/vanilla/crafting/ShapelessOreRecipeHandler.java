@@ -1,5 +1,8 @@
 package mezz.jei.plugins.vanilla.crafting;
 
+import javax.annotation.Nonnull;
+import java.util.List;
+
 import mezz.jei.api.IGuiHelper;
 import mezz.jei.api.recipe.IRecipeHandler;
 import mezz.jei.api.recipe.IRecipeWrapper;
@@ -7,9 +10,6 @@ import mezz.jei.api.recipe.VanillaRecipeCategoryUid;
 import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.Log;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
-
-import javax.annotation.Nonnull;
-import java.util.List;
 
 public class ShapelessOreRecipeHandler implements IRecipeHandler<ShapelessOreRecipe> {
 	@Nonnull
@@ -31,6 +31,12 @@ public class ShapelessOreRecipeHandler implements IRecipeHandler<ShapelessOreRec
 		return VanillaRecipeCategoryUid.CRAFTING;
 	}
 
+	@Nonnull
+	@Override
+	public String getRecipeCategoryUid(@Nonnull ShapelessOreRecipe recipe) {
+		return VanillaRecipeCategoryUid.CRAFTING;
+	}
+
 	@Override
 	@Nonnull
 	public IRecipeWrapper getRecipeWrapper(@Nonnull ShapelessOreRecipe recipe) {
@@ -47,9 +53,8 @@ public class ShapelessOreRecipeHandler implements IRecipeHandler<ShapelessOreRec
 		int inputCount = 0;
 		for (Object input : recipe.getInput()) {
 			if (input instanceof List) {
-				if (((List) input).size() == 0) {
-					String recipeInfo = ErrorUtil.getInfoFromBrokenRecipe(recipe, this);
-					Log.error("Recipe has an empty list as an input. {}", recipeInfo);
+				if (((List) input).isEmpty()) {
+					// missing items for an oreDict name. This is normal behavior, but the recipe is invalid.
 					return false;
 				}
 			}

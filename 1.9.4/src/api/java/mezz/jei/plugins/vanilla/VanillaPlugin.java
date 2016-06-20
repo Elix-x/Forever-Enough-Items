@@ -1,10 +1,13 @@
 package mezz.jei.plugins.vanilla;
 
+import javax.annotation.Nonnull;
+
 import mezz.jei.api.BlankModPlugin;
 import mezz.jei.api.IGuiHelper;
 import mezz.jei.api.IItemRegistry;
 import mezz.jei.api.IJeiHelpers;
 import mezz.jei.api.IModRegistry;
+import mezz.jei.api.ISubtypeRegistry;
 import mezz.jei.api.JEIPlugin;
 import mezz.jei.api.recipe.VanillaRecipeCategoryUid;
 import mezz.jei.api.recipe.transfer.IRecipeTransferRegistry;
@@ -34,8 +37,8 @@ import net.minecraft.inventory.ContainerFurnace;
 import net.minecraft.inventory.ContainerWorkbench;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
-
-import javax.annotation.Nonnull;
+import net.minecraftforge.common.ForgeModContainer;
+import net.minecraftforge.fluids.FluidRegistry;
 
 @JEIPlugin
 public class VanillaPlugin extends BlankModPlugin {
@@ -44,17 +47,20 @@ public class VanillaPlugin extends BlankModPlugin {
 		IItemRegistry itemRegistry = registry.getItemRegistry();
 		IJeiHelpers jeiHelpers = registry.getJeiHelpers();
 
-		// normally you should ignore nbt per-item, but these tags are universally understood
-		// and apply to many vanilla and modded items
-		jeiHelpers.getNbtIgnoreList().ignoreNbtTagNames(
-				"AttributeModifiers",
-				"CanDestroy",
-				"CanPlaceOn",
-				"display",
-				"HideFlags",
-				"RepairCost",
-				"Unbreakable"
+		ISubtypeRegistry nbtRegistry = jeiHelpers.getSubtypeRegistry();
+		nbtRegistry.useNbtForSubtypes(
+				Items.BANNER,
+				Items.SPAWN_EGG,
+				Items.TIPPED_ARROW,
+				Items.ENCHANTED_BOOK,
+				Items.POTIONITEM,
+				Items.SPLASH_POTION,
+				Items.LINGERING_POTION
 		);
+
+		if (FluidRegistry.isUniversalBucketEnabled()) {
+			nbtRegistry.useNbtForSubtypes(ForgeModContainer.getInstance().universalBucket);
+		}
 
 		IGuiHelper guiHelper = jeiHelpers.getGuiHelper();
 		registry.addRecipeCategories(

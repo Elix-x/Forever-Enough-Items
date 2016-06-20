@@ -1,5 +1,13 @@
 package mezz.jei.gui;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Stack;
+
 import com.google.common.collect.ImmutableList;
 import mezz.jei.Internal;
 import mezz.jei.RecipeRegistry;
@@ -14,14 +22,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Stack;
-
 public class RecipeGuiLogic implements IRecipeGuiLogic {
 	private static class State {
 		/** The focus of this GUI */
@@ -32,6 +32,7 @@ public class RecipeGuiLogic implements IRecipeGuiLogic {
 		public ImmutableList<IRecipeCategory> recipeCategories;
 		public int recipeCategoryIndex;
 		public int pageIndex;
+		public int recipesPerPage;
 
 		public State(@Nonnull Focus focus, @Nonnull List<IRecipeCategory> recipeCategories, int recipeCategoryIndex, int pageIndex) {
 			this.focus = focus;
@@ -60,8 +61,6 @@ public class RecipeGuiLogic implements IRecipeGuiLogic {
 	 */
 	@Nonnull
 	private Collection<ItemStack> recipeCategoryCraftingItems = Collections.emptyList();
-
-	private int recipesPerPage = 0;
 
 	@Override
 	public boolean setFocus(@Nonnull Focus focus) {
@@ -183,11 +182,11 @@ public class RecipeGuiLogic implements IRecipeGuiLogic {
 		if (state == null) {
 			return;
 		}
-		if (this.recipesPerPage != recipesPerPage) {
-			int recipeIndex = state.pageIndex * this.recipesPerPage;
+		if (state.recipesPerPage != recipesPerPage) {
+			int recipeIndex = state.pageIndex * state.recipesPerPage;
 			state.pageIndex = recipeIndex / recipesPerPage;
 
-			this.recipesPerPage = recipesPerPage;
+			state.recipesPerPage = recipesPerPage;
 			updateRecipes();
 		}
 	}
@@ -234,16 +233,12 @@ public class RecipeGuiLogic implements IRecipeGuiLogic {
 		IRecipeRegistry recipeRegistry = Internal.getRuntime().getRecipeRegistry();
 
 		int recipeWidgetIndex = 0;
-		for (int recipeIndex = state.pageIndex * recipesPerPage; recipeIndex < recipes.size() && recipeWidgets.size() < recipesPerPage; recipeIndex++) {
+		for (int recipeIndex = state.pageIndex * state.recipesPerPage; recipeIndex < recipes.size() && recipeWidgets.size() < state.recipesPerPage; recipeIndex++) {
 			Object recipe = recipes.get(recipeIndex);
-			IRecipeHandler recipeHandler = recipeRegistry.getRecipeHandler(recipe.getClass());
-			if (recipeHandler == null) {
-				Log.error("Couldn't find recipe handler for recipe: {}", recipe);
+			IRecipeWrapper recipeWrapper = getRecipeWrapper(recipeRegistry, recipe, recipe.getClass());
+			if (recipeWrapper == null) {
 				continue;
 			}
-
-			@SuppressWarnings("unchecked")
-			IRecipeWrapper recipeWrapper = recipeHandler.getRecipeWrapper(recipe);
 
 			RecipeLayout recipeWidget = new RecipeLayout(recipeWidgetIndex++, posX, posY, recipeCategory, recipeWrapper, state.focus);
 			recipeWidgets.add(recipeWidget);
@@ -252,6 +247,17 @@ public class RecipeGuiLogic implements IRecipeGuiLogic {
 		}
 
 		return recipeWidgets;
+	}
+
+	@Nullable
+	private <T> IRecipeWrapper getRecipeWrapper(IRecipeRegistry recipeRegistry, T recipe, Class<? extends T> recipeClass) {
+		IRecipeHandler<T> recipeHandler = recipeRegistry.getRecipeHandler(recipeClass);
+		if (recipeHandler == null) {
+			Log.error("Couldn't find recipe handler for recipe: {}", recipe);
+			return null;
+		}
+
+		return recipeHandler.getRecipeWrapper(recipe);
 	}
 
 	@Override
@@ -267,7 +273,7 @@ public class RecipeGuiLogic implements IRecipeGuiLogic {
 
 	@Override
 	public boolean hasMultiplePages() {
-		return recipes.size() > recipesPerPage;
+		return state != null && recipes.size() > state.recipesPerPage;
 	}
 
 	@Override
@@ -286,7 +292,7 @@ public class RecipeGuiLogic implements IRecipeGuiLogic {
 		if (state == null) {
 			return;
 		}
-		int pageCount = pageCount(recipesPerPage);
+		int pageCount = pageCount(state.recipesPerPage);
 		state.pageIndex = (state.pageIndex + 1) % pageCount;
 		updateRecipes();
 	}
@@ -296,7 +302,7 @@ public class RecipeGuiLogic implements IRecipeGuiLogic {
 		if (state == null) {
 			return;
 		}
-		int pageCount = pageCount(recipesPerPage);
+		int pageCount = pageCount(state.recipesPerPage);
 		state.pageIndex = (pageCount + state.pageIndex - 1) % pageCount;
 		updateRecipes();
 	}
@@ -315,7 +321,7 @@ public class RecipeGuiLogic implements IRecipeGuiLogic {
 		if (state == null) {
 			return "1/1";
 		}
-		return (state.pageIndex + 1) + "/" + pageCount(recipesPerPage);
+		return (state.pageIndex + 1) + "/" + pageCount(state.recipesPerPage);
 	}
 
 	@Override

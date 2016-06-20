@@ -2,8 +2,11 @@ package at.feldim2425.moreoverlays.itemsearch;
 
 import at.feldim2425.moreoverlays.MoreOverlays;
 import at.feldim2425.moreoverlays.Proxy;
+import at.feldim2425.moreoverlays.api.itemsearch.IViewSlot;
+import at.feldim2425.moreoverlays.api.itemsearch.SlotHandler;
 import at.feldim2425.moreoverlays.config.Config;
-import at.feldim2425.moreoverlays.utils.GuiUtil;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -13,7 +16,6 @@ import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.translation.I18n;
@@ -21,6 +23,7 @@ import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
+import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -29,6 +32,7 @@ import org.lwjgl.opengl.GL11;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class GuiHandler {
 
@@ -41,7 +45,7 @@ public class GuiHandler {
     private static boolean enabled = false;
 
     private static List<String> tooltip = new ArrayList<>();
-    private static List<Integer> slotindexCache = null;
+    private static BiMap<Integer, IViewSlot> views = HashBiMap.create();
     private static int txtPosY = 0;
     private static boolean isCreative = false;
     private static String text = I18n.translateToLocal("gui." + MoreOverlays.MOD_ID + ".search.disabled");
@@ -99,7 +103,7 @@ public class GuiHandler {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onTooltip(ItemTooltipEvent event) {
-        if(enabled && !slotindexCache.isEmpty()){ //Not the best way but it works
+        if(enabled && !views.isEmpty()){ //Not the best way but it works
             tooltip.clear();
             tooltip.addAll(event.getToolTip());
             event.getToolTip().clear();
@@ -135,7 +139,7 @@ public class GuiHandler {
         }
 
 
-        if (!enabled || isCreative || slotindexCache == null || slotindexCache.isEmpty())
+        if (!enabled || isCreative || views == null || views.isEmpty())
             return;
         GuiContainer gui = (GuiContainer) event.getGui();
 
@@ -149,15 +153,13 @@ public class GuiHandler {
 
         renderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
 
-        for (Slot slot : gui.inventorySlots.inventorySlots) {
-            if (slotindexCache.contains(slot.slotNumber)) {
-                int px = slot.xDisplayPosition;
-                int py = slot.yDisplayPosition;
-                renderer.pos(px + 16 + guiOffsetX, py + guiOffsetY, OVERLAY_ZLEVEL).endVertex();
-                renderer.pos(px + guiOffsetX, py + guiOffsetY, OVERLAY_ZLEVEL).endVertex();
-                renderer.pos(px + guiOffsetX, py + 16 + guiOffsetY, OVERLAY_ZLEVEL).endVertex();
-                renderer.pos(px + 16 + guiOffsetX, py + 16 + guiOffsetY, OVERLAY_ZLEVEL).endVertex();
-            }
+        for (Map.Entry<Integer, IViewSlot> slot : this.views.entrySet()) {
+            int px = slot.getValue().getRenderPosX(guiOffsetX, guiOffsetY);
+            int py = slot.getValue().getRenderPosY(guiOffsetX, guiOffsetY);
+            renderer.pos(px + 16 + guiOffsetX, py + guiOffsetY, OVERLAY_ZLEVEL).endVertex();
+            renderer.pos(px + guiOffsetX, py + guiOffsetY, OVERLAY_ZLEVEL).endVertex();
+            renderer.pos(px + guiOffsetX, py + 16 + guiOffsetY, OVERLAY_ZLEVEL).endVertex();
+            renderer.pos(px + 16 + guiOffsetX, py + 16 + guiOffsetY, OVERLAY_ZLEVEL).endVertex();
         }
 
         tess.draw();
@@ -167,7 +169,7 @@ public class GuiHandler {
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
         if(!tooltip.isEmpty()) {
-            GuiUtil.drawHoverText(tooltip, event.getMouseX(), event.getMouseY(), event.getGui().width, event.getGui().height, Minecraft.getMinecraft().fontRendererObj);
+            GuiUtils.drawHoveringText(tooltip, event.getMouseX(), event.getMouseY(), event.getGui().width, event.getGui().height, -1, Minecraft.getMinecraft().fontRendererObj);
             tooltip.clear();
         }
 
@@ -178,16 +180,16 @@ public class GuiHandler {
         return (gui instanceof GuiContainer) && !isCreative && ((GuiContainer) gui).inventorySlots!=null && !((GuiContainer) gui).inventorySlots.inventorySlots.isEmpty();
     }
 
-    private static void checkSlots(Container container) {
-        if (slotindexCache == null)
-            slotindexCache = new ArrayList<>();
+    private static void checkSlots(GuiContainer container) {
+        if (views == null)
+            views = HashBiMap.create();
         else
-            slotindexCache.clear();
-        for (Slot slot : container.inventorySlots) {
-            if (slot.xDisplayPosition < 0 || slot.yDisplayPosition < 0) //Don't care about slots that are not shown
+            views.clear();
+        for (Slot slot : container.inventorySlots.inventorySlots) {
+            IViewSlot slotv = SlotHandler.INSTANCE.getViewSlot(container, slot);
+            if(!slotv.canSearch() || isSearchedItem(slot.getStack()))
                 continue;
-            if (!isSearchedItem(slot.getStack()))
-                slotindexCache.add(slot.slotNumber);
+            views.forcePut(slot.slotNumber, slotv);
         }
     }
 
@@ -214,10 +216,10 @@ public class GuiHandler {
             emptyFilter = lastFilterText.replace(" ","").isEmpty();
         }
 
-        if (enabled && Minecraft.getMinecraft().thePlayer.openContainer != null)
-            checkSlots(Minecraft.getMinecraft().thePlayer.openContainer);
-        else if(slotindexCache!=null)
-            slotindexCache.clear();
+        if (enabled && Minecraft.getMinecraft().currentScreen instanceof GuiContainer)
+            checkSlots((GuiContainer) Minecraft.getMinecraft().currentScreen);
+        else if(views!=null)
+            views.clear();
 
         if(highlightTicks>0)
             highlightTicks--;

@@ -9,6 +9,7 @@ import net.minecraft.item.Item;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.NetworkCheckHandler;
 import net.minecraftforge.fml.common.registry.GameRegistry;
@@ -22,7 +23,7 @@ import java.util.Map;
 		version = Constants.VERSION,
 		guiFactory = "mezz.jei.config.JEIModGuiFactory",
 		acceptedMinecraftVersions = "[1.9,1.9.4]",
-		dependencies = "required-after:Forge@[12.16.0.1865,);")
+		dependencies = "required-after:Forge@[12.17.0.1946,);")
 public class JustEnoughItems {
 
 	@SidedProxy(clientSide = "mezz.jei.ProxyCommonClient", serverSide = "mezz.jei.ProxyCommon")
@@ -52,7 +53,7 @@ public class JustEnoughItems {
 		packetHandler = new PacketHandler();
 		proxy.preInit(event);
 
-		if (Config.isDebugModeEnabled()) {
+		if (Config.isDebugItemEnabled()) {
 			String name = "jeiDebug";
 			Item debugItem = new DebugItem(name);
 			debugItem.setUnlocalizedName(name);
@@ -64,5 +65,10 @@ public class JustEnoughItems {
 	@Mod.EventHandler
 	public void init(@Nonnull FMLInitializationEvent event) {
 		proxy.init(event);
+	}
+
+	@Mod.EventHandler
+	public void postInit(@Nonnull FMLPostInitializationEvent event) {
+		proxy.postInit(event);
 	}
 }

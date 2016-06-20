@@ -1,6 +1,16 @@
 package mezz.jei.gui;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+
 import com.google.common.collect.ImmutableList;
+import com.mojang.realmsclient.gui.ChatFormatting;
 import mezz.jei.Internal;
 import mezz.jei.ItemFilter;
 import mezz.jei.JustEnoughItems;
@@ -40,12 +50,6 @@ import net.minecraftforge.fml.client.config.GuiButtonExt;
 import net.minecraftforge.fml.client.config.HoverChecker;
 import org.lwjgl.input.Keyboard;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.awt.*;
-import java.util.List;
-import java.util.Objects;
-
 public class ItemListOverlay implements IItemListOverlay, IShowsRecipeFocuses, IMouseHandler, IKeyable, ICloseable {
 
 	private static final int borderPadding = 2;
@@ -84,8 +88,8 @@ public class ItemListOverlay implements IItemListOverlay, IShowsRecipeFocuses, I
 	private GuiProperties guiProperties;
 	@Nullable
 	private List<Rectangle> guiAreas;
-	@Nullable
-	IAdvancedGuiHandler advancedGuiHandler;
+	@Nonnull
+	private List<IAdvancedGuiHandler<?>> activeAdvancedGuiHandlers = Collections.emptyList();
 
 	private boolean open = false;
 
@@ -101,11 +105,10 @@ public class ItemListOverlay implements IItemListOverlay, IShowsRecipeFocuses, I
 		}
 
 		this.guiProperties = guiProperties;
-		this.advancedGuiHandler = getAdvancedGuiHandler(guiScreen);
-		if (advancedGuiHandler != null && guiScreen instanceof GuiContainer) {
+		this.activeAdvancedGuiHandlers = getActiveAdvancedGuiHandlers(guiScreen);
+		if (!activeAdvancedGuiHandlers.isEmpty() && guiScreen instanceof GuiContainer) {
 			GuiContainer guiContainer = (GuiContainer) guiScreen;
-			//noinspection unchecked
-			guiAreas = advancedGuiHandler.getGuiExtraAreas(guiContainer);
+			guiAreas = getGuiAreas(guiContainer);
 		} else {
 			guiAreas = null;
 		}
@@ -153,15 +156,35 @@ public class ItemListOverlay implements IItemListOverlay, IShowsRecipeFocuses, I
 		open();
 	}
 
-	@Nullable
-	private IAdvancedGuiHandler<?> getAdvancedGuiHandler(@Nonnull GuiScreen guiScreen) {
+	@Nonnull
+	private List<IAdvancedGuiHandler<?>> getActiveAdvancedGuiHandlers(@Nonnull GuiScreen guiScreen) {
+		List<IAdvancedGuiHandler<?>> activeAdvancedGuiHandler = new ArrayList<>();
 		if (guiScreen instanceof GuiContainer) {
 			GuiContainer guiContainer = (GuiContainer) guiScreen;
 			for (IAdvancedGuiHandler<?> advancedGuiHandler : advancedGuiHandlers) {
 				if (advancedGuiHandler.getGuiContainerClass().isAssignableFrom(guiContainer.getClass())) {
-					return advancedGuiHandler;
+					activeAdvancedGuiHandler.add(advancedGuiHandler);
 				}
 			}
+		}
+		return activeAdvancedGuiHandler;
+	}
+
+	private List<Rectangle> getGuiAreas(GuiContainer guiContainer) {
+		List<Rectangle> guiAreas = new ArrayList<>();
+		for (IAdvancedGuiHandler<?> advancedGuiHandler : activeAdvancedGuiHandlers) {
+			List<Rectangle> guiExtraAreas = getGuiAreas(guiContainer, advancedGuiHandler);
+			if (guiExtraAreas != null) {
+				guiAreas.addAll(guiExtraAreas);
+			}
+		}
+		return guiAreas;
+	}
+
+	private <T extends GuiContainer> List<Rectangle> getGuiAreas(GuiContainer guiContainer, IAdvancedGuiHandler<T> advancedGuiHandler) {
+		if (advancedGuiHandler.getGuiContainerClass().isAssignableFrom(guiContainer.getClass())) {
+			T guiT = advancedGuiHandler.getGuiContainerClass().cast(guiContainer);
+			return advancedGuiHandler.getGuiExtraAreas(guiT);
 		}
 		return null;
 	}
@@ -176,10 +199,9 @@ public class ItemListOverlay implements IItemListOverlay, IShowsRecipeFocuses, I
 			}
 			if (!this.guiProperties.equals(guiProperties)) {
 				initGui(guiScreen);
-			} else if (advancedGuiHandler != null && guiScreen instanceof GuiContainer) {
+			} else if (!activeAdvancedGuiHandlers.isEmpty() && guiScreen instanceof GuiContainer) {
 				GuiContainer guiContainer = (GuiContainer) guiScreen;
-				//noinspection unchecked
-				List<Rectangle> guiAreas = advancedGuiHandler.getGuiExtraAreas(guiContainer);
+				List<Rectangle> guiAreas = getGuiAreas(guiContainer);
 				if (!Objects.equals(this.guiAreas, guiAreas)) {
 					initGui(guiContainer);
 				}
@@ -259,6 +281,10 @@ public class ItemListOverlay implements IItemListOverlay, IShowsRecipeFocuses, I
 		}
 
 		firstItemIndex = itemsPerPage * pageNum;
+		if (firstItemIndex > 0 && firstItemIndex == itemsCount) {
+			pageNum--;
+			firstItemIndex = itemsPerPage * pageNum;
+		}
 		updateLayout();
 	}
 
@@ -324,7 +350,15 @@ public class ItemListOverlay implements IItemListOverlay, IShowsRecipeFocuses, I
 
 		if (configButtonHoverChecker.checkHover(mouseX, mouseY)) {
 			String configString = Translator.translateToLocal("jei.tooltip.config");
-			TooltipRenderer.drawHoveringText(minecraft, configString, mouseX, mouseY);
+			if (Config.isCheatItemsEnabled()) {
+				List<String> tooltip = Arrays.asList(
+						configString,
+						ChatFormatting.RED + Translator.translateToLocal("jei.tooltip.cheat.mode")
+				);
+				TooltipRenderer.drawHoveringText(minecraft, tooltip, mouseX, mouseY);
+			} else {
+				TooltipRenderer.drawHoveringText(minecraft, configString, mouseX, mouseY);
+			}
 		}
 	}
 
@@ -456,17 +490,14 @@ public class ItemListOverlay implements IItemListOverlay, IShowsRecipeFocuses, I
 	}
 
 	@Override
-	public boolean onKeyPressed(int keyCode) {
+	public boolean onKeyPressed(char typedChar, int keyCode) {
 		if (hasKeyboardFocus()) {
-			char character = Keyboard.getEventCharacter();
-			boolean changed = searchField.textboxKeyTyped(character, Keyboard.getEventKey());
+			boolean changed = searchField.textboxKeyTyped(typedChar, keyCode);
 			if (changed) {
-				while (firstItemIndex >= itemFilter.size() && firstItemIndex > 0) {
-					previousPage();
-				}
+				firstItemIndex = 0;
 				updateLayout();
 			}
-			return changed || ChatAllowedCharacters.isAllowedCharacter(character);
+			return changed || ChatAllowedCharacters.isAllowedCharacter(typedChar);
 		}
 		return false;
 	}
