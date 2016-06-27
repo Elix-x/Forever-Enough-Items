@@ -413,7 +413,7 @@ public class ItemListOverlayOverride extends ItemListOverlay {
 
 		if(Minecraft.getMinecraft().thePlayer.inventory.getItemStack() == null){
 			Focus f = guiItemStacks.getFocusUnderMouse(mouseX, mouseY);
-			if(f != null && canGiveItems &&  FEIConfiguration.canGiveItems(Minecraft.getMinecraft().thePlayer)){
+			if(f != null && f.getStack() != null && canGiveItems &&  FEIConfiguration.canGiveItems(Minecraft.getMinecraft().thePlayer)){
 				ItemStack itemstack = f.getStack().copy();
 				if(mouseButton == 0) itemstack.stackSize = itemstack.getMaxStackSize();
 				else itemstack.stackSize = 1;
@@ -581,8 +581,10 @@ public class ItemListOverlayOverride extends ItemListOverlay {
 			Log.error("null filterText", new NullPointerException());
 			return;
 		}
-		searchField.setText(filterText);
-		Config.setFilterText(filterText);
+		if(searchField != null){
+			searchField.setText(filterText);
+			Config.setFilterText(filterText);
+		}
 	}
 
 	@Nonnull
