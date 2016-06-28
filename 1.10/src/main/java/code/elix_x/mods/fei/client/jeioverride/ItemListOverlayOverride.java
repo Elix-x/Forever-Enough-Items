@@ -385,12 +385,12 @@ public class ItemListOverlayOverride extends ItemListOverlay {
 
 	@Override
 	@Nullable
-	public Focus getFocusUnderMouse(int mouseX, int mouseY){
-		if(!isMouseOver(mouseX, mouseY)){
+	public Focus<?> getFocusUnderMouse(int mouseX, int mouseY) {
+		if (!isMouseOver(mouseX, mouseY)) {
 			return null;
 		}
 
-		Focus focus = guiItemStacks.getFocusUnderMouse(mouseX, mouseY);
+		Focus<?> focus = guiItemStacks.getFocusUnderMouse(mouseX, mouseY);
 		boolean key = Thread.currentThread().getStackTrace()[2].getMethodName().equals("getFocusUnderMouseForKey");
 		if(focus != null && (key || Config.isEditModeEnabled() || !canGiveItems || !FEIConfiguration.canGiveItems(Minecraft.getMinecraft().thePlayer))){
 			setKeyboardFocus(false);
@@ -413,8 +413,8 @@ public class ItemListOverlayOverride extends ItemListOverlay {
 
 		if(Minecraft.getMinecraft().thePlayer.inventory.getItemStack() == null){
 			Focus f = guiItemStacks.getFocusUnderMouse(mouseX, mouseY);
-			if(f != null && f.getStack() != null && canGiveItems &&  FEIConfiguration.canGiveItems(Minecraft.getMinecraft().thePlayer)){
-				ItemStack itemstack = f.getStack().copy();
+			if(f != null && f.getValue() instanceof ItemStack && canGiveItems &&  FEIConfiguration.canGiveItems(Minecraft.getMinecraft().thePlayer)){
+				ItemStack itemstack = ((ItemStack) f.getValue()).copy();
 				if(mouseButton == 0) itemstack.stackSize = itemstack.getMaxStackSize();
 				else itemstack.stackSize = 1;
 				ForeverEnoughItemsBase.net.sendToServer(new FEIGiveItemStackPacket(itemstack));
@@ -581,10 +581,8 @@ public class ItemListOverlayOverride extends ItemListOverlay {
 			Log.error("null filterText", new NullPointerException());
 			return;
 		}
-		if(searchField != null){
-			searchField.setText(filterText);
-			Config.setFilterText(filterText);
-		}
+		searchField.setText(filterText);
+		Config.setFilterText(filterText);
 	}
 
 	@Nonnull
