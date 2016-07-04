@@ -40,18 +40,17 @@
 -import mezz.jei.input.IShowsRecipeFocuses;
 @@ -48 +46,0 @@ import net.minecraft.util.ChatAllowedCharacters;
 -import net.minecraft.util.ResourceLocation;
-@@ -50,2 +47,0 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -50 +47,0 @@ import net.minecraftforge.fml.client.config.GuiBut
 -import net.minecraftforge.fml.client.config.HoverChecker;
--import org.lwjgl.input.Keyboard;
-@@ -53 +49 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -52 +49 @@ import net.minecraftforge.fml.client.config.GuiBut
 -public class ItemListOverlay implements IItemListOverlay, IShowsRecipeFocuses, IMouseHandler, IKeyable, ICloseable {
 +public class ItemListOverlayOverride extends ItemListOverlay {
-@@ -74,4 +69,0 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -73,4 +69,0 @@ import net.minecraftforge.fml.client.config.GuiBut
 -	private GuiButton configButton;
 -	private IDrawable configButtonIcon;
 -	private IDrawable configButtonCheatIcon;
 -	private HoverChecker configButtonHoverChecker;
-@@ -96 +88,9 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -95 +88,9 @@ import net.minecraftforge.fml.client.config.GuiBut
 -	public ItemListOverlay(@Nonnull ItemFilter itemFilter, @Nonnull List<IAdvancedGuiHandler<?>> advancedGuiHandlers) {
 +	private boolean canGiveItems;
 +	private boolean canDeleteItems;
@@ -62,24 +61,30 @@
 +
 +	public ItemListOverlayOverride(@Nonnull ItemFilter itemFilter, @Nonnull List<IAdvancedGuiHandler<?>> advancedGuiHandlers, boolean canGiveItems, boolean canDeleteItems, boolean moveSearchFieldToCenter, int searchFieldWidth, int searchFieldHeight){
 +		super(itemFilter, advancedGuiHandlers);
-@@ -98,0 +99,6 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -97,0 +99,6 @@ import net.minecraftforge.fml.client.config.GuiBut
 +
 +		this.canGiveItems = canGiveItems;
 +		this.canDeleteItems = canDeleteItems;
 +		this.moveSearchFieldToCenter = moveSearchFieldToCenter;
 +		this.searchFieldWidth = searchFieldWidth;
 +		this.searchFieldHeight = searchFieldHeight;
-@@ -101 +107,2 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -100 +107,2 @@ import net.minecraftforge.fml.client.config.GuiBut
 -	public void initGui(@Nonnull GuiScreen guiScreen) {
 +	@Override
 +	public void initGui(@Nonnull GuiScreen guiScreen){
-@@ -103 +110 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -102 +110 @@ import net.minecraftforge.fml.client.config.GuiBut
 -		if (guiProperties == null) {
 +		if(guiProperties == null){
-@@ -117 +124 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -108 +116 @@ import net.minecraftforge.fml.client.config.GuiBut
+-		if (!activeAdvancedGuiHandlers.isEmpty() && guiScreen instanceof GuiContainer) {
++		if(!activeAdvancedGuiHandlers.isEmpty() && guiScreen instanceof GuiContainer){
+@@ -111 +119 @@ import net.minecraftforge.fml.client.config.GuiBut
+-		} else {
++		} else{
+@@ -116 +124 @@ import net.minecraftforge.fml.client.config.GuiBut
 -		if (columns < 4) {
 +		if(columns < 4){
-@@ -138,8 +145,13 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -137,8 +145,13 @@ import net.minecraftforge.fml.client.config.GuiBut
 -		int configButtonX = rightEdge - buttonSize + 1;
 -		int configButtonY = guiProperties.getScreenHeight() - buttonSize - borderPadding;
 -		configButton = new GuiButtonExt(2, configButtonX, configButtonY, buttonSize, buttonSize, null);
@@ -94,14 +99,14 @@
 +			searchField = new GuiTextFieldFilter(0, fontRenderer, (guiProperties.getScreenWidth() - searchFieldWidth) / 2, searchFieldY, searchFieldWidth, searchFieldHeight);
 +			setKeyboardFocus(false);
 +			searchField.setItemFilter(itemFilter);
-+		} else {
++		} else{
 +			int searchFieldY = guiProperties.getScreenHeight() - searchFieldHeight - borderPadding - 2;
 +			FontRenderer fontRenderer = Minecraft.getMinecraft().fontRendererObj;
 +			searchField = new GuiTextFieldFilter(0, fontRenderer, rightEdge - searchFieldWidth - borderPadding, searchFieldY, searchFieldWidth, searchFieldHeight);
 +			setKeyboardFocus(false);
 +			searchField.setItemFilter(itemFilter);
 +		}
-@@ -147,7 +158,0 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -146,7 +158,0 @@ import net.minecraftforge.fml.client.config.GuiBut
 -		int searchFieldY = guiProperties.getScreenHeight() - searchHeight - borderPadding - 2;
 -		int searchFieldWidth = rightEdge - leftEdge - buttonSize - 1;
 -		FontRenderer fontRenderer = Minecraft.getMinecraft().fontRendererObj;
@@ -109,114 +114,149 @@
 -		setKeyboardFocus(false);
 -		searchField.setItemFilter(itemFilter);
 -
-@@ -164,2 +169,2 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -159 +165 @@ import net.minecraftforge.fml.client.config.GuiBut
+-	private List<IAdvancedGuiHandler<?>> getActiveAdvancedGuiHandlers(@Nonnull GuiScreen guiScreen) {
++	private List<IAdvancedGuiHandler<?>> getActiveAdvancedGuiHandlers(@Nonnull GuiScreen guiScreen){
+@@ -161 +167 @@ import net.minecraftforge.fml.client.config.GuiBut
+-		if (guiScreen instanceof GuiContainer) {
++		if(guiScreen instanceof GuiContainer){
+@@ -163,2 +169,2 @@ import net.minecraftforge.fml.client.config.GuiBut
 -			for (IAdvancedGuiHandler<?> advancedGuiHandler : advancedGuiHandlers) {
 -				if (advancedGuiHandler.getGuiContainerClass().isAssignableFrom(guiContainer.getClass())) {
-+			for (IAdvancedGuiHandler<?> advancedGuiHandler : advancedGuiHandlers){
++			for(IAdvancedGuiHandler<?> advancedGuiHandler : advancedGuiHandlers){
 +				if(advancedGuiHandler.getGuiContainerClass().isAssignableFrom(guiContainer.getClass())){
-@@ -192,2 +197,3 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -172 +178 @@ import net.minecraftforge.fml.client.config.GuiBut
+-	private List<Rectangle> getGuiAreas(GuiContainer guiContainer) {
++	private List<Rectangle> getGuiAreas(GuiContainer guiContainer){
+@@ -174 +180 @@ import net.minecraftforge.fml.client.config.GuiBut
+-		for (IAdvancedGuiHandler<?> advancedGuiHandler : activeAdvancedGuiHandlers) {
++		for(IAdvancedGuiHandler<?> advancedGuiHandler : activeAdvancedGuiHandlers){
+@@ -176 +182 @@ import net.minecraftforge.fml.client.config.GuiBut
+-			if (guiExtraAreas != null) {
++			if(guiExtraAreas != null){
+@@ -183,2 +189,2 @@ import net.minecraftforge.fml.client.config.GuiBut
+-	private <T extends GuiContainer> List<Rectangle> getGuiAreas(GuiContainer guiContainer, IAdvancedGuiHandler<T> advancedGuiHandler) {
+-		if (advancedGuiHandler.getGuiContainerClass().isAssignableFrom(guiContainer.getClass())) {
++	private <T extends GuiContainer> List<Rectangle> getGuiAreas(GuiContainer guiContainer, IAdvancedGuiHandler<T> advancedGuiHandler){
++		if(advancedGuiHandler.getGuiContainerClass().isAssignableFrom(guiContainer.getClass())){
+@@ -191,2 +197,3 @@ import net.minecraftforge.fml.client.config.GuiBut
 -	public void updateGui(@Nonnull GuiScreen guiScreen) {
 -		if (this.guiProperties == null) {
 +	@Override
 +	public void updateGui(@Nonnull GuiScreen guiScreen){
 +		if(this.guiProperties == null){
-@@ -197 +203 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -194 +201 @@ import net.minecraftforge.fml.client.config.GuiBut
+-		} else {
++		} else{
+@@ -196 +203 @@ import net.minecraftforge.fml.client.config.GuiBut
 -			if (guiProperties == null) {
 +			if(guiProperties == null){
-@@ -200 +206 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -199 +206 @@ import net.minecraftforge.fml.client.config.GuiBut
 -			if (!this.guiProperties.equals(guiProperties)) {
 +			if(!this.guiProperties.equals(guiProperties)){
-@@ -205 +211 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -201 +208 @@ import net.minecraftforge.fml.client.config.GuiBut
+-			} else if (!activeAdvancedGuiHandlers.isEmpty() && guiScreen instanceof GuiContainer) {
++			} else if(!activeAdvancedGuiHandlers.isEmpty() && guiScreen instanceof GuiContainer){
+@@ -204 +211 @@ import net.minecraftforge.fml.client.config.GuiBut
 -				if (!Objects.equals(this.guiAreas, guiAreas)) {
 +				if(!Objects.equals(this.guiAreas, guiAreas)){
-@@ -212 +218 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -211 +218 @@ import net.minecraftforge.fml.client.config.GuiBut
 -	private static void createItemButtons(@Nonnull GuiItemStackFastList guiItemStacks, @Nullable List<Rectangle> guiAreas, final int xStart, final int yStart, final int columnCount, final int rowCount) {
 +	private static void createItemButtons(@Nonnull GuiItemStackFastList guiItemStacks, @Nullable List<Rectangle> guiAreas, final int xStart, final int yStart, final int columnCount, final int rowCount){
-@@ -215 +221 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -214 +221 @@ import net.minecraftforge.fml.client.config.GuiBut
 -		for (int row = 0; row < rowCount; row++) {
-+		for (int row = 0; row < rowCount; row++){
-@@ -217 +223 @@ import net.minecraftforge.fml.client.config.GuiBut
++		for(int row = 0; row < rowCount; row++){
+@@ -216 +223 @@ import net.minecraftforge.fml.client.config.GuiBut
 -			for (int column = 0; column < columnCount; column++) {
-+			for (int column = 0; column < columnCount; column++){
-@@ -220 +226 @@ import net.minecraftforge.fml.client.config.GuiBut
++			for(int column = 0; column < columnCount; column++){
+@@ -219 +226 @@ import net.minecraftforge.fml.client.config.GuiBut
 -				if (guiAreas != null) {
 +				if(guiAreas != null){
-@@ -222 +228 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -221 +228 @@ import net.minecraftforge.fml.client.config.GuiBut
 -					if (intersects(guiAreas, stackArea)) {
 +					if(intersects(guiAreas, stackArea)){
-@@ -231,3 +237,3 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -230,3 +237,3 @@ import net.minecraftforge.fml.client.config.GuiBut
 -	private static boolean intersects(List<Rectangle> areas, Rectangle comparisonArea) {
 -		for (Rectangle area : areas) {
 -			if (area.intersects(comparisonArea)) {
 +	private static boolean intersects(List<Rectangle> areas, Rectangle comparisonArea){
-+		for (Rectangle area : areas){
++		for(Rectangle area : areas){
 +			if(area.intersects(comparisonArea)){
-@@ -240 +246 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -239 +246 @@ import net.minecraftforge.fml.client.config.GuiBut
 -	private void updateLayout() {
 +	private void updateLayout(){
-@@ -254 +260 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -253 +260 @@ import net.minecraftforge.fml.client.config.GuiBut
 -	private void nextPage() {
 +	private void nextPage(){
-@@ -256 +262 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -255 +262 @@ import net.minecraftforge.fml.client.config.GuiBut
 -		if (itemsCount == 0) {
 +		if(itemsCount == 0){
-@@ -262 +268 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -261 +268 @@ import net.minecraftforge.fml.client.config.GuiBut
 -		if (firstItemIndex >= itemsCount) {
 +		if(firstItemIndex >= itemsCount){
-@@ -268 +274 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -267 +274 @@ import net.minecraftforge.fml.client.config.GuiBut
 -	private void previousPage() {
 +	private void previousPage(){
-@@ -270 +276 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -269 +276 @@ import net.minecraftforge.fml.client.config.GuiBut
 -		if (itemsPerPage == 0) {
 +		if(itemsPerPage == 0){
-@@ -277 +283 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -276 +283 @@ import net.minecraftforge.fml.client.config.GuiBut
 -		if (pageNum == 0) {
 +		if(pageNum == 0){
-@@ -291,2 +297,3 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -278 +285 @@ import net.minecraftforge.fml.client.config.GuiBut
+-		} else {
++		} else{
+@@ -283 +290 @@ import net.minecraftforge.fml.client.config.GuiBut
+-		if (firstItemIndex > 0 && firstItemIndex == itemsCount) {
++		if(firstItemIndex > 0 && firstItemIndex == itemsCount){
+@@ -290,2 +297,3 @@ import net.minecraftforge.fml.client.config.GuiBut
 -	public void drawScreen(@Nonnull Minecraft minecraft, int mouseX, int mouseY) {
 -		if (!isOpen()) {
 +	@Override
 +	public void drawScreen(@Nonnull Minecraft minecraft, int mouseX, int mouseY){
 +		if(!isOpen()){
-@@ -297 +304 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -296 +304 @@ import net.minecraftforge.fml.client.config.GuiBut
 -		
 +
-@@ -303 +309,0 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -302 +309,0 @@ import net.minecraftforge.fml.client.config.GuiBut
 -		configButton.drawButton(minecraft, mouseX, mouseY);
-@@ -305,3 +310,0 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -304,3 +310,0 @@ import net.minecraftforge.fml.client.config.GuiBut
 -		IDrawable icon = Config.isCheatItemsEnabled() ? configButtonCheatIcon : configButtonIcon;
 -		icon.draw(minecraft, configButton.xPosition + 2, configButton.yPosition + 2);
 -
-@@ -310 +313 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -309 +313 @@ import net.minecraftforge.fml.client.config.GuiBut
 -		if (shouldShowDeleteItemTooltip(minecraft)) {
 +		if(shouldShowDeleteItemTooltip(minecraft)){
-@@ -317 +320 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -311 +315 @@ import net.minecraftforge.fml.client.config.GuiBut
+-		} else {
++		} else{
+@@ -316 +320 @@ import net.minecraftforge.fml.client.config.GuiBut
 -		if (hovered != null) {
 +		if(hovered != null){
-@@ -326,2 +329,2 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -325,2 +329,2 @@ import net.minecraftforge.fml.client.config.GuiBut
 -	private boolean shouldShowDeleteItemTooltip(Minecraft minecraft) {
 -		if (Config.isDeleteItemsInCheatModeActive()) {
 +	private boolean shouldShowDeleteItemTooltip(Minecraft minecraft){
 +		if(canDeleteItems && FEIConfiguration.canDeleteItems(Minecraft.getMinecraft().thePlayer)){
-@@ -329 +332 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -328 +332 @@ import net.minecraftforge.fml.client.config.GuiBut
 -			if (player.inventory.getItemStack() != null) {
 +			if(player.inventory.getItemStack() != null){
-@@ -336,2 +339,3 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -335,2 +339,3 @@ import net.minecraftforge.fml.client.config.GuiBut
 -	public void drawTooltips(@Nonnull Minecraft minecraft, int mouseX, int mouseY) {
 -		if (!isOpen()) {
 +	@Override
 +	public void drawTooltips(@Nonnull Minecraft minecraft, int mouseX, int mouseY){
 +		if(!isOpen()){
-@@ -340 +344 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -339 +344 @@ import net.minecraftforge.fml.client.config.GuiBut
 -		
 +
-@@ -342 +346 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -341 +346 @@ import net.minecraftforge.fml.client.config.GuiBut
 -		if (mouseOver && shouldShowDeleteItemTooltip(minecraft)) {
 +		if(mouseOver && shouldShowDeleteItemTooltip(minecraft)){
-@@ -347 +351 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -346 +351 @@ import net.minecraftforge.fml.client.config.GuiBut
 -		if (hovered != null) {
 +		if(hovered != null){
-@@ -350,13 +353,0 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -349,13 +353,0 @@ import net.minecraftforge.fml.client.config.GuiBut
 -
 -		if (configButtonHoverChecker.checkHover(mouseX, mouseY)) {
 -			String configString = Translator.translateToLocal("jei.tooltip.config");
@@ -230,50 +270,55 @@
 -				TooltipRenderer.drawHoveringText(minecraft, configString, mouseX, mouseY);
 -			}
 -		}
-@@ -365,2 +356,3 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -364,2 +356,3 @@ import net.minecraftforge.fml.client.config.GuiBut
 -	public void handleTick() {
 -		if (searchField != null) {
 +	@Override
 +	public void handleTick(){
 +		if(searchField != null){
-@@ -372,2 +364,2 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -371,2 +364,2 @@ import net.minecraftforge.fml.client.config.GuiBut
 -	public boolean isMouseOver(int mouseX, int mouseY) {
 -		if (guiProperties == null || !isOpen() || (mouseX < guiProperties.getGuiLeft() + guiProperties.getGuiXSize())) {
 +	public boolean isMouseOver(int mouseX, int mouseY){
 +		if(guiProperties == null || !isOpen()){
-@@ -374,0 +367,6 @@ import net.minecraftforge.fml.client.config.GuiBut
-+		} else {
+@@ -373,0 +367,6 @@ import net.minecraftforge.fml.client.config.GuiBut
++		} else{
 +			if(!(moveSearchFieldToCenter && searchField.isMouseOver(mouseX, mouseY))){
 +				if(mouseX < guiProperties.getGuiLeft() + guiProperties.getGuiXSize()){
 +					return false;
 +				}
 +			}
-@@ -377,3 +375,3 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -376,3 +375,3 @@ import net.minecraftforge.fml.client.config.GuiBut
 -		if (guiAreas != null) {
 -			for (Rectangle guiArea : guiAreas) {
 -				if (guiArea.contains(mouseX, mouseY)) {
 +		if(guiAreas != null){
-+			for (Rectangle guiArea : guiAreas){
++			for(Rectangle guiArea : guiAreas){
 +				if(guiArea.contains(mouseX, mouseY)){
-@@ -396 +394,2 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -389,2 +388,2 @@ import net.minecraftforge.fml.client.config.GuiBut
+-	public Focus<?> getFocusUnderMouse(int mouseX, int mouseY) {
+-		if (!isMouseOver(mouseX, mouseY)) {
++	public Focus<?> getFocusUnderMouse(int mouseX, int mouseY){
++		if(!isMouseOver(mouseX, mouseY)){
+@@ -395 +394,2 @@ import net.minecraftforge.fml.client.config.GuiBut
 -		if (focus != null) {
 +		boolean key = Thread.currentThread().getStackTrace()[2].getMethodName().equals("getFocusUnderMouseForKey");
 +		if(focus != null && (key || Config.isEditModeEnabled() || !canGiveItems || !FEIConfiguration.canGiveItems(Minecraft.getMinecraft().thePlayer))){
-@@ -398 +397 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -397 +397 @@ import net.minecraftforge.fml.client.config.GuiBut
 -			focus.setAllowsCheating();
 +			return focus;
-@@ -400 +399 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -399 +399 @@ import net.minecraftforge.fml.client.config.GuiBut
 -		return focus;
 +		return null;
-@@ -404 +403 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -403 +403 @@ import net.minecraftforge.fml.client.config.GuiBut
 -	public boolean canSetFocusWithMouse() {
 +	public boolean canSetFocusWithMouse(){
-@@ -409,2 +408,2 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -408,2 +408,2 @@ import net.minecraftforge.fml.client.config.GuiBut
 -	public boolean handleMouseClicked(int mouseX, int mouseY, int mouseButton) {
 -		if (!isMouseOver(mouseX, mouseY)) {
 +	public boolean handleMouseClicked(int mouseX, int mouseY, int mouseButton){
 +		if(!isMouseOver(mouseX, mouseY)){
-@@ -415,8 +414,7 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -414,8 +414,7 @@ import net.minecraftforge.fml.client.config.GuiBut
 -		if (Config.isDeleteItemsInCheatModeActive()) {
 -			Minecraft minecraft = Minecraft.getMinecraft();
 -			EntityPlayerSP player = minecraft.thePlayer;
@@ -284,13 +329,13 @@
 -				JustEnoughItems.getProxy().sendPacketToServer(packet);
 +		if(Minecraft.getMinecraft().thePlayer.inventory.getItemStack() == null){
 +			Focus f = guiItemStacks.getFocusUnderMouse(mouseX, mouseY);
-+			if(f != null && f.getValue() instanceof ItemStack && canGiveItems &&  FEIConfiguration.canGiveItems(Minecraft.getMinecraft().thePlayer)){
++			if(f != null && f.getValue() instanceof ItemStack && canGiveItems && FEIConfiguration.canGiveItems(Minecraft.getMinecraft().thePlayer)){
 +				ItemStack itemstack = ((ItemStack) f.getValue()).copy();
 +				if(mouseButton == 0) itemstack.stackSize = itemstack.getMaxStackSize();
 +				else itemstack.stackSize = 1;
 +				ForeverEnoughItemsBase.net.sendToServer(new FEIGiveItemStackPacket(itemstack));
-@@ -424,0 +423,12 @@ import net.minecraftforge.fml.client.config.GuiBut
-+		} else {
+@@ -423,0 +423,12 @@ import net.minecraftforge.fml.client.config.GuiBut
++		} else{
 +			if(canDeleteItems && FEIConfiguration.canDeleteItems(Minecraft.getMinecraft().thePlayer)){
 +				Minecraft minecraft = Minecraft.getMinecraft();
 +				EntityPlayerSP player = minecraft.thePlayer;
@@ -302,105 +347,117 @@
 +					return true;
 +				}
 +			}
-@@ -428 +438 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -427 +438 @@ import net.minecraftforge.fml.client.config.GuiBut
 -		if (buttonClicked) {
 +		if(buttonClicked){
-@@ -437,2 +447,2 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -436,2 +447,2 @@ import net.minecraftforge.fml.client.config.GuiBut
 -	public boolean handleMouseScrolled(int mouseX, int mouseY, int scrollDelta) {
 -		if (!isMouseOver(mouseX, mouseY)) {
 +	public boolean handleMouseScrolled(int mouseX, int mouseY, int scrollDelta){
 +		if(!isMouseOver(mouseX, mouseY)){
-@@ -441 +451 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -440 +451 @@ import net.minecraftforge.fml.client.config.GuiBut
 -		if (scrollDelta < 0) {
 +		if(scrollDelta < 0){
-@@ -444 +454 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -443 +454 @@ import net.minecraftforge.fml.client.config.GuiBut
 -		} else if (scrollDelta > 0) {
 +		} else if(scrollDelta > 0){
-@@ -451 +461 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -450 +461 @@ import net.minecraftforge.fml.client.config.GuiBut
 -	private boolean handleMouseClickedButtons(int mouseX, int mouseY) {
 +	private boolean handleMouseClickedButtons(int mouseX, int mouseY){
-@@ -453 +463 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -452 +463 @@ import net.minecraftforge.fml.client.config.GuiBut
 -		if (nextButton.mousePressed(minecraft, mouseX, mouseY)) {
 +		if(nextButton.mousePressed(minecraft, mouseX, mouseY)){
-@@ -457 +467 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -456 +467 @@ import net.minecraftforge.fml.client.config.GuiBut
 -		} else if (backButton.mousePressed(minecraft, mouseX, mouseY)) {
 +		} else if(backButton.mousePressed(minecraft, mouseX, mouseY)){
-@@ -461,6 +470,0 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -460,6 +470,0 @@ import net.minecraftforge.fml.client.config.GuiBut
 -		} else if (configButton.mousePressed(minecraft, mouseX, mouseY)) {
 -			close();
 -			configButton.playPressSound(minecraft.getSoundHandler());
 -			GuiScreen configScreen = new JEIModConfigGui(minecraft.currentScreen);
 -			minecraft.displayGuiScreen(configScreen);
 -			return true;
-@@ -471 +475 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -470 +475 @@ import net.minecraftforge.fml.client.config.GuiBut
 -	private boolean handleMouseClickedSearch(int mouseX, int mouseY, int mouseButton) {
 +	private boolean handleMouseClickedSearch(int mouseX, int mouseY, int mouseButton){
-@@ -474 +478 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -473 +478 @@ import net.minecraftforge.fml.client.config.GuiBut
 -		if (searchClicked && searchField.handleMouseClicked(mouseX, mouseY, mouseButton)) {
 +		if(searchClicked && searchField.handleMouseClicked(mouseX, mouseY, mouseButton)){
-@@ -481 +485 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -480 +485 @@ import net.minecraftforge.fml.client.config.GuiBut
 -	public boolean hasKeyboardFocus() {
 +	public boolean hasKeyboardFocus(){
-@@ -486,2 +490,2 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -485,2 +490,2 @@ import net.minecraftforge.fml.client.config.GuiBut
 -	public void setKeyboardFocus(boolean keyboardFocus) {
 -		if (searchField != null) {
 +	public void setKeyboardFocus(boolean keyboardFocus){
 +		if(searchField != null){
-@@ -505,2 +509,2 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -492,2 +497,2 @@ import net.minecraftforge.fml.client.config.GuiBut
+-	public boolean onKeyPressed(char typedChar, int keyCode) {
+-		if (hasKeyboardFocus()) {
++	public boolean onKeyPressed(char typedChar, int keyCode){
++		if(hasKeyboardFocus()){
+@@ -495 +500 @@ import net.minecraftforge.fml.client.config.GuiBut
+-			if (changed) {
++			if(changed){
+@@ -504,2 +509,2 @@ import net.minecraftforge.fml.client.config.GuiBut
 -	private int getItemButtonXSpace() {
 -		if (guiProperties == null) {
 +	private int getItemButtonXSpace(){
 +		if(guiProperties == null){
-@@ -512,2 +516,2 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -511,2 +516,2 @@ import net.minecraftforge.fml.client.config.GuiBut
 -	private int getItemButtonYSpace() {
 -		if (guiProperties == null) {
 +	private int getItemButtonYSpace(){
 +		if(guiProperties == null){
-@@ -516 +520 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -515 +520 @@ import net.minecraftforge.fml.client.config.GuiBut
 -		return guiProperties.getScreenHeight() - (buttonSize + searchHeight + 2 + (4 * borderPadding));
 +		return guiProperties.getScreenHeight() - (buttonSize + (moveSearchFieldToCenter ? 0 : (searchFieldHeight + 2)) + (4 * borderPadding));
-@@ -519 +523 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -518 +523 @@ import net.minecraftforge.fml.client.config.GuiBut
 -	private int getColumns() {
 +	private int getColumns(){
-@@ -523 +527 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -522 +527 @@ import net.minecraftforge.fml.client.config.GuiBut
 -	private int getRows() {
 +	private int getRows(){
-@@ -527 +531 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -526 +531 @@ import net.minecraftforge.fml.client.config.GuiBut
 -	private int getPageCount() {
 +	private int getPageCount(){
-@@ -530 +534 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -529 +534 @@ import net.minecraftforge.fml.client.config.GuiBut
 -		if (stacksPerPage == 0) {
 +		if(stacksPerPage == 0){
-@@ -538 +542 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -537 +542 @@ import net.minecraftforge.fml.client.config.GuiBut
 -	private int getPageNum() {
 +	private int getPageNum(){
-@@ -540 +544 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -539 +544 @@ import net.minecraftforge.fml.client.config.GuiBut
 -		if (stacksPerPage == 0) {
 +		if(stacksPerPage == 0){
-@@ -546 +550,2 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -545 +550,2 @@ import net.minecraftforge.fml.client.config.GuiBut
 -	public void open() {
 +	@Override
 +	public void open(){
-@@ -552 +557 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -551 +557 @@ import net.minecraftforge.fml.client.config.GuiBut
 -	public void close() {
 +	public void close(){
-@@ -559 +564 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -558 +564 @@ import net.minecraftforge.fml.client.config.GuiBut
 -	public boolean isOpen() {
 +	public boolean isOpen(){
-@@ -565,2 +570,2 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -564,2 +570,2 @@ import net.minecraftforge.fml.client.config.GuiBut
 -	public ItemStack getStackUnderMouse() {
 -		if (hovered == null) {
 +	public ItemStack getStackUnderMouse(){
 +		if(hovered == null){
-@@ -574,2 +579,2 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -567 +573 @@ import net.minecraftforge.fml.client.config.GuiBut
+-		} else {
++		} else{
+@@ -573,2 +579,2 @@ import net.minecraftforge.fml.client.config.GuiBut
 -	public void setFilterText(@Nullable String filterText) {
 -		if (filterText == null) {
 +	public void setFilterText(@Nullable String filterText){
 +		if(filterText == null){
-@@ -581 +585,0 @@ import net.minecraftforge.fml.client.config.GuiBut
--		updateLayout();
-@@ -586 +590 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -581 +587 @@ import net.minecraftforge.fml.client.config.GuiBut
+-		if (searchField != null) {
++		if(searchField != null){
+@@ -589 +595 @@ import net.minecraftforge.fml.client.config.GuiBut
 -	public String getFilterText() {
 +	public String getFilterText(){
-@@ -588,0 +593 @@ import net.minecraftforge.fml.client.config.GuiBut
+@@ -591,0 +598 @@ import net.minecraftforge.fml.client.config.GuiBut
 +
