@@ -14,7 +14,7 @@ public class OnPlayerTickEvent {
 	@SubscribeEvent
 	public void tick(PlayerTickEvent event){
 		if(event.phase == Phase.START){
-			if(event.player.getCapability(MagnetCapability.CAPABILITY, null).active){
+			if(!event.player.isDead && event.player.getHealth() != 0 && event.player.getCapability(MagnetCapability.CAPABILITY, null).active){
 				if(FEIConfiguration.magnetRadius > 0){
 					EntityPlayer player = event.player;
 

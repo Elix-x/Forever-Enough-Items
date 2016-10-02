@@ -23,8 +23,10 @@ import mezz.jei.ProxyCommonClient;
 import mezz.jei.api.IJeiRuntime;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.IModRegistry;
+import mezz.jei.api.ISubtypeRegistry;
 import mezz.jei.api.JEIPlugin;
 import mezz.jei.api.gui.IAdvancedGuiHandler;
+import mezz.jei.api.ingredients.IModIngredientRegistration;
 import mezz.jei.config.Config;
 import mezz.jei.config.LocalizedConfiguration;
 import mezz.jei.gui.ItemListOverlay;
@@ -49,13 +51,13 @@ public class JeiReflector implements IModPlugin, IGuiElement<FEIGuiOverride>, IN
 	private static final AField<Config, File> jeiConfigurationDir = new AField(Config.class, "jeiConfigurationDir").setAccessible(true);
 	private static final AField<Config, LocalizedConfiguration> itemBlacklistConfig = new AField(Config.class, "itemBlacklistConfig").setAccessible(true);
 	private static final AField<Config, LocalizedConfiguration> searchColorsConfig = new AField(Config.class, "searchColorsConfig").setAccessible(true);
+	private static final AField<Config, Boolean> centerSearchBarEnabled = new AField(Config.class, "centerSearchBarEnabled").setAccessible(true);
 	private static final AField<Configuration, File> file = new AField(Configuration.class, "file").setAccessible(true);
 	private static final AField<Configuration, Boolean> changed = new AField(Configuration.class, "changed").setAccessible(true);
 
 	public boolean canGiveItems;
 	public boolean canDeleteItemsAboveItemsList;
 
-	public boolean moveSearchFieldToCenter;
 	public int searchFieldWidth;
 	public int searchFieldHeight;
 
@@ -80,7 +82,7 @@ public class JeiReflector implements IModPlugin, IGuiElement<FEIGuiOverride>, IN
 
 					}
 				}
-				ItemListOverlayOverride overlay = new ItemListOverlayOverride(itemFilter.get((ItemListOverlay) jeiRuntime.getItemListOverlay()), advancedGuiHandlers.get((ItemListOverlay) jeiRuntime.getItemListOverlay()), canGiveItems, canDeleteItemsAboveItemsList, moveSearchFieldToCenter, searchFieldWidth, searchFieldHeight);
+				ItemListOverlayOverride overlay = new ItemListOverlayOverride(itemFilter.get((ItemListOverlay) jeiRuntime.getItemListOverlay()), advancedGuiHandlers.get((ItemListOverlay) jeiRuntime.getItemListOverlay()), Internal.getIngredientRegistry(), canGiveItems, canDeleteItemsAboveItemsList, searchFieldWidth, searchFieldHeight);
 				itemListOverlay.set((JeiRuntime) jeiRuntime, overlay);
 
 				Iterator<IModPlugin> iterator = plugins.get((ProxyCommonClient) JustEnoughItems.getProxy()).iterator();
@@ -116,9 +118,10 @@ public class JeiReflector implements IModPlugin, IGuiElement<FEIGuiOverride>, IN
 
 		canGiveItems = data.canGiveItems;
 		canDeleteItemsAboveItemsList = data.canDeleteItemsAboveItemsList;
-		moveSearchFieldToCenter = data.moveSearchFieldToCenter;
 		searchFieldWidth = data.searchFieldWidth;
 		searchFieldHeight = data.searchFieldHeight;
+
+		if(data.moveSearchFieldToCenter != null) centerSearchBarEnabled.set(null, data.moveSearchFieldToCenter);
 
 		File jeiDir = new File(profile.getSaveDir(), "JEI");
 		jeiDir.mkdir();
@@ -163,7 +166,6 @@ public class JeiReflector implements IModPlugin, IGuiElement<FEIGuiOverride>, IN
 
 		data.canGiveItems = canGiveItems;
 		data.canDeleteItemsAboveItemsList = canDeleteItemsAboveItemsList;
-		data.moveSearchFieldToCenter = moveSearchFieldToCenter;
 		data.searchFieldWidth = searchFieldWidth;
 		data.searchFieldHeight = searchFieldHeight;
 
@@ -225,13 +227,23 @@ public class JeiReflector implements IModPlugin, IGuiElement<FEIGuiOverride>, IN
 		private boolean canGiveItems;
 		private boolean canDeleteItemsAboveItemsList;
 
-		private boolean moveSearchFieldToCenter;
+		private Boolean moveSearchFieldToCenter;
 		private int searchFieldWidth;
 		private int searchFieldHeight;
 
 		private JsonData(){
 
 		}
+
+	}
+
+	@Override
+	public void registerItemSubtypes(ISubtypeRegistry subtypeRegistry){
+
+	}
+
+	@Override
+	public void registerIngredients(IModIngredientRegistration registry){
 
 	}
 

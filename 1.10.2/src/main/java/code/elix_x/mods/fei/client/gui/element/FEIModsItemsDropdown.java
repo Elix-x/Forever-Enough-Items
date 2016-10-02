@@ -16,6 +16,7 @@ import com.google.gson.JsonObject;
 
 import code.elix_x.excore.utils.client.gui.elements.ListGuiElement;
 import code.elix_x.excore.utils.client.gui.elements.RectangularGuiElement;
+import code.elix_x.excore.utils.client.render.ItemStackRenderer;
 import code.elix_x.excore.utils.color.RGBA;
 import code.elix_x.mods.fei.api.gui.FEIGuiOverride;
 import code.elix_x.mods.fei.api.gui.elements.IConfigurableFEIGuiElement;
@@ -23,7 +24,6 @@ import code.elix_x.mods.fei.api.gui.elements.ISaveableFEIGuiElement;
 import code.elix_x.mods.fei.api.profile.Profile;
 import code.elix_x.mods.fei.client.gui.FEIModsItemsDropdownSettingsGui;
 import mezz.jei.Internal;
-import mezz.jei.gui.ingredients.ItemStackRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
@@ -281,7 +281,7 @@ public class FEIModsItemsDropdown extends RectangularGuiElement<FEIGuiOverride> 
 						return true;
 					}
 					if(key == 1){
-						Internal.getRuntime().getItemListOverlay().setFilterText(Internal.getRuntime().getItemListOverlay().getFilterText() + "@" + mod);
+						Internal.getRuntime().getItemListOverlay().setFilterText("@" + mod);
 					}
 				}
 				return false;
@@ -330,7 +330,7 @@ public class FEIModsItemsDropdown extends RectangularGuiElement<FEIGuiOverride> 
 				GlStateManager.enableDepth();
 				GL11.glPushMatrix();
 				GL11.glTranslated(0, 0, 10);
-				renderer.draw(gui.mc, x, relY, itemstack);
+				renderer.renderItemStack(gui.mc, x, relY, itemstack);
 				GL11.glPopMatrix();
 				GlStateManager.disableDepth();
 			}

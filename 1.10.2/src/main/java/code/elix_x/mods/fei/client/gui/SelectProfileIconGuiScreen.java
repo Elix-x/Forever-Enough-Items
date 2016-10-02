@@ -3,6 +3,7 @@ package code.elix_x.mods.fei.client.gui;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -17,16 +18,17 @@ import mezz.jei.Internal;
 import mezz.jei.ItemFilter;
 import mezz.jei.api.IItemListOverlay;
 import mezz.jei.config.Config;
-import mezz.jei.gui.Focus;
 import mezz.jei.gui.TooltipRenderer;
-import mezz.jei.gui.ingredients.GuiItemStackFast;
-import mezz.jei.gui.ingredients.GuiItemStackFastList;
+import mezz.jei.gui.ingredients.GuiIngredientFast;
+import mezz.jei.gui.ingredients.GuiIngredientFastList;
 import mezz.jei.gui.ingredients.GuiItemStackGroup;
+import mezz.jei.gui.ingredients.IIngredientListElement;
+import mezz.jei.input.ClickedIngredient;
 import mezz.jei.input.GuiTextFieldFilter;
+import mezz.jei.input.IClickedIngredient;
 import mezz.jei.input.IKeyable;
 import mezz.jei.input.IMouseHandler;
 import mezz.jei.input.IShowsRecipeFocuses;
-import mezz.jei.util.ItemStackElement;
 import mezz.jei.util.Log;
 import mezz.jei.util.MathUtil;
 import mezz.jei.util.Translator;
@@ -53,7 +55,7 @@ public class SelectProfileIconGuiScreen extends GuiScreen {
 		this.parent = parent;
 		this.itemstack = itemstack;
 
-		list = new ItemListCustom(new ItemFilter(Internal.getItemRegistry()));
+		list = new ItemListCustom(new ItemFilter(Internal.getIngredientRegistry(), Internal.getHelpers()));
 	}
 
 	@Override
@@ -113,7 +115,7 @@ public class SelectProfileIconGuiScreen extends GuiScreen {
 		private int screenWidth;
 		private int screenHeight;
 
-		private final GuiItemStackFastList guiItemStacks = new GuiItemStackFastList();
+		private final GuiIngredientFastList guiItemStacks = new GuiIngredientFastList(Internal.getIngredientRegistry());
 		private GuiButton nextButton;
 		private GuiButton backButton;
 		private GuiTextFieldFilter searchField;
@@ -122,7 +124,7 @@ public class SelectProfileIconGuiScreen extends GuiScreen {
 		private int pageNumDisplayX;
 		private int pageNumDisplayY;
 
-		private GuiItemStackFast hovered = null;
+		private GuiIngredientFast hovered = null;
 
 		public ItemListCustom(@Nonnull ItemFilter itemFilter){
 			this.itemFilter = itemFilter;
@@ -166,14 +168,14 @@ public class SelectProfileIconGuiScreen extends GuiScreen {
 			updateLayout();
 		}
 
-		private static void createItemButtons(@Nonnull GuiItemStackFastList guiItemStacks, final int xStart, final int yStart, final int columnCount, final int rowCount){
+		private static void createItemButtons(@Nonnull GuiIngredientFastList guiItemStacks, final int xStart, final int yStart, final int columnCount, final int rowCount){
 			guiItemStacks.clear();
 
 			for(int row = 0; row < rowCount; row++){
 				int y = yStart + (row * itemStackHeight);
 				for(int column = 0; column < columnCount; column++){
 					int x = xStart + (column * itemStackWidth);
-					guiItemStacks.add(new GuiItemStackFast(x, y, itemStackPadding));
+					guiItemStacks.add(new GuiIngredientFast(x, y, itemStackPadding));
 				}
 			}
 		}
@@ -188,7 +190,7 @@ public class SelectProfileIconGuiScreen extends GuiScreen {
 		}
 
 		private void updateLayout(){
-			ImmutableList<ItemStackElement> itemList = itemFilter.getItemList();
+			ImmutableList<IIngredientListElement> itemList = itemFilter.getIngredientList();
 			guiItemStacks.set(firstItemIndex, itemList);
 
 			FontRenderer fontRendererObj = Minecraft.getMinecraft().fontRendererObj;
@@ -296,12 +298,12 @@ public class SelectProfileIconGuiScreen extends GuiScreen {
 
 		@Override
 		@Nullable
-		public Focus getFocusUnderMouse(int mouseX, int mouseY){
+		public IClickedIngredient<?> getIngredientUnderMouse(int mouseX, int mouseY){
 			if(!isMouseOver(mouseX, mouseY)){
 				return null;
 			}
 
-			Focus focus = guiItemStacks.getFocusUnderMouse(mouseX, mouseY);
+			ClickedIngredient<?> focus = guiItemStacks.getIngredientUnderMouse(mouseX, mouseY);
 			if(focus != null){
 				setKeyboardFocus(false);
 				focus.setAllowsCheating();
@@ -434,11 +436,13 @@ public class SelectProfileIconGuiScreen extends GuiScreen {
 		@Nullable
 		@Override
 		public ItemStack getStackUnderMouse(){
-			if(hovered == null){
-				return null;
-			} else{
-				return hovered.getItemStack();
+			if(hovered != null){
+				Object ingredient = hovered.getIngredient();
+				if(ingredient instanceof ItemStack){
+					return (ItemStack) ingredient;
+				}
 			}
+			return null;
 		}
 
 		@Override
@@ -454,6 +458,21 @@ public class SelectProfileIconGuiScreen extends GuiScreen {
 		@Override
 		public String getFilterText(){
 			return searchField.getText();
+		}
+
+		@Override
+		public ImmutableList<ItemStack> getFilteredStacks(){
+			return null;
+		}
+
+		@Override
+		public ImmutableList<ItemStack> getVisibleStacks(){
+			return null;
+		}
+
+		@Override
+		public void highlightStacks(Collection<ItemStack> stacks){
+
 		}
 
 	}

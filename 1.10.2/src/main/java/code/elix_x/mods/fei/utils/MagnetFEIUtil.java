@@ -4,8 +4,10 @@ import code.elix_x.mods.fei.ForeverEnoughItemsBase;
 import code.elix_x.mods.fei.api.permission.FEIPermissionLevel;
 import code.elix_x.mods.fei.api.utils.PermissionRequiredSyncedForFEIUtil;
 import code.elix_x.mods.fei.capabilities.MagnetCapability;
+import code.elix_x.mods.fei.net.MagnetStatePacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fml.relauncher.Side;
@@ -55,6 +57,7 @@ public class MagnetFEIUtil extends PermissionRequiredSyncedForFEIUtil<Boolean> {
 	@Override
 	public void onSelect(Boolean t, EntityPlayer player, boolean permission){
 		if(permission) player.getCapability(MagnetCapability.CAPABILITY, null).active = t;
+		ForeverEnoughItemsBase.net.sendTo(new MagnetStatePacket(player.getCapability(MagnetCapability.CAPABILITY, null).active), (EntityPlayerMP) player);
 	}
 
 }

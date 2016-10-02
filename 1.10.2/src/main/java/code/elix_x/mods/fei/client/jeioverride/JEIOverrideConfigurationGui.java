@@ -7,6 +7,7 @@ import code.elix_x.excore.utils.client.gui.elements.IntegralIncrementerGuiElemen
 import code.elix_x.excore.utils.client.gui.elements.StringGuiElement;
 import code.elix_x.excore.utils.color.RGBA;
 import mezz.jei.JustEnoughItems;
+import mezz.jei.config.Config;
 import mezz.jei.config.JEIModConfigGui;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
@@ -60,18 +61,6 @@ public class JEIOverrideConfigurationGui extends ElementalGuiScreen {
 		});
 		nextY += 2 + 12 + 2;
 
-		add(se = new StringGuiElement("Move Search Field To Center", xPos, nextY + 12 - 8, 2, 2, I18n.translateToLocal("fei.gui.override.jei.override.movesearchfieldtocenter") + " ", fontRendererObj, new RGBA(1f, 1f, 1f, 1f)));
-		add(new CheckBoxGuiElement("Move Search Field To Center Check Box", xPos + se.getWidth(), nextY, 12, 12, 2, 2, jeiRelfector.moveSearchFieldToCenter){
-
-			@Override
-			public void setChecked(boolean checked){
-				super.setChecked(checked);
-				jeiRelfector.moveSearchFieldToCenter = checked;
-			}
-
-		});
-		nextY += 2 + 12 + 2;
-
 		add(se = new StringGuiElement("Search Field Width", xPos, nextY + 16 - 8, 2, 2, I18n.translateToLocal("fei.gui.override.jei.override.searchfieldwidth") + " ", fontRendererObj, new RGBA(1f, 1f, 1f, 1f)));
 		add(new IntegralIncrementerGuiElement("Search Field Width Incrementer", xPos + se.getWidth(), nextY, 24, 8, 16, 2, 2, 1, 0, 1024, jeiRelfector.searchFieldWidth){
 
@@ -110,7 +99,7 @@ public class JEIOverrideConfigurationGui extends ElementalGuiScreen {
 	public void drawScreen(int mouseX, int mouseY, float partialTicks){
 		drawBackground(0);
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if(jeiRelfector.moveSearchFieldToCenter)
+		if(Config.isCenterSearchBarEnabled())
 			new GuiTextField(0, fontRendererObj, (width - jeiRelfector.searchFieldWidth) / 2, height - jeiRelfector.searchFieldHeight - 4, jeiRelfector.searchFieldWidth, jeiRelfector.searchFieldHeight).drawTextBox();
 		else new GuiTextField(0, fontRendererObj, width - jeiRelfector.searchFieldWidth - 2, height - jeiRelfector.searchFieldHeight - 4, jeiRelfector.searchFieldWidth, jeiRelfector.searchFieldHeight).drawTextBox();
 	}

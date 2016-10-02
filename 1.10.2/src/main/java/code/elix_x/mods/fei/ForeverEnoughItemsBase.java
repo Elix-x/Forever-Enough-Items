@@ -27,9 +27,11 @@ import code.elix_x.mods.fei.events.OnPlayerJoinEvent;
 import code.elix_x.mods.fei.events.OnPlayerTickEvent;
 import code.elix_x.mods.fei.net.FEIGiveItemStackPacket;
 import code.elix_x.mods.fei.net.LoadInventoryPacket;
+import code.elix_x.mods.fei.net.MagnetStatePacket;
 import code.elix_x.mods.fei.net.SyncPermissionsManagerPacket;
 import code.elix_x.mods.fei.net.SyncedFEIUtilPropertyPacket;
 import code.elix_x.mods.fei.permission.FEIPermissionsManager;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
@@ -50,13 +52,14 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 @Mod(modid = ForeverEnoughItemsBase.MODID, name = ForeverEnoughItemsBase.NAME, version = ForeverEnoughItemsBase.VERSION, dependencies = "required-after:" + EXCore.DEPENDENCY + ";required-after:" + ForeverEnoughItemsBase.JEIDEPENDENCY + ";after:" + ForeverEnoughItemsBase.BAUBLESDEPENDENCY + ";after:" + ForeverEnoughItemsBase.LLORDEPENDENCY + ";after:" + ForeverEnoughItemsBase.MOREOVERLAYSDEPENDENCY, acceptedMinecraftVersions = EXCore.MCVERSIONDEPENDENCY)
 public class ForeverEnoughItemsBase implements IMod<ForeverEnoughItemsBase, IProxy<ForeverEnoughItemsBase>> {
 
 	public static final String MODID = "FEI";
 	public static final String NAME = "Forever Enough Items";
-	public static final String VERSION = "1.0.15";
+	public static final String VERSION = "1.0.16";
 
 	public static final String JEIDEPENDENCY = mezz.jei.config.Constants.MOD_ID + "@[" + mezz.jei.config.Constants.VERSION + ",)";
 	public static final String BAUBLESDEPENDENCY = "Baubles";
@@ -96,6 +99,26 @@ public class ForeverEnoughItemsBase implements IMod<ForeverEnoughItemsBase, IPro
 			}
 
 		}, SyncPermissionsManagerPacket.class, Side.CLIENT);
+		net.registerMessage3(new Function<MagnetStatePacket, Runnable>(){
+
+			@Override
+			public Runnable apply(final MagnetStatePacket packet){
+				return new Runnable(){
+
+					@Override
+					public void run(){
+						runC();
+					}
+
+					@SideOnly(Side.CLIENT)
+					void runC(){
+						Minecraft.getMinecraft().thePlayer.getCapability(MagnetCapability.CAPABILITY, null).active = packet.on;
+					}
+
+				};
+			}
+
+		}, MagnetStatePacket.class, Side.CLIENT);
 		net.registerMessage1(new Function<Pair<SyncedFEIUtilPropertyPacket, MessageContext>, Runnable>(){
 
 			@Override
