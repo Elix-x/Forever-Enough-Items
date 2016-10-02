@@ -1,7 +1,6 @@
 package mezz.jei.transfer;
 
-import javax.annotation.Nonnull;
-import java.awt.*;
+import java.awt.Color;
 import java.util.Collection;
 import java.util.Map;
 
@@ -21,14 +20,14 @@ public class RecipeTransferErrorSlots extends RecipeTransferErrorTooltip {
 	}
 
 	@Override
-	public void showError(@Nonnull Minecraft minecraft, int mouseX, int mouseY, @Nonnull IRecipeLayout recipeLayout, int recipeX, int recipeY) {
-		super.showError(minecraft, mouseX, mouseY, recipeLayout, recipeX, recipeY);
-
+	public void showError(Minecraft minecraft, int mouseX, int mouseY, IRecipeLayout recipeLayout, int recipeX, int recipeY) {
 		IGuiItemStackGroup itemStackGroup = recipeLayout.getItemStacks();
 		Map<Integer, ? extends IGuiIngredient<ItemStack>>  ingredients = itemStackGroup.getGuiIngredients();
 		for (Integer slotIndex : slots) {
 			IGuiIngredient<ItemStack> ingredient = ingredients.get(slotIndex);
 			ingredient.drawHighlight(minecraft, highlightColor, recipeX, recipeY);
 		}
+
+		super.showError(minecraft, mouseX, mouseY, recipeLayout, recipeX, recipeY);
 	}
 }

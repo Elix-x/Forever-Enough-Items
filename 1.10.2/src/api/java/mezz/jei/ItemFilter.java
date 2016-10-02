@@ -1,6 +1,5 @@
 package mezz.jei;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,112 +9,81 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.cache.Weigher;
-import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Multiset;
-import mezz.jei.api.IItemBlacklist;
-import mezz.jei.api.IItemRegistry;
+import mezz.jei.api.ingredients.IIngredientRegistry;
 import mezz.jei.config.Config;
-import mezz.jei.util.ErrorUtil;
-import mezz.jei.util.ItemStackElement;
-import mezz.jei.util.Log;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ItemModelMesher;
-import net.minecraft.client.renderer.RenderItem;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.item.Item;
+import mezz.jei.gui.ingredients.IIngredientListElement;
 import net.minecraft.item.ItemStack;
 
 public class ItemFilter {
 
 	/** A cache for fast searches while typing or using backspace. Maps filterText to filteredItemMaps */
-	private final LoadingCache<String, ImmutableList<ItemStackElement>> filteredItemMapsCache;
+	private final LoadingCache<String, ImmutableList<IIngredientListElement>> filteredItemMapsCache;
+	private final ImmutableList<IIngredientListElement> baseList;
 
-	public ItemFilter(final IItemRegistry itemRegistry) {
+	public ItemFilter(IIngredientRegistry ingredientRegistry, JeiHelpers jeiHelpers) {
 		filteredItemMapsCache = CacheBuilder.newBuilder()
 				.maximumWeight(16)
-				.weigher(new SearchFilterWeigher())
+				.weigher(new OneWeigher())
 				.concurrencyLevel(1)
-				.build(new ItemFilterCacheLoader(itemRegistry));
+				.build(new ItemFilterCacheLoader());
 
 		// preload the base list
-		filteredItemMapsCache.getUnchecked("");
+		this.baseList = IngredientBaseListFactory.create(ingredientRegistry, jeiHelpers);
 	}
 
-	public void reset() {
-		this.filteredItemMapsCache.invalidateAll();
-	}
-
-	@Nonnull
-	public ImmutableList<ItemStackElement> getItemList() {
+	public ImmutableList<IIngredientListElement> getIngredientList() {
 		String[] filters = Config.getFilterText().split("\\|");
 
 		if (filters.length == 1) {
 			String filter = filters[0];
 			return filteredItemMapsCache.getUnchecked(filter);
 		} else {
-			ImmutableList.Builder<ItemStackElement> itemList = ImmutableList.builder();
+			ImmutableList.Builder<IIngredientListElement> ingredientList = ImmutableList.builder();
 			for (String filter : filters) {
-				List<ItemStackElement> itemStackElements = filteredItemMapsCache.getUnchecked(filter);
-				itemList.addAll(itemStackElements);
+				List<IIngredientListElement> ingredients = filteredItemMapsCache.getUnchecked(filter);
+				ingredientList.addAll(ingredients);
 			}
-			return itemList.build();
+			return ingredientList.build();
 		}
+	}
+
+	/**
+	 * {@link #getItemStacks()} is slow, so cache the previous value in case someone requests it often.
+	 */
+	private ImmutableList<ItemStack> itemStacksCached = ImmutableList.of();
+	private String filterCached;
+
+	public ImmutableList<ItemStack> getItemStacks() {
+		if (!Config.getFilterText().equals(filterCached)) {
+			ImmutableList.Builder<ItemStack> filteredStacks = ImmutableList.builder();
+			for (IIngredientListElement element : getIngredientList()) {
+				Object ingredient = element.getIngredient();
+				if (ingredient instanceof ItemStack) {
+					filteredStacks.add((ItemStack) ingredient);
+				}
+			}
+			itemStacksCached = filteredStacks.build();
+			filterCached = Config.getFilterText();
+		}
+		return itemStacksCached;
 	}
 
 	public int size() {
-		return getItemList().size();
+		return getIngredientList().size();
 	}
 
-	private static ImmutableList<ItemStackElement> createBaseList(IItemRegistry itemRegistry) {
-		ItemStackChecker itemStackChecker = new ItemStackChecker();
-
-		ImmutableList.Builder<ItemStackElement> baseList = ImmutableList.builder();
-		for (ItemStack itemStack : itemRegistry.getItemList()) {
-			if (itemStack == null) {
-				continue;
-			}
-
-			if (itemStackChecker.isItemStackHidden(itemStack)) {
-				continue;
-			}
-
-			ItemStackElement itemStackElement = ItemStackElement.create(itemStack);
-			if (itemStackElement != null) {
-				baseList.add(itemStackElement);
-			}
-		}
-
-		for (Multiset.Entry<Item> brokenItem : itemStackChecker.getBrokenItems().entrySet()) {
-			int count = brokenItem.getCount();
-			if (count > 1) {
-				Item item = brokenItem.getElement();
-				String modName = Internal.getItemRegistry().getModNameForItem(item);
-				Log.error("Couldn't get ItemModel for {} item {}. Suppressed {} similar errors.", modName, item, count);
-			}
-		}
-
-		return baseList.build();
-	}
-
-	private static class SearchFilterWeigher implements Weigher<String, ImmutableList<ItemStackElement>> {
-		public int weigh(@Nonnull String key, @Nonnull ImmutableList<ItemStackElement> value) {
-			// The CacheLoader is recursive, so keep the base value in the cache permanently by setting its weight to 0
-			return (key.length() == 0) ? 0 : 1;
+	private static class OneWeigher implements Weigher<String, ImmutableList<IIngredientListElement>> {
+		public int weigh(String key, ImmutableList<IIngredientListElement> value) {
+			return 1;
 		}
 	}
 
-	private class ItemFilterCacheLoader extends CacheLoader<String, ImmutableList<ItemStackElement>> {
-		private final IItemRegistry itemRegistry;
-
-		public ItemFilterCacheLoader(IItemRegistry itemRegistry) {
-			this.itemRegistry = itemRegistry;
-		}
-
+	private class ItemFilterCacheLoader extends CacheLoader<String, ImmutableList<IIngredientListElement>> {
 		@Override
-		public ImmutableList<ItemStackElement> load(@Nonnull final String filterText) throws Exception {
+		public ImmutableList<IIngredientListElement> load(final String filterText) throws Exception {
 			if (filterText.length() == 0) {
-				return createBaseList(itemRegistry);
+				return baseList;
 			}
 
 			// Recursive.
@@ -123,96 +91,28 @@ public class ItemFilter {
 			// For example, the "", "i", "ir", and "iro" filters contain everything in the "iron" filter and more.
 			String prevFilterText = filterText.substring(0, filterText.length() - 1);
 
-			ImmutableList<ItemStackElement> baseItemSet = filteredItemMapsCache.get(prevFilterText);
+			ImmutableList<IIngredientListElement> baseItemSet = filteredItemMapsCache.get(prevFilterText);
 
 			FilterPredicate filterPredicate = new FilterPredicate(filterText);
 
-			ImmutableList.Builder<ItemStackElement> itemStackElementsBuilder = ImmutableList.builder();
-			for (ItemStackElement itemStackElement : baseItemSet) {
+			ImmutableList.Builder<IIngredientListElement> builder = ImmutableList.builder();
+			for (IIngredientListElement itemStackElement : baseItemSet) {
 				if (filterPredicate.apply(itemStackElement)) {
-					itemStackElementsBuilder.add(itemStackElement);
+					builder.add(itemStackElement);
 				}
 			}
-			return itemStackElementsBuilder.build();
+			return builder.build();
 		}
 	}
 
-	private static class ItemStackChecker {
-		private final IItemBlacklist itemBlacklist;
-		private final ItemModelMesher itemModelMesher;
-		private final IBakedModel missingModel;
-		private final Multiset<Item> brokenItems = HashMultiset.create();
 
-		public ItemStackChecker() {
-			itemBlacklist = Internal.getHelpers().getItemBlacklist();
-			itemModelMesher = Minecraft.getMinecraft().getRenderItem().getItemModelMesher();
-			missingModel = itemModelMesher.getModelManager().getMissingModel();
-		}
-
-		public boolean isItemStackHidden(@Nonnull ItemStack itemStack) {
-			if (isItemHiddenByBlacklist(itemStack)) {
-				return true;
-			}
-
-			return isItemStackHiddenByMissingModel(itemStack);
-		}
-
-		public Multiset<Item> getBrokenItems() {
-			return brokenItems;
-		}
-
-		private boolean isItemStackHiddenByMissingModel(@Nonnull ItemStack itemStack) {
-			Item item = itemStack.getItem();
-			if (brokenItems.contains(item)) {
-				return true;
-			}
-
-			final RenderItem renderItem = Minecraft.getMinecraft().getRenderItem();
-			final IBakedModel itemModel;
-			try {
-				itemModel = renderItem.getItemModelWithOverrides(itemStack, null, null);
-			} catch (RuntimeException | LinkageError e) {
-				String modName = Internal.getItemRegistry().getModNameForItem(item);
-				String stackInfo = ErrorUtil.getItemStackInfo(itemStack);
-				Log.error("Couldn't get ItemModel for {} itemStack {}", modName, stackInfo, e);
-				brokenItems.add(item);
-				return true;
-			}
-
-			if (Config.isHideMissingModelsEnabled()) {
-				return itemModel == null || itemModel == missingModel;
-			}
-
-			return false;
-		}
-
-		private boolean isItemHiddenByBlacklist(@Nonnull ItemStack itemStack) {
-			try {
-				if (!itemBlacklist.isItemBlacklisted(itemStack)) {
-					return false;
-				}
-			} catch (RuntimeException e) {
-				String stackInfo = ErrorUtil.getItemStackInfo(itemStack);
-				Log.error("Could not check blacklist for stack {}", stackInfo, e);
-				return true;
-			}
-
-			if (Config.isEditModeEnabled()) {
-				// edit mode can only change the config blacklist, not things blacklisted through the API
-				return !Config.isItemOnConfigBlacklist(itemStack);
-			}
-
-			return true;
-		}
-	}
-
-	private static class FilterPredicate implements Predicate<ItemStackElement> {
-		private final List<String> searchTokens = new ArrayList<>();
-		private final List<String> modNameTokens = new ArrayList<>();
-		private final List<String> tooltipTokens = new ArrayList<>();
-		private final List<String> oreDictTokens = new ArrayList<>();
-		private final List<String> creativeTabTokens = new ArrayList<>();
-		private final List<String> colorTokens = new ArrayList<>();
+	private static class FilterPredicate implements Predicate<IIngredientListElement> {
+		private final List<String> searchTokens = new ArrayList<String>();
+		private final List<String> modNameTokens = new ArrayList<String>();
+		private final List<String> tooltipTokens = new ArrayList<String>();
+		private final List<String> oreDictTokens = new ArrayList<String>();
+		private final List<String> creativeTabTokens = new ArrayList<String>();
+		private final List<String> colorTokens = new ArrayList<String>();
 
 		public FilterPredicate(String filterText) {
 			String[] tokens = filterText.split(" ");
@@ -246,7 +146,7 @@ public class ItemFilter {
 		}
 
 		@Override
-		public boolean apply(@Nullable ItemStackElement input) {
+		public boolean apply(@Nullable IIngredientListElement input) {
 			if (input == null) {
 				return false;
 			}

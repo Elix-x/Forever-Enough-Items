@@ -1,5 +1,7 @@
 package mezz.jei;
 
+import java.util.Map;
+
 import mezz.jei.config.Config;
 import mezz.jei.config.Constants;
 import mezz.jei.config.SessionData;
@@ -15,15 +17,12 @@ import net.minecraftforge.fml.common.network.NetworkCheckHandler;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 
-import javax.annotation.Nonnull;
-import java.util.Map;
-
 @Mod(modid = Constants.MOD_ID,
 		name = Constants.NAME,
 		version = Constants.VERSION,
 		guiFactory = "mezz.jei.config.JEIModGuiFactory",
 		acceptedMinecraftVersions = "[1.10]",
-		dependencies = "required-after:Forge@[12.18.0.1999,);")
+		dependencies = "required-after:Forge@[12.18.1.2053,);")
 public class JustEnoughItems {
 
 	@SidedProxy(clientSide = "mezz.jei.ProxyCommonClient", serverSide = "mezz.jei.ProxyCommon")
@@ -49,7 +48,7 @@ public class JustEnoughItems {
 	}
 
 	@Mod.EventHandler
-	public void preInit(@Nonnull FMLPreInitializationEvent event) {
+	public void preInit(FMLPreInitializationEvent event) {
 		packetHandler = new PacketHandler();
 		proxy.preInit(event);
 
@@ -63,12 +62,12 @@ public class JustEnoughItems {
 	}
 
 	@Mod.EventHandler
-	public void init(@Nonnull FMLInitializationEvent event) {
+	public void init(FMLInitializationEvent event) {
 		proxy.init(event);
 	}
 
 	@Mod.EventHandler
-	public void postInit(@Nonnull FMLPostInitializationEvent event) {
+	public void postInit(FMLPostInitializationEvent event) {
 		proxy.postInit(event);
 	}
 }

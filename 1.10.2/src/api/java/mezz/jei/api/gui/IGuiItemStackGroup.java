@@ -1,9 +1,10 @@
 package mezz.jei.api.gui;
 
-import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.List;
 
+import mezz.jei.api.ingredients.IIngredients;
+import mezz.jei.api.recipe.IStackHelper;
 import net.minecraft.item.ItemStack;
 
 /**
@@ -11,6 +12,8 @@ import net.minecraft.item.ItemStack;
  *
  * If multiple ItemStacks are set, they will be displayed in rotation.
  * ItemStacks with subtypes and wildcard metadata will be displayed as multiple ItemStacks.
+ *
+ * Get an instance from {@link IRecipeLayout#getItemStacks()}.
  */
 public interface IGuiItemStackGroup extends IGuiIngredientGroup<ItemStack> {
 
@@ -26,20 +29,26 @@ public interface IGuiItemStackGroup extends IGuiIngredientGroup<ItemStack> {
 
 	/**
 	 * Takes a list of ingredients from IRecipeWrapper getInputs or getOutputs
+	 * @deprecated since JEI 3.11.2.
+	 * Use {@link IStackHelper#toItemStackList(Object)} to convert to a List<ItemStack> if necessary
 	 */
-	void setFromRecipe(int slotIndex, @Nonnull List ingredients);
+	@Deprecated
+	void setFromRecipe(int slotIndex, List ingredients);
 
 	/**
 	 * Takes an Object from IRecipeWrapper getInputs or getOutputs
+	 * @deprecated since JEI 3.11.0.
+	 * Use {@link IStackHelper#toItemStackList(Object)} to convert to a List<ItemStack> if necessary
 	 */
-	void setFromRecipe(int slotIndex, @Nonnull Object ingredients);
+	@Deprecated
+	void setFromRecipe(int slotIndex, Object ingredients);
 
 	@Override
-	void set(int slotIndex, @Nonnull Collection<ItemStack> itemStacks);
+	void set(int slotIndex, Collection<ItemStack> itemStacks);
 
 	@Override
-	void set(int slotIndex, @Nonnull ItemStack itemStack);
+	void set(int slotIndex, ItemStack itemStack);
 
 	@Override
-	void addTooltipCallback(@Nonnull ITooltipCallback<ItemStack> tooltipCallback);
+	void addTooltipCallback(ITooltipCallback<ItemStack> tooltipCallback);
 }

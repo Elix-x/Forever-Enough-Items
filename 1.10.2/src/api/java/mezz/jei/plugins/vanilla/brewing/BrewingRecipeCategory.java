@@ -6,17 +6,14 @@ import mezz.jei.api.gui.IDrawableAnimated;
 import mezz.jei.api.gui.IDrawableStatic;
 import mezz.jei.api.gui.IGuiItemStackGroup;
 import mezz.jei.api.gui.IRecipeLayout;
-import mezz.jei.api.recipe.IRecipeCategory;
-import mezz.jei.api.recipe.IRecipeWrapper;
+import mezz.jei.api.ingredients.IIngredients;
+import mezz.jei.api.recipe.BlankRecipeCategory;
 import mezz.jei.api.recipe.VanillaRecipeCategoryUid;
 import mezz.jei.util.Translator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 
-import javax.annotation.Nonnull;
-import java.util.List;
-
-public class BrewingRecipeCategory implements IRecipeCategory<BrewingRecipeWrapper> {
+public class BrewingRecipeCategory extends BlankRecipeCategory<BrewingRecipeWrapper> {
 
 	private static final int brewPotionSlot1 = 0;
 	private static final int brewPotionSlot2 = 1;
@@ -27,17 +24,11 @@ public class BrewingRecipeCategory implements IRecipeCategory<BrewingRecipeWrapp
 	private static final int outputSlotX = 80;
 	private static final int outputSlotY = 1;
 
-	@Nonnull
 	private final IDrawable background;
-	@Nonnull
 	private final IDrawable slotDrawable;
-	@Nonnull
 	private final String localizedName;
-	@Nonnull
 	private final IDrawableAnimated arrow;
-	@Nonnull
 	private final IDrawableAnimated bubbles;
-	@Nonnull
 	private final IDrawableStatic blazeHeat;
 
 	public BrewingRecipeCategory(IGuiHelper guiHelper) {
@@ -56,38 +47,35 @@ public class BrewingRecipeCategory implements IRecipeCategory<BrewingRecipeWrapp
 		slotDrawable = guiHelper.getSlotDrawable();
 	}
 
-	@Nonnull
 	@Override
 	public String getUid() {
 		return VanillaRecipeCategoryUid.BREWING;
 	}
 
-	@Nonnull
 	@Override
 	public String getTitle() {
 		return localizedName;
 	}
 
-	@Nonnull
 	@Override
 	public IDrawable getBackground() {
 		return background;
 	}
 
 	@Override
-	public void drawExtras(@Nonnull Minecraft minecraft) {
+	public void drawExtras(Minecraft minecraft) {
 		slotDrawable.draw(minecraft, outputSlotX, outputSlotY);
 		blazeHeat.draw(minecraft, 5, 29);
 	}
 
 	@Override
-	public void drawAnimations(@Nonnull Minecraft minecraft) {
+	public void drawAnimations(Minecraft minecraft) {
 		bubbles.draw(minecraft, 8, 0);
 		arrow.draw(minecraft, 42, 1);
 	}
 
 	@Override
-	public void setRecipe(@Nonnull IRecipeLayout recipeLayout, @Nonnull BrewingRecipeWrapper recipeWrapper) {
+	public void setRecipe(IRecipeLayout recipeLayout, BrewingRecipeWrapper recipeWrapper, IIngredients ingredients) {
 		IGuiItemStackGroup itemStacks = recipeLayout.getItemStacks();
 
 		itemStacks.init(brewPotionSlot1, true, 0, 35);
@@ -96,12 +84,6 @@ public class BrewingRecipeCategory implements IRecipeCategory<BrewingRecipeWrapp
 		itemStacks.init(brewIngredientSlot, true, 23, 1);
 		itemStacks.init(outputSlot, false, outputSlotX, outputSlotY);
 
-		List inputs = recipeWrapper.getInputs();
-
-		itemStacks.setFromRecipe(brewPotionSlot1, inputs.get(brewPotionSlot1));
-		itemStacks.setFromRecipe(brewPotionSlot2, inputs.get(brewPotionSlot2));
-		itemStacks.setFromRecipe(brewPotionSlot3, inputs.get(brewPotionSlot3));
-		itemStacks.setFromRecipe(brewIngredientSlot, inputs.get(brewIngredientSlot));
-		itemStacks.setFromRecipe(outputSlot, recipeWrapper.getOutputs());
+		itemStacks.set(ingredients);
 	}
 }

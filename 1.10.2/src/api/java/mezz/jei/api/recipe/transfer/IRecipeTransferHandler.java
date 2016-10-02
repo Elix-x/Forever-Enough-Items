@@ -1,24 +1,24 @@
 package mezz.jei.api.recipe.transfer;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import mezz.jei.api.gui.IRecipeLayout;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
-
-import mezz.jei.api.gui.IRecipeLayout;
 
 /**
  * A recipe transfer handler moves items into a crafting area, based on the items in a recipe.
  *
  * Implementing this interface gives full control over the recipe transfer process.
- * Mods that use a regular slotted inventory can use IRecipeTransferInfo instead, which is much simpler.
+ * Mods that use a regular slotted inventory can use {@link IRecipeTransferInfo} instead, which is much simpler.
+ *
+ * Useful functions for implementing a recipe transfer handler can be found in {@link IRecipeTransferHandlerHelper}.
  */
-public interface IRecipeTransferHandler {
+public interface IRecipeTransferHandler<C extends Container> {
 	/**
 	 * The container that this recipe transfer handler can use.
 	 */
-	Class<? extends Container> getContainerClass();
+	Class<C> getContainerClass();
 
 	/**
 	 * The type of recipe that this recipe transfer handler deals with.
@@ -35,5 +35,5 @@ public interface IRecipeTransferHandler {
 	 * @since JEI 2.20.0
 	 */
 	@Nullable
-	IRecipeTransferError transferRecipe(@Nonnull Container container, @Nonnull IRecipeLayout recipeLayout, @Nonnull EntityPlayer player, boolean maxTransfer, boolean doTransfer);
+	IRecipeTransferError transferRecipe(C container, IRecipeLayout recipeLayout, EntityPlayer player, boolean maxTransfer, boolean doTransfer);
 }

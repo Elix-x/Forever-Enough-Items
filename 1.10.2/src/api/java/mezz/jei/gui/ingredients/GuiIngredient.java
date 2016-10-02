@@ -1,27 +1,34 @@
 package mezz.jei.gui.ingredients;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.awt.*;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import mezz.jei.Internal;
 import mezz.jei.api.gui.IGuiIngredient;
 import mezz.jei.api.gui.ITooltipCallback;
+import mezz.jei.api.ingredients.IIngredientHelper;
+import mezz.jei.api.ingredients.IIngredientRenderer;
 import mezz.jei.api.recipe.IFocus;
 import mezz.jei.gui.Focus;
 import mezz.jei.gui.TooltipRenderer;
 import mezz.jei.util.CycleTimer;
 import mezz.jei.util.Log;
+import mezz.jei.util.Translator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.text.TextFormatting;
 
 public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
+	private static final String oreDictionaryIngredient = Translator.translateToLocal("jei.tooltip.recipe.ore.dict");
+
 	private final int slotIndex;
 	private final boolean input;
 
@@ -29,24 +36,29 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 	private final int yPosition;
 	private final int width;
 	private final int height;
-	private final int padding;
+	private final int xPadding;
+	private final int yPadding;
 
-	@Nonnull
 	private final CycleTimer cycleTimer;
-	@Nonnull
-	private final List<T> displayIngredients = new ArrayList<>(); // ingredients, taking focus into account
-	@Nonnull
-	private final List<T> allIngredients = new ArrayList<>(); // all ingredients, ignoring focus
-	@Nonnull
+	private final List<T> displayIngredients = new ArrayList<T>(); // ingredients, taking focus into account
+	private final List<T> allIngredients = new ArrayList<T>(); // all ingredients, ignoring focus
 	private final IIngredientRenderer<T> ingredientRenderer;
-	@Nonnull
 	private final IIngredientHelper<T> ingredientHelper;
 	@Nullable
 	private ITooltipCallback<T> tooltipCallback;
 
 	private boolean enabled;
 
-	public GuiIngredient(@Nonnull IIngredientRenderer<T> ingredientRenderer, @Nonnull IIngredientHelper<T> ingredientHelper, int slotIndex, boolean input, int xPosition, int yPosition, int width, int height, int padding, int itemCycleOffset) {
+	public GuiIngredient(
+			int slotIndex,
+			boolean input,
+			IIngredientRenderer<T> ingredientRenderer,
+			IIngredientHelper<T> ingredientHelper,
+			int xPosition, int yPosition,
+			int width, int height,
+			int xPadding, int yPadding,
+			int itemCycleOffset
+	) {
 		this.ingredientRenderer = ingredientRenderer;
 		this.ingredientHelper = ingredientHelper;
 
@@ -57,7 +69,8 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 		this.yPosition = yPosition;
 		this.width = width;
 		this.height = height;
-		this.padding = padding;
+		this.xPadding = xPadding;
+		this.yPadding = yPadding;
 
 		this.cycleTimer = new CycleTimer(itemCycleOffset);
 	}
@@ -66,97 +79,125 @@ public class GuiIngredient<T> extends Gui implements IGuiIngredient<T> {
 		return enabled && (mouseX >= xOffset + xPosition) && (mouseY >= yOffset + yPosition) && (mouseX < xOffset + xPosition + width) && (mouseY < yOffset + yPosition + height);
 	}
 
-	@Nullable
-	public T getIngredient() {
-		return cycleTimer.getCycledItem(displayIngredients);
-	}
-
 	@Override
-	public Focus<T> getCurrentlyDisplayed() {
-		T ingredient = getIngredient();
+	@Nullable
+	@Deprecated
+	public IFocus<T> getCurrentlyDisplayed() {
+		T ingredient = getDisplayedIngredient();
 		if (ingredient == null) {
 			return null;
 		}
-		return ingredientHelper.createFocus(ingredient);
+		return new Focus<T>(ingredient);
 	}
 
-	@Nonnull
+	@Nullable
+	@Override
+	public T getDisplayedIngredient() {
+		return cycleTimer.getCycledItem(displayIngredients);
+	}
+
 	@Override
 	public List<T> getAllIngredients() {
 		return allIngredients;
 	}
 
-	public void set(@Nonnull T ingredient, @Nonnull IFocus<T> focus) {
-		set(Collections.singleton(ingredient), focus);
+	public void set(T ingredient, IFocus<T> focus) {
+		set(Collections.singletonList(ingredient), focus);
 	}
 
-	public void set(@Nonnull Collection<T> ingredients, @Nonnull IFocus<T> focus) {
+	public void set(@Nullable List<T> ingredients, IFocus<T> focus) {
 		this.displayIngredients.clear();
 		this.allIngredients.clear();
-		ingredients = ingredientHelper.expandSubtypes(ingredients);
-		T match = null;
-		if ((isInput() && focus.getMode() == IFocus.Mode.INPUT) || (!isInput() && focus.getMode() == IFocus.Mode.OUTPUT)) {
-			match = ingredientHelper.getMatch(ingredients, focus);
+		if (ingredients == null) {
+			ingredients = Collections.emptyList();
+		} else {
+			ingredients = this.ingredientHelper.expandSubtypes(ingredients);
 		}
+
+		T match = getMatch(ingredients, focus);
 		if (match != null) {
 			this.displayIngredients.add(match);
 		} else {
 			this.displayIngredients.addAll(ingredients);
 		}
-		this.ingredientRenderer.setIngredients(ingredients);
+
 		this.allIngredients.addAll(ingredients);
 		enabled = !this.displayIngredients.isEmpty();
+	}
+
+	@Nullable
+	private T getMatch(Collection<T> ingredients, IFocus<T> focus) {
+		if ((isInput() && focus.getMode() == IFocus.Mode.INPUT) ||
+				(!isInput() && focus.getMode() == IFocus.Mode.OUTPUT)) {
+			T focusValue = focus.getValue();
+			if (focusValue != null) {
+				return ingredientHelper.getMatch(ingredients, focusValue);
+			}
+		}
+		return null;
 	}
 
 	public void setTooltipCallback(@Nullable ITooltipCallback<T> tooltipCallback) {
 		this.tooltipCallback = tooltipCallback;
 	}
 
-	public void draw(@Nonnull Minecraft minecraft, int xOffset, int yOffset) {
+	public void draw(Minecraft minecraft, int xOffset, int yOffset) {
 		cycleTimer.onDraw();
 
-		T value = getIngredient();
-		ingredientRenderer.draw(minecraft, xOffset + xPosition + padding, yOffset + yPosition + padding, value);
+		T value = getDisplayedIngredient();
+		ingredientRenderer.render(minecraft, xOffset + xPosition + xPadding, yOffset + yPosition + yPadding, value);
 	}
 
-	public void drawHovered(@Nonnull Minecraft minecraft, int xOffset, int yOffset, int mouseX, int mouseY) {
-		T value = getIngredient();
-		if (value == null) {
-			return;
-		}
+	public void drawHovered(Minecraft minecraft, int xOffset, int yOffset, int mouseX, int mouseY) {
 		draw(minecraft, xOffset, yOffset);
-		drawTooltip(minecraft, xOffset, yOffset, mouseX, mouseY, value);
+
+		T value = getDisplayedIngredient();
+		if (value != null) {
+			drawTooltip(minecraft, xOffset, yOffset, mouseX, mouseY, value);
+		}
 	}
 
 	@Override
-	public void drawHighlight(@Nonnull Minecraft minecraft, Color color, int xOffset, int yOffset) {
-		int x = xPosition + xOffset + padding;
-		int y = yPosition + yOffset + padding;
+	public void drawHighlight(Minecraft minecraft, Color color, int xOffset, int yOffset) {
+		int x = xPosition + xOffset + xPadding;
+		int y = yPosition + yOffset + yPadding;
 		GlStateManager.disableLighting();
-		drawRect(x, y, x + width - padding * 2, y + height - padding * 2, color.getRGB());
+		drawRect(x, y, x + width - xPadding * 2, y + height - yPadding * 2, color.getRGB());
 		GlStateManager.color(1f, 1f, 1f, 1f);
 	}
 
-	private void drawTooltip(@Nonnull Minecraft minecraft, int xOffset, int yOffset, int mouseX, int mouseY, @Nonnull T value) {
+	private void drawTooltip(Minecraft minecraft, int xOffset, int yOffset, int mouseX, int mouseY, T value) {
 		try {
 			GlStateManager.disableDepth();
 
 			RenderHelper.disableStandardItemLighting();
-			drawRect(xOffset + xPosition + padding,
-					yOffset + yPosition + padding,
-					xOffset + xPosition + width - padding,
-					yOffset + yPosition + height - padding,
+			drawRect(xOffset + xPosition + xPadding,
+					yOffset + yPosition + yPadding,
+					xOffset + xPosition + width - xPadding,
+					yOffset + yPosition + height - yPadding,
 					0x7FFFFFFF);
 			GlStateManager.color(1f, 1f, 1f, 1f);
 
 			List<String> tooltip = ingredientRenderer.getTooltip(minecraft, value);
+			Internal.getModIdUtil().addModNameToIngredientTooltip(tooltip, value, ingredientHelper);
 
 			if (tooltipCallback != null) {
 				tooltipCallback.onTooltip(slotIndex, input, value, tooltip);
 			}
 
 			FontRenderer fontRenderer = ingredientRenderer.getFontRenderer(minecraft, value);
-			TooltipRenderer.drawHoveringText(minecraft, tooltip, xOffset + mouseX, yOffset + mouseY, fontRenderer);
+			if (value instanceof ItemStack) {
+				//noinspection unchecked
+				Collection<ItemStack> itemStacks = (Collection<ItemStack>) this.allIngredients;
+				String oreDictEquivalent = Internal.getStackHelper().getOreDictEquivalent(itemStacks);
+				if (oreDictEquivalent != null) {
+					final String acceptsAny = String.format(oreDictionaryIngredient, oreDictEquivalent);
+					tooltip.add(TextFormatting.GRAY + acceptsAny);
+				}
+				TooltipRenderer.drawHoveringText((ItemStack) value, minecraft, tooltip, xOffset + mouseX, yOffset + mouseY, fontRenderer);
+			} else {
+				TooltipRenderer.drawHoveringText(minecraft, tooltip, xOffset + mouseX, yOffset + mouseY, fontRenderer);
+			}
 
 			GlStateManager.enableDepth();
 		} catch (RuntimeException e) {

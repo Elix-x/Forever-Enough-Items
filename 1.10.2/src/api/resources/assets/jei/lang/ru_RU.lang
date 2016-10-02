@@ -1,11 +1,11 @@
 # Tooltips
-jei.tooltip.config=Конфигурация
+jei.tooltip.config=Конфигурация JEI
 jei.tooltip.show.recipes=Показать рецепты
 jei.tooltip.show.all.recipes=Показать все рецепты
 jei.tooltip.delete.item=Нажмите, чтобы удалить
 jei.tooltip.liquid.amount.with.capacity=%,d / %,d мВ
 jei.tooltip.liquid.amount=%,d мВ
-jei.tooltip.transfer=Передача предметов
+jei.tooltip.transfer=Перемещение предметов
 jei.tooltip.recipe.ore.dict=Принимает любые: %s
 jei.tooltip.item.colors=Цвета: %s
 jei.tooltip.shapeless.recipe=Бесформенный рецепт
@@ -14,6 +14,8 @@ jei.tooltip.cheat.mode=Режим жульничества
 # Error Tooltips
 jei.tooltip.error.recipe.transfer.missing=Отсутствуют предметы
 jei.tooltip.error.recipe.transfer.inventory.full=Инвентарь заполнен
+jei.tooltip.error.recipe.transfer.unknown=Неизвестная ошибка, смотрите логи
+jei.tooltip.error.recipe.transfer.no.server=На сервере должен быть установлен JEI
 
 # Error Messages
 jei.chat.error.command.too.long=JEI необходимо установить на сервер, чтобы использовать эту команду, она слишком длинна для отправки.
@@ -24,6 +26,7 @@ key.jei.focusSearch=Выбрать строку поиска
 key.jei.showRecipe=Показывать рецепты предметов
 key.jei.showUses=Показывать применения предметов
 key.jei.recipeBack=Показать предыдущую страницу рецептов
+key.jei.toggleCheatMode=Переключить режим жульничества
 
 # Config
 config.jei.default=По-умолчанию
@@ -45,34 +48,18 @@ config.jei.interface.overlayEnabled.comment=Показывать список п
 config.jei.interface.recipeAnimationsEnabled=Анимации рецептов
 config.jei.interface.recipeAnimationsEnabled.comment=Показывать анимации рецептов (огонь в печи, индикаторы и т.д)
 
-config.jei.search=Поиск
-config.jei.search.comment=Настройки, отвечающие за поиск.
-config.jei.search.atPrefixRequiredForModName=Использовать @ для имени мода
-config.jei.search.atPrefixRequiredForModName.comment=Требовать "@ИмяМода" для поиска по имени модификации вместо просто "ИмяМода".
-config.jei.search.prefixRequiredForTooltipSearch=Использовать # для всплывающей подсказки
-config.jei.search.prefixRequiredForTooltipSearch.comment=Использовать "#" перед словом для поиска всплывающих подсказок.
-config.jei.search.prefixRequiredForOreDictSearch=Использовать $ для словаря руд
-config.jei.search.prefixRequiredForOreDictSearch.comment=Использовать "$" перед словом для поиска имён словаря руд.
-config.jei.search.prefixRequiredForCreativeTabSearch=Использовать % для имени творческой вкладки
-config.jei.search.prefixRequiredForCreativeTabSearch.comment=Использовать "%" перед словом для поиска имён творческих вкладок.
-config.jei.search.prefixRequiredForColorSearch=Использовать ^ для цветов
-config.jei.search.prefixRequiredForColorSearch.comment=Использовать "^" перед словом для поиска цветов предмета.
-
 config.jei.advanced=Продвинутое
 config.jei.advanced.comment=Продвинутые настройки функций JEI.
-config.jei.advanced.nbtKeyIgnoreList=Чёрный список для NBT
-config.jei.advanced.nbtKeyIgnoreList.comment=Список NBT, которые будут игнорироваться при отображении рецептов.
 config.jei.advanced.itemBlacklist=Чёрный список для предметов
 config.jei.advanced.itemBlacklist.comment=Список предметов, которые не будут отображаться в списке предметов JEI. Формат: modId[:name[:meta]]. Режим редактирования будет автоматически добавлять записи сюда, или удалять.
 config.jei.advanced.hideMissingModelsEnabled=Скрывать предметы без моделей
 config.jei.advanced.hideMissingModelsEnabled.comment=Предметы без моделей будут скрыты.
+config.jei.advanced.colorSearchEnabled=Поиск по цвету
+config.jei.advanced.colorSearchEnabled.comment=Искать предметы по цвету и показывать доступные цвета предметов в всплывающей подсказке в списке предмета.		  
 config.jei.advanced.debugModeEnabled=Режим отладки
 config.jei.advanced.debugModeEnabled.comment=Добавляет разные вещи, чтобы помочь в разработке JEI.
-config.jei.advanced.deleteItemsInCheatModeEnabled=Удаление предметов в режиме жульничества
-config.jei.advanced.deleteItemsInCheatModeEnabled.comment=В режиме жульничества, перенесите предмет из списка и нажмите, чтобы удалить его. (JEI требуется на сервере)
-
-config.jei.addons=Дополнения
-config.jei.addons.comment=Категория для настроек дополнений JEI.
+config.jei.advanced.centerSearchBarEnabled=Строка поиска по центру
+config.jei.advanced.centerSearchBarEnabled.comment=Переместить строку поиска JEI в центр нижней части экрана.
 
 # Edit Mode
 gui.jei.editMode.description=Режим редактирования списка предметов JEI:

@@ -4,16 +4,23 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.inventory.Container;
-
 import mezz.jei.api.recipe.transfer.IRecipeTransferHandler;
+import mezz.jei.api.recipe.transfer.IRecipeTransferHandlerHelper;
 import mezz.jei.api.recipe.transfer.IRecipeTransferInfo;
 import mezz.jei.api.recipe.transfer.IRecipeTransferRegistry;
 import mezz.jei.transfer.BasicRecipeTransferHandler;
 import mezz.jei.transfer.BasicRecipeTransferInfo;
+import net.minecraft.inventory.Container;
 
 public class RecipeTransferRegistry implements IRecipeTransferRegistry {
-	private final List<IRecipeTransferHandler> recipeTransferHandlers = new ArrayList<>();
+	private final List<IRecipeTransferHandler> recipeTransferHandlers = new ArrayList<IRecipeTransferHandler>();
+	private final StackHelper stackHelper;
+	private final IRecipeTransferHandlerHelper handlerHelper;
+
+	public RecipeTransferRegistry(StackHelper stackHelper, IRecipeTransferHandlerHelper handlerHelper) {
+		this.stackHelper = stackHelper;
+		this.handlerHelper = handlerHelper;
+	}
 
 	@Override
 	public void addRecipeTransferHandler(@Nullable Class<? extends Container> containerClass, @Nullable String recipeCategoryUid, int recipeSlotStart, int recipeSlotCount, int inventorySlotStart, int inventorySlotCount) {
@@ -31,17 +38,17 @@ public class RecipeTransferRegistry implements IRecipeTransferRegistry {
 	}
 
 	@Override
-	public void addRecipeTransferHandler(@Nullable IRecipeTransferInfo recipeTransferInfo) {
+	public <C extends Container> void addRecipeTransferHandler(@Nullable IRecipeTransferInfo<C> recipeTransferInfo) {
 		if (recipeTransferInfo == null) {
 			Log.error("Null recipeTransferInfo", new NullPointerException());
 			return;
 		}
-		IRecipeTransferHandler recipeTransferHandler = new BasicRecipeTransferHandler(recipeTransferInfo);
+		IRecipeTransferHandler<C> recipeTransferHandler = new BasicRecipeTransferHandler<C>(stackHelper, handlerHelper, recipeTransferInfo);
 		addRecipeTransferHandler(recipeTransferHandler);
 	}
 
 	@Override
-	public void addRecipeTransferHandler(@Nullable IRecipeTransferHandler recipeTransferHandler) {
+	public void addRecipeTransferHandler(@Nullable IRecipeTransferHandler<?> recipeTransferHandler) {
 		if (recipeTransferHandler == null) {
 			Log.error("Null recipeTransferHandler", new NullPointerException());
 			return;

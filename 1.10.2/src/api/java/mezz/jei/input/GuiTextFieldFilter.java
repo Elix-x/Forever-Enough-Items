@@ -1,12 +1,12 @@
 package mezz.jei.input;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.LinkedList;
 import java.util.List;
 
 import mezz.jei.ItemFilter;
 import mezz.jei.config.Config;
-import mezz.jei.util.ItemStackElement;
+import mezz.jei.gui.ingredients.IIngredientListElement;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraftforge.fml.client.config.HoverChecker;
@@ -16,9 +16,10 @@ public class GuiTextFieldFilter extends GuiTextField {
 	private static final int MAX_HISTORY = 100;
 	private static final int maxSearchLength = 128;
 
-	private final List<String> history = new LinkedList<>();
+	private final List<String> history = new LinkedList<String>();
 	private final HoverChecker hoverChecker;
 	private ItemFilter itemFilter;
+	private boolean previousKeyboardRepeatEnabled;
 
 	public GuiTextFieldFilter(int componentId, FontRenderer fontRenderer, int x, int y, int width, int height) {
 		super(componentId, fontRenderer, x, y, width, height);
@@ -32,7 +33,7 @@ public class GuiTextFieldFilter extends GuiTextField {
 	}
 
 	public void update() {
-		List<ItemStackElement> itemList = itemFilter.getItemList();
+		List<IIngredientListElement> itemList = itemFilter.getIngredientList();
 		if (itemList.size() == 0) {
 			setTextColor(Color.red.getRGB());
 		} else {
@@ -95,11 +96,20 @@ public class GuiTextFieldFilter extends GuiTextField {
 
 	@Override
 	public void setFocused(boolean keyboardFocus) {
+		final boolean previousFocus = isFocused();
 		super.setFocused(keyboardFocus);
-		Keyboard.enableRepeatEvents(keyboardFocus);
 
-		if (!keyboardFocus) {
-			saveHistory();
+		if (previousFocus != keyboardFocus) {
+			if (keyboardFocus) {
+				previousKeyboardRepeatEnabled = Keyboard.areRepeatEventsEnabled();
+				Keyboard.enableRepeatEvents(true);
+			} else {
+				Keyboard.enableRepeatEvents(previousKeyboardRepeatEnabled);
+			}
+
+			if (!keyboardFocus) {
+				saveHistory();
+			}
 		}
 	}
 

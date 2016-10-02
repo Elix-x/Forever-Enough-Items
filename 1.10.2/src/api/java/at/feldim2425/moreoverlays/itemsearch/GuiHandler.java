@@ -1,5 +1,6 @@
 package at.feldim2425.moreoverlays.itemsearch;
 
+import at.feldim2425.moreoverlays.KeyBindings;
 import at.feldim2425.moreoverlays.MoreOverlays;
 import at.feldim2425.moreoverlays.Proxy;
 import at.feldim2425.moreoverlays.api.itemsearch.IViewSlot;
@@ -16,6 +17,7 @@ import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.settings.GameSettings;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.translation.I18n;
@@ -27,10 +29,12 @@ import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import org.lwjgl.opengl.GL11;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -39,19 +43,20 @@ public class GuiHandler {
     private static final float OVERLAY_ZLEVEL = 299F;
     private static final int TEXT_FADEOUT = 20;
 
-    public static List<ItemStack> itemCache = null;
-    private static String lastFilterText = "";
-    private static boolean emptyFilter = true;
     private static boolean enabled = false;
 
+    private static String lastFilterText = "";
+    private static boolean emptyFilter = true;
     private static List<String> tooltip = new ArrayList<>();
     private static BiMap<Integer, IViewSlot> views = HashBiMap.create();
-    private static int txtPosY = 0;
-    private static boolean isCreative = false;
     private static String text = I18n.translateToLocal("gui." + MoreOverlays.MOD_ID + ".search.disabled");
-    private static int guiOffsetX = 0;
-    private static int guiOffsetY = 0;
-    private static long highlightTicks = 0;
+    private static int highlightTicks = 0;
+
+    private int txtPosY = 0;
+    private boolean isCreative = false;
+    private boolean handleTooltip = false;
+    private int guiOffsetX = 0;
+    private int guiOffsetY = 0;
 
 
     public static void init() {
@@ -67,31 +72,16 @@ public class GuiHandler {
         txtPosY = event.getGui().height  - 19 + (16-Minecraft.getMinecraft().fontRendererObj.FONT_HEIGHT)/2;
         GuiContainer gui = (GuiContainer) event.getGui();
         try {
-            Field left = gui.getClass().getField("field_147003_i"); //Obfuscated -> guiLeft
+            Field left = ReflectionHelper.findField(GuiContainer.class, "field_147003_i", "guiLeft"); //Obfuscated -> guiLeft
             left.setAccessible(true);
             guiOffsetX = left.getInt(gui);
 
-            Field top = gui.getClass().getField("field_147009_r"); //Obfuscated -> guiTop
+            Field top = ReflectionHelper.findField(GuiContainer.class, "field_147009_r", "guiTop"); //Obfuscated -> guiTop
             top.setAccessible(true);
             guiOffsetY = top.getInt(gui);
-        } catch (IllegalAccessException e) {
+        } catch (Exception e) {
             MoreOverlays.logger.error("Something went wrong. Tried to load gui coords with java reflection. Gui class: "+gui.getClass().getName());
             e.printStackTrace();
-        } catch (NoSuchFieldException e) {
-
-            try{
-                Field left = gui.getClass().getField("guiLeft");
-                left.setAccessible(true);
-                guiOffsetX = left.getInt(gui);
-
-                Field top = gui.getClass().getField("guiTop");
-                top.setAccessible(true);
-                guiOffsetY = top.getInt(gui);
-            } catch (IllegalAccessException | NoSuchFieldException e1) {
-                MoreOverlays.logger.error("Something went wrong. Tried to load gui coords with java reflection. Gui class: "+gui.getClass().getName());
-                e1.printStackTrace();
-            }
-
         }
     }
 
@@ -99,11 +89,13 @@ public class GuiHandler {
     public void onGuiOpen(GuiOpenEvent event) {
         isCreative = (event.getGui() instanceof GuiContainerCreative);
         text = I18n.translateToLocal("gui." + MoreOverlays.MOD_ID + ".search."+( enabled ? "enabled" : "disabled"));
+        if(enabled && Config.itemsearch_ShowItemSearchKey)
+            text += " - [" + KeyBindings.invSearch.getKeyModifier().getLocalizedComboName(KeyBindings.invSearch.getKeyCode()) + "]";
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onTooltip(ItemTooltipEvent event) {
-        if(enabled && !views.isEmpty()){ //Not the best way but it works
+        if(enabled && !views.isEmpty() && handleTooltip){ //Not the best way but it works
             tooltip.clear();
             tooltip.addAll(event.getToolTip());
             event.getToolTip().clear();
@@ -119,9 +111,9 @@ public class GuiHandler {
         GlStateManager.enableAlpha();
         GlStateManager.color(1,1,1,1);
 
-        if((enabled || Config.itemsearch_DisableText) && (highlightTicks>0 || !Config.itemsearch_FadeoutText)) {
+        if(highlightTicks>0 || !Config.itemsearch_FadeoutText || (Config.itemsearch_ShowItemSearchKey && enabled)) {
             int alpha = 255;
-            if(Config.itemsearch_FadeoutText) {
+            if(Config.itemsearch_FadeoutText && !(Config.itemsearch_ShowItemSearchKey && enabled)) {
                 alpha = (int) (((float) highlightTicks / (float) TEXT_FADEOUT) * 256);
                 alpha = Math.max(0, Math.min(255, alpha));
             }
@@ -143,6 +135,8 @@ public class GuiHandler {
             return;
         GuiContainer gui = (GuiContainer) event.getGui();
 
+        handleTooltip = gui.getSlotUnderMouse()!=null;
+
         Tessellator tess = Tessellator.getInstance();
         VertexBuffer renderer = tess.getBuffer();
 
@@ -153,7 +147,7 @@ public class GuiHandler {
 
         renderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
 
-        for (Map.Entry<Integer, IViewSlot> slot : this.views.entrySet()) {
+        for (Map.Entry<Integer, IViewSlot> slot : views.entrySet()) {
             int px = slot.getValue().getRenderPosX(guiOffsetX, guiOffsetY);
             int py = slot.getValue().getRenderPosY(guiOffsetX, guiOffsetY);
             renderer.pos(px + 16 + guiOffsetX, py + guiOffsetY, OVERLAY_ZLEVEL).endVertex();
@@ -176,11 +170,11 @@ public class GuiHandler {
         GlStateManager.disableBlend();
     }
 
-    private static boolean canShowIn(GuiScreen gui){
+    private boolean canShowIn(GuiScreen gui){
         return (gui instanceof GuiContainer) && !isCreative && ((GuiContainer) gui).inventorySlots!=null && !((GuiContainer) gui).inventorySlots.inventorySlots.isEmpty();
     }
 
-    private static void checkSlots(GuiContainer container) {
+    private void checkSlots(GuiContainer container) {
         if (views == null)
             views = HashBiMap.create();
         else
@@ -193,9 +187,10 @@ public class GuiHandler {
         }
     }
 
-    private static boolean isSearchedItem(ItemStack stack) {
-        if (stack == null) return emptyFilter;
-        for (ItemStack stack1 : itemCache) {
+    private boolean isSearchedItem(ItemStack stack) {
+        if(emptyFilter) return true;
+        else if(stack==null) return false;
+        for (ItemStack stack1 : JeiModule.overlay.getFilteredStacks()) {
             if (stack1.isItemEqual(stack) || (stack1.getItem() == stack.getItem() && stack1.getItem().isDamageable()))
                 return true;
         }
@@ -206,13 +201,8 @@ public class GuiHandler {
     public void onClientTick(TickEvent.ClientTickEvent event) {
         if (event.phase != TickEvent.Phase.END || Minecraft.getMinecraft().thePlayer == null || !canShowIn(Minecraft.getMinecraft().currentScreen))
             return;
-        if (enabled && !mezz.jei.config.Config.getFilterText().equals(lastFilterText)) {
-            lastFilterText = mezz.jei.config.Config.getFilterText();
-            if (itemCache != null)
-                itemCache.clear();
-            else
-                itemCache = new ArrayList<>();
-//            JeiModule.filter.getItemList().forEach((itemElement) -> itemCache.add(itemElement.getItemStack()));
+        if (enabled && !JeiModule.overlay.getFilterText().equals(lastFilterText)) {
+            lastFilterText = JeiModule.overlay.getFilterText();
             emptyFilter = lastFilterText.replace(" ","").isEmpty();
         }
 
@@ -228,18 +218,13 @@ public class GuiHandler {
     public static void toggleMode() {
         enabled = !enabled;
         if (enabled) {
-            lastFilterText = mezz.jei.config.Config.getFilterText();
-            if (itemCache != null)
-                itemCache.clear();
-            else
-                itemCache = new ArrayList<>();
-//            JeiModule.filter.getItemList().forEach((itemElement) -> itemCache.add(itemElement.getItemStack()));
+            lastFilterText = JeiModule.overlay.getFilterText();
             emptyFilter = lastFilterText.replace(" ","").isEmpty();
             text = I18n.translateToLocal("gui." + MoreOverlays.MOD_ID + ".search.enabled");
+            if(Config.itemsearch_ShowItemSearchKey)
+                text += " - [" + KeyBindings.invSearch.getKeyModifier().getLocalizedComboName(KeyBindings.invSearch.getKeyCode()) + "]";
         } else {
             lastFilterText = "";
-            if (itemCache != null)
-                itemCache.clear();
             text = I18n.translateToLocal("gui." + MoreOverlays.MOD_ID + ".search.disabled");
         }
         highlightTicks=TEXT_FADEOUT;

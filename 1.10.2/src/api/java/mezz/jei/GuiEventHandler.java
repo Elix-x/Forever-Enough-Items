@@ -1,8 +1,8 @@
 package mezz.jei;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import mezz.jei.api.ingredients.IIngredientRegistry;
 import mezz.jei.config.Config;
 import mezz.jei.gui.ItemListOverlay;
 import mezz.jei.gui.RecipesGui;
@@ -18,19 +18,19 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.lwjgl.input.Mouse;
 
 public class GuiEventHandler {
-	@Nonnull
 	private static final String showRecipesText = Translator.translateToLocal("jei.tooltip.show.recipes");
+	private final JeiRuntime runtime;
 	@Nullable
 	private InputHandler inputHandler;
 	@Nullable
 	private GuiContainer previousGui = null;
 
+	public GuiEventHandler(JeiRuntime runtime) {
+		this.runtime = runtime;
+	}
+
 	@SubscribeEvent
-	public void onGuiInit(@Nonnull GuiScreenEvent.InitGuiEvent.Post event) {
-		JeiRuntime runtime = Internal.getRuntime();
-		if (runtime == null) {
-			return;
-		}
+	public void onGuiInit(GuiScreenEvent.InitGuiEvent.Post event) {
 		ItemListOverlay itemListOverlay = runtime.getItemListOverlay();
 
 		GuiScreen gui = event.getGui();
@@ -38,8 +38,10 @@ public class GuiEventHandler {
 			GuiContainer guiContainer = (GuiContainer) gui;
 			itemListOverlay.initGui(guiContainer);
 
-			RecipesGui recipesGui = new RecipesGui();
-			inputHandler = new InputHandler(recipesGui, itemListOverlay);
+			RecipeRegistry recipeRegistry = runtime.getRecipeRegistry();
+			IIngredientRegistry ingredientRegistry = runtime.getIngredientRegistry();
+			RecipesGui recipesGui = runtime.getRecipesGui();
+			inputHandler = new InputHandler(recipeRegistry, ingredientRegistry, recipesGui, itemListOverlay);
 		} else if (gui instanceof RecipesGui) {
 			if (inputHandler != null) {
 				inputHandler.onScreenResized();
@@ -50,11 +52,7 @@ public class GuiEventHandler {
 	}
 	
 	@SubscribeEvent
-	public void onGuiOpen(@Nonnull GuiOpenEvent event) {
-		JeiRuntime runtime = Internal.getRuntime();
-		if (runtime == null) {
-			return;
-		}
+	public void onGuiOpen(GuiOpenEvent event) {
 		ItemListOverlay itemListOverlay = runtime.getItemListOverlay();
 
 		GuiScreen gui = event.getGui();
@@ -74,12 +72,7 @@ public class GuiEventHandler {
 	}
 
 	@SubscribeEvent
-	public void onDrawBackgroundEventPost(@Nonnull GuiScreenEvent.BackgroundDrawnEvent event) {
-		JeiRuntime runtime = Internal.getRuntime();
-		if (runtime == null) {
-			return;
-		}
-
+	public void onDrawBackgroundEventPost(GuiScreenEvent.BackgroundDrawnEvent event) {
 		ItemListOverlay itemListOverlay = runtime.getItemListOverlay();
 		if (itemListOverlay.isOpen()) {
 			GuiScreen gui = event.getGui();
@@ -89,16 +82,11 @@ public class GuiEventHandler {
 	}
 
 	@SubscribeEvent
-	public void onDrawScreenEventPost(@Nonnull GuiScreenEvent.DrawScreenEvent.Post event) {
-		JeiRuntime runtime = Internal.getRuntime();
-		if (runtime == null) {
-			return;
-		}
-
+	public void onDrawScreenEventPost(GuiScreenEvent.DrawScreenEvent.Post event) {
 		GuiScreen gui = event.getGui();
 		if (gui instanceof GuiContainer) {
 			GuiContainer guiContainer = (GuiContainer) gui;
-			RecipeRegistry recipeRegistry = Internal.getRuntime().getRecipeRegistry();
+			RecipeRegistry recipeRegistry = runtime.getRecipeRegistry();
 			if (recipeRegistry.getRecipeClickableArea(guiContainer, event.getMouseX() - guiContainer.guiLeft, event.getMouseY() - guiContainer.guiTop) != null) {
 				TooltipRenderer.drawHoveringText(guiContainer.mc, showRecipesText, event.getMouseX(), event.getMouseY());
 			}
@@ -111,12 +99,7 @@ public class GuiEventHandler {
 	}
 
 	@SubscribeEvent
-	public void onClientTick(@Nonnull TickEvent.ClientTickEvent event) {
-		JeiRuntime runtime = Internal.getRuntime();
-		if (runtime == null) {
-			return;
-		}
-
+	public void onClientTick(TickEvent.ClientTickEvent event) {
 		if (event.phase == TickEvent.Phase.END) {
 			return;
 		}

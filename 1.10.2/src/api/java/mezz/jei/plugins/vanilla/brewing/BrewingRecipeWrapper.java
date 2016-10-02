@@ -1,24 +1,24 @@
 package mezz.jei.plugins.vanilla.brewing;
 
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import com.google.common.base.Objects;
-import mezz.jei.plugins.vanilla.VanillaRecipeWrapper;
+import mezz.jei.api.ingredients.IIngredients;
+import mezz.jei.api.recipe.BlankRecipeWrapper;
 import mezz.jei.util.Translator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionType;
 import net.minecraft.potion.PotionUtils;
 
-import javax.annotation.Nonnull;
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-public class BrewingRecipeWrapper extends VanillaRecipeWrapper {
+public class BrewingRecipeWrapper extends BlankRecipeWrapper {
 	private final List<ItemStack> ingredients;
 	private final ItemStack potionInput;
 	private final ItemStack potionOutput;
-	private final List<Object> inputs;
+	private final List<List<ItemStack>> inputs;
 	private final int brewingSteps;
 	private final int hashCode;
 
@@ -32,10 +32,10 @@ public class BrewingRecipeWrapper extends VanillaRecipeWrapper {
 		this.potionOutput = potionOutput;
 		this.brewingSteps = brewingSteps;
 
-		this.inputs = new ArrayList<>();
-		this.inputs.add(potionInput);
-		this.inputs.add(potionInput);
-		this.inputs.add(potionInput);
+		this.inputs = new ArrayList<List<ItemStack>>();
+		this.inputs.add(Collections.singletonList(potionInput));
+		this.inputs.add(Collections.singletonList(potionInput));
+		this.inputs.add(Collections.singletonList(potionInput));
 		this.inputs.add(ingredients);
 
 		ItemStack firstIngredient = ingredients.get(0);
@@ -47,20 +47,24 @@ public class BrewingRecipeWrapper extends VanillaRecipeWrapper {
 				firstIngredient.getItem(), firstIngredient.getMetadata());
 	}
 
-	@Nonnull
+	@Override
+	public void getIngredients(IIngredients ingredients) {
+		ingredients.setInputLists(ItemStack.class, inputs);
+		ingredients.setOutput(ItemStack.class, potionOutput);
+	}
+
 	@Override
 	public List getInputs() {
 		return inputs;
 	}
 
-	@Nonnull
 	@Override
 	public List<ItemStack> getOutputs() {
 		return Collections.singletonList(potionOutput);
 	}
 
 	@Override
-	public void drawInfo(@Nonnull Minecraft minecraft, int recipeWidth, int recipeHeight, int mouseX, int mouseY) {
+	public void drawInfo(Minecraft minecraft, int recipeWidth, int recipeHeight, int mouseX, int mouseY) {
 		if (brewingSteps > 0) {
 			String steps = Translator.translateToLocalFormatted("gui.jei.category.brewing.steps", brewingSteps);
 			minecraft.fontRendererObj.drawString(steps, 70, 28, Color.gray.getRGB());

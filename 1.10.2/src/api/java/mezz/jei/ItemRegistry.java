@@ -1,72 +1,66 @@
 package mezz.jei;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableListMultimap;
-
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Locale;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableListMultimap;
+import mezz.jei.api.IItemRegistry;
+import mezz.jei.api.ingredients.IIngredientRegistry;
+import mezz.jei.util.Log;
+import mezz.jei.util.ModIdUtil;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
-import mezz.jei.api.IItemRegistry;
-import mezz.jei.util.Log;
-import mezz.jei.util.ModList;
-
+@Deprecated
 public class ItemRegistry implements IItemRegistry {
-	@Nonnull
-	private final ImmutableList<ItemStack> itemList;
-	@Nonnull
+	private final IIngredientRegistry ingredientRegistry;
 	private final ImmutableListMultimap<String, ItemStack> itemsByModId;
-	@Nonnull
-	private final ImmutableList<ItemStack> potionIngredients;
-	@Nonnull
-	private final ImmutableList<ItemStack> fuels;
-	@Nonnull
-	private final ModList modList;
+	private final ModIdUtil modIdUtil;
 
-	public ItemRegistry(@Nonnull ImmutableList<ItemStack> itemList,
-			@Nonnull ImmutableListMultimap<String, ItemStack> itemsByModId,
-			@Nonnull ImmutableList<ItemStack> potionIngredients,
-			@Nonnull ImmutableList<ItemStack> fuels,
-			@Nonnull ModList modList) {
-		this.itemList = itemList;
+	public ItemRegistry(
+			IIngredientRegistry ingredientRegistry,
+			ImmutableListMultimap<String, ItemStack> itemsByModId,
+			ModIdUtil modIdUtil
+	) {
+		this.ingredientRegistry = ingredientRegistry;
 		this.itemsByModId = itemsByModId;
-		this.potionIngredients = potionIngredients;
-		this.fuels = fuels;
-		this.modList = modList;
+		this.modIdUtil = modIdUtil;
 	}
 
 	@Override
-	@Nonnull
 	public ImmutableList<ItemStack> getItemList() {
-		return itemList;
+		return ingredientRegistry.getIngredients(ItemStack.class);
 	}
 
 	@Override
-	@Nonnull
 	public ImmutableList<ItemStack> getFuels() {
-		return fuels;
+		return ingredientRegistry.getFuels();
 	}
 
 	@Override
-	@Nonnull
 	public ImmutableList<ItemStack> getPotionIngredients() {
-		return potionIngredients;
+		return ingredientRegistry.getPotionIngredients();
 	}
 
-	@Nonnull
 	@Override
 	public String getModNameForItem(@Nullable Item item) {
 		if (item == null) {
 			Log.error("Null item", new NullPointerException());
 			return "";
 		}
-		return modList.getModNameForItem(item);
+		return modIdUtil.getModNameForItem(item);
 	}
 
-	@Nonnull
+	@Override
+	public String getModNameForModId(@Nullable String modId) {
+		if (modId == null) {
+			Log.error("Null modId", new NullPointerException());
+			return "";
+		}
+		return modIdUtil.getModNameForModId(modId);
+	}
+
 	@Override
 	public ImmutableList<ItemStack> getItemListForModId(@Nullable String modId) {
 		if (modId == null) {

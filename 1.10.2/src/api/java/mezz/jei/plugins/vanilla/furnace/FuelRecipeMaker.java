@@ -1,14 +1,5 @@
 package mezz.jei.plugins.vanilla.furnace;
 
-import mezz.jei.api.IGuiHelper;
-import mezz.jei.api.IItemRegistry;
-import mezz.jei.api.IJeiHelpers;
-import mezz.jei.api.recipe.IStackHelper;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntityFurnace;
-import net.minecraftforge.oredict.OreDictionary;
-
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -16,15 +7,22 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import mezz.jei.api.IGuiHelper;
+import mezz.jei.api.IJeiHelpers;
+import mezz.jei.api.ingredients.IIngredientRegistry;
+import mezz.jei.api.recipe.IStackHelper;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntityFurnace;
+import net.minecraftforge.oredict.OreDictionary;
+
 public class FuelRecipeMaker {
 
-	@Nonnull
-	public static List<FuelRecipe> getFuelRecipes(@Nonnull IItemRegistry itemRegistry, @Nonnull IJeiHelpers helpers) {
+	public static List<FuelRecipe> getFuelRecipes(IIngredientRegistry ingredientRegistry, IJeiHelpers helpers) {
 		IGuiHelper guiHelper = helpers.getGuiHelper();
 		IStackHelper stackHelper = helpers.getStackHelper();
-		List<ItemStack> fuelStacks = itemRegistry.getFuels();
-		Set<String> oreDictNames = new HashSet<>();
-		List<FuelRecipe> fuelRecipes = new ArrayList<>(fuelStacks.size());
+		List<ItemStack> fuelStacks = ingredientRegistry.getFuels();
+		Set<String> oreDictNames = new HashSet<String>();
+		List<FuelRecipe> fuelRecipes = new ArrayList<FuelRecipe>(fuelStacks.size());
 		for (ItemStack fuelStack : fuelStacks) {
 			if (fuelStack == null) {
 				continue;

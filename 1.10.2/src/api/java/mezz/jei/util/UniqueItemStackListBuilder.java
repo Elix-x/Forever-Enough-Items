@@ -1,28 +1,30 @@
 package mezz.jei.util;
 
-import mezz.jei.Internal;
-import net.minecraft.item.ItemStack;
-
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class UniqueItemStackListBuilder {
-	private final List<ItemStack> itemStacks = new ArrayList<>();
-	private final Set<String> itemStackUids = new HashSet<>();
+import net.minecraft.item.ItemStack;
 
-	public void add(@Nonnull ItemStack itemStack) {
-		String uid = Internal.getStackHelper().getUniqueIdentifierForStack(itemStack, StackHelper.UidMode.NORMAL);
-		if (!itemStackUids.contains(uid)) {
-			itemStackUids.add(uid);
-			itemStacks.add(itemStack);
+public class UniqueItemStackListBuilder {
+	private final StackHelper stackHelper;
+	private final List<ItemStack> ingredients = new ArrayList<ItemStack>();
+	private final Set<String> ingredientUids = new HashSet<String>();
+
+	public UniqueItemStackListBuilder(StackHelper stackHelper) {
+		this.stackHelper = stackHelper;
+	}
+
+	public void add(ItemStack itemStack) {
+		String uid = stackHelper.getUniqueIdentifierForStack(itemStack);
+		if (!ingredientUids.contains(uid)) {
+			ingredientUids.add(uid);
+			ingredients.add(itemStack);
 		}
 	}
 
-	@Nonnull
 	public List<ItemStack> build() {
-		return itemStacks;
+		return ingredients;
 	}
 }

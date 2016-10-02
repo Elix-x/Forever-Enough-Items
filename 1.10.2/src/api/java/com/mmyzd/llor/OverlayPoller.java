@@ -31,6 +31,7 @@ public class OverlayPoller extends Thread {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	private int updateChunkRadius() {
 		int size = LightLevelOverlayReloaded.instance.config.chunkRadius.getInt();
 		if (overlays == null || overlays.length != size * 2 + 1) {
@@ -52,7 +53,7 @@ public class OverlayPoller extends Thread {
 		int playerChunkX = mc.thePlayer.chunkCoordX;
 		int playerChunkZ = mc.thePlayer.chunkCoordZ; 
 		int skyLightSub = world.calculateSkylightSubtracted(1.0f);
-		int overlayType = LightLevelOverlayReloaded.instance.config.overlayType.getInt();
+		int displayMode = LightLevelOverlayReloaded.instance.config.displayMode.getInt();
 		boolean useSkyLight = LightLevelOverlayReloaded.instance.config.useSkyLight.getBoolean();
 		
 		for (int chunkX = playerChunkX - radius; chunkX <= playerChunkX + radius; chunkX++)
@@ -90,14 +91,18 @@ public class OverlayPoller extends Thread {
 						offsetY = preBlockState.getBoundingBox(world, prePos).maxY;
 						if (offsetY >= 0.15) continue; // Snow layer too high
 					}
-					int lightLevel = chunk.getLightFor(EnumSkyBlock.BLOCK, prePos);
-					if (useSkyLight) {
-						int llevel = chunk.getLightFor(EnumSkyBlock.SKY, prePos) - skyLightSub;
-						lightLevel = Math.max(lightLevel, llevel);
+					int blockLight = chunk.getLightFor(EnumSkyBlock.BLOCK, prePos);
+					int   skyLight = chunk.getLightFor(EnumSkyBlock.SKY, prePos) - skyLightSub;
+					int mixedLight = Math.max(blockLight, skyLight);
+					int lightIndex = useSkyLight ? mixedLight : blockLight;
+					if (displayMode == 1) {
+						if (mixedLight >= 8 && blockLight < 8) lightIndex += 32;
+					} else if (displayMode == 2) {
+						if (blockLight >= 8) continue;
+						if (lightIndex >= 8) lightIndex += 32;
 					}
-					if (overlayType == 1 && lightLevel >= 8) continue;
-					if (overlayType == 2 && lightLevel <= 7) continue;
-					buffer.add(new Overlay(posX, posY + offsetY + 1, posZ, lightLevel));
+					if (lightIndex >= 8 && lightIndex < 24) lightIndex ^= 16;
+					buffer.add(new Overlay(posX, posY + offsetY + 1, posZ, lightIndex));
 				}
 			}
 			int len = chunkRadius * 2 + 1;

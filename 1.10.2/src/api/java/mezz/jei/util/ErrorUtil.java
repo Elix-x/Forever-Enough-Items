@@ -1,6 +1,5 @@
 package mezz.jei.util;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,8 +15,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 
 public class ErrorUtil {
-	@Nonnull
-	public static <T> String getInfoFromBrokenRecipe(@Nonnull T recipe, @Nonnull IRecipeHandler<T> recipeHandler) {
+	public static <T> String getInfoFromBrokenRecipe(T recipe, IRecipeHandler<T> recipeHandler) {
 		StringBuilder recipeInfoBuilder = new StringBuilder();
 		try {
 			recipeInfoBuilder.append(recipe);
@@ -31,6 +29,9 @@ public class ErrorUtil {
 		try {
 			recipeWrapper = recipeHandler.getRecipeWrapper(recipe);
 		} catch (RuntimeException ignored) {
+			recipeInfoBuilder.append("\nFailed to create recipe wrapper");
+			return recipeInfoBuilder.toString();
+		} catch (LinkageError ignored) {
 			recipeInfoBuilder.append("\nFailed to create recipe wrapper");
 			return recipeInfoBuilder.toString();
 		}
@@ -70,15 +71,16 @@ public class ErrorUtil {
 		return recipeInfoBuilder.toString();
 	}
 
+	@Nullable
 	public static List<String> getItemStackIngredientsInfo(@Nullable List list) {
 		if (list == null) {
 			return null;
 		}
 		StackHelper stackHelper = Internal.getStackHelper();
 
-		List<String> ingredientsInfo = new ArrayList<>();
+		List<String> ingredientsInfo = new ArrayList<String>();
 		for (Object ingredient : list) {
-			List<String> ingredientInfo = new ArrayList<>();
+			List<String> ingredientInfo = new ArrayList<String>();
 
 			List<ItemStack> stacks = stackHelper.toItemStackList(ingredient);
 			String oreDict = stackHelper.getOreDictEquivalent(stacks);
@@ -96,7 +98,10 @@ public class ErrorUtil {
 		return ingredientsInfo;
 	}
 
-	public static String getItemStackInfo(@Nonnull ItemStack itemStack) {
+	public static String getItemStackInfo(@Nullable ItemStack itemStack) {
+		if (itemStack == null) {
+			return "null";
+		}
 		Item item = itemStack.getItem();
 		if (item == null) {
 			return itemStack.stackSize + "x (null)";

@@ -4,13 +4,13 @@ public class Overlay {
 	
 	public int x, z;
 	public double y;
-	public int lightLevel;
+	public int index;
 	
-	public Overlay(int x, double y, int z, int lightLevel) {
+	public Overlay(int x, double y, int z, int index) {
 		this.x = x;
 		this.y = y + 0.01;
 		this.z = z;
-		this.lightLevel = lightLevel;
+		this.index = index;
 	}
 	
 }

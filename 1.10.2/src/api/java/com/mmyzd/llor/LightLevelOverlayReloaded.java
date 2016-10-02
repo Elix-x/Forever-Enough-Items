@@ -3,6 +3,7 @@ package com.mmyzd.llor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -16,7 +17,12 @@ import net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent;
 
 import org.lwjgl.input.Keyboard;
 
-@Mod(modid = LightLevelOverlayReloaded.MODID, useMetadata = true, clientSideOnly = true, guiFactory = "com.mmyzd.llor.GuiFactory")
+@Mod(
+	modid = LightLevelOverlayReloaded.MODID,
+	useMetadata = true,
+	clientSideOnly = true, guiFactory = "com.mmyzd.llor.GuiFactory",
+	acceptedMinecraftVersions = "[1.9,1.10.2]"
+)
 public class LightLevelOverlayReloaded {
 	
 	public static final String MODID = "llor";
@@ -29,6 +35,8 @@ public class LightLevelOverlayReloaded {
     public ConfigManager config;
     public boolean active;
     public KeyBinding hotkey;
+    public String message;
+    public double messageRemainingTicks;
     
     @EventHandler
     public void preInit(FMLPreInitializationEvent evt) {
@@ -60,13 +68,22 @@ public class LightLevelOverlayReloaded {
 	}
     
 	@SubscribeEvent
-	public void onKeyInputEvent(KeyInputEvent evt) {
+	public void onKeyInputEvent(KeyInputEvent event) {
+		boolean withShift = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)   || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
+		boolean withCtrl  = Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL);
+		boolean withAlt   = Keyboard.isKeyDown(Keyboard.KEY_LMENU)    || Keyboard.isKeyDown(Keyboard.KEY_RMENU);
 		if (hotkey.isPressed()) {
-			if (active && (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT))) {
-				config.useSkyLight.set(!config.useSkyLight.getBoolean());
-			} else if (active && (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL))){
-				config.overlayType.set((config.overlayType.getInt() + 1) % 3);
-			} else {
+			if (active && withShift && !withCtrl) {
+				boolean useSkyLight = !config.useSkyLight.getBoolean();
+				config.useSkyLight.set(useSkyLight);
+				message = "Light Level Overlay: " + (useSkyLight ? "Block Light + Sky Light" : "Block Light Only");
+				messageRemainingTicks = 40;
+			} else if (active && withCtrl && !withShift){
+				int mode = (config.displayMode.getInt() + 1) % 3;
+				config.displayMode.set(mode);
+				message = "Light Level Overlay: " + config.displayModeName.get(mode) + " Mode";
+				messageRemainingTicks = 40;
+			} else if (!withShift && !withCtrl && !withAlt) {
 				active = !active;
 				launchPoller();
 			}
@@ -74,14 +91,22 @@ public class LightLevelOverlayReloaded {
 	}
 	
 	@SubscribeEvent
-	public void onRenderWorldLastEvent(RenderWorldLastEvent evt) {
+	public void onRenderWorldLastEvent(RenderWorldLastEvent event) {
 		if (active) {
 			EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
 			if (player == null) return;
-			double x = player.lastTickPosX + (player.posX - player.lastTickPosX) * evt.getPartialTicks();
-	        double y = player.lastTickPosY + (player.posY - player.lastTickPosY) * evt.getPartialTicks();
-	        double z = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * evt.getPartialTicks();
+			double x = player.lastTickPosX + (player.posX - player.lastTickPosX) * event.getPartialTicks();
+	        double y = player.lastTickPosY + (player.posY - player.lastTickPosY) * event.getPartialTicks();
+	        double z = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * event.getPartialTicks();
 	        renderer.render(x, y, z, poller.overlays);
+		}
+	}
+	
+	@SubscribeEvent
+	public void onRenderGameOverlayEventText(RenderGameOverlayEvent.Text event) {
+		if (messageRemainingTicks > 0) {
+			messageRemainingTicks -= event.getPartialTicks();
+			event.getLeft().add(message);
 		}
 	}
 	

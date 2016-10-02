@@ -1,22 +1,21 @@
 package mezz.jei;
 
 import mezz.jei.api.IJeiRuntime;
-import mezz.jei.api.IRecipesGui;
 import mezz.jei.gui.ItemListOverlay;
 import mezz.jei.gui.RecipesGui;
-
-import javax.annotation.Nonnull;
 
 public class JeiRuntime implements IJeiRuntime {
 
 	private final RecipeRegistry recipeRegistry;
 	private final ItemListOverlay itemListOverlay;
 	private final RecipesGui recipesGui;
+	private final IngredientRegistry ingredientRegistry;
 
-	public JeiRuntime(RecipeRegistry recipeRegistry, ItemListOverlay itemListOverlay, RecipesGui recipesGui) {
+	public JeiRuntime(RecipeRegistry recipeRegistry, ItemListOverlay itemListOverlay, RecipesGui recipesGui, IngredientRegistry ingredientRegistry) {
 		this.recipeRegistry = recipeRegistry;
 		this.itemListOverlay = itemListOverlay;
 		this.recipesGui = recipesGui;
+		this.ingredientRegistry = ingredientRegistry;
 	}
 
 	public void close() {
@@ -28,21 +27,22 @@ public class JeiRuntime implements IJeiRuntime {
 		}
 	}
 
-	@Nonnull
 	@Override
 	public RecipeRegistry getRecipeRegistry() {
 		return recipeRegistry;
 	}
 
-	@Nonnull
 	@Override
 	public ItemListOverlay getItemListOverlay() {
 		return itemListOverlay;
 	}
 
-	@Nonnull
 	@Override
-	public IRecipesGui getRecipesGui() {
+	public RecipesGui getRecipesGui() {
 		return recipesGui;
+	}
+
+	public IngredientRegistry getIngredientRegistry() {
+		return ingredientRegistry;
 	}
 }

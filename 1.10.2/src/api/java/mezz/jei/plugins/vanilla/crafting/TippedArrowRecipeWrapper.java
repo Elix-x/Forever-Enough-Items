@@ -1,5 +1,10 @@
 package mezz.jei.plugins.vanilla.crafting;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import mezz.jei.api.ingredients.IIngredients;
 import mezz.jei.api.recipe.BlankRecipeWrapper;
 import mezz.jei.api.recipe.wrapper.IShapedCraftingRecipeWrapper;
 import net.minecraft.init.Items;
@@ -7,18 +12,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionType;
 import net.minecraft.potion.PotionUtils;
 
-import javax.annotation.Nonnull;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 public class TippedArrowRecipeWrapper extends BlankRecipeWrapper implements IShapedCraftingRecipeWrapper {
-	@Nonnull
 	private final List<ItemStack> inputs;
-	@Nonnull
-	private final List<ItemStack> outputs;
+	private final ItemStack output;
 
-	public TippedArrowRecipeWrapper(@Nonnull PotionType type) {
+	public TippedArrowRecipeWrapper(PotionType type) {
 		ItemStack arrowStack = new ItemStack(Items.ARROW);
 		ItemStack lingeringPotion = PotionUtils.addPotionToItemStack(new ItemStack(Items.LINGERING_POTION), type);
 		this.inputs = Arrays.asList(
@@ -27,20 +25,23 @@ public class TippedArrowRecipeWrapper extends BlankRecipeWrapper implements ISha
 				arrowStack, arrowStack, arrowStack
 		);
 		ItemStack outputStack = new ItemStack(Items.TIPPED_ARROW, 8);
-		PotionUtils.addPotionToItemStack(outputStack, type);
-		this.outputs = Collections.singletonList(outputStack);
+		this.output = PotionUtils.addPotionToItemStack(outputStack, type);
 	}
 
 	@Override
-	@Nonnull
+	public void getIngredients(IIngredients ingredients) {
+		ingredients.setInputs(ItemStack.class, this.inputs);
+		ingredients.setOutput(ItemStack.class, this.output);
+	}
+
+	@Override
 	public List<ItemStack> getInputs() {
 		return inputs;
 	}
 
 	@Override
-	@Nonnull
 	public List<ItemStack> getOutputs() {
-		return outputs;
+		return Collections.singletonList(this.output);
 	}
 
 	@Override
