@@ -47,7 +47,6 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ChatAllowedCharacters;
@@ -138,8 +137,8 @@ public class ItemListOverlay implements IItemListOverlay, IShowsRecipeFocuses, I
 		final int buttonStartY = buttonSize + (2 * borderPadding) + (yItemButtonSpace - itemButtonsHeight) / 2;
 		createItemButtons(guiIngredientList, guiAreas, leftEdge, buttonStartY, columns, rows);
 
-		nextButton = new GuiButtonExt(0, rightEdge - buttonSize, borderPadding, buttonSize, buttonSize, nextLabel);
-		backButton = new GuiButtonExt(1, leftEdge, borderPadding, buttonSize, buttonSize, backLabel);
+		nextButton = new GuiButton(0, rightEdge - buttonSize, borderPadding, buttonSize, buttonSize, nextLabel);
+		backButton = new GuiButton(1, leftEdge, borderPadding, buttonSize, buttonSize, backLabel);
 
 		final int searchFieldX;
 		final int searchFieldY = guiProperties.getScreenHeight() - searchHeight - borderPadding - 2;
@@ -160,7 +159,7 @@ public class ItemListOverlay implements IItemListOverlay, IShowsRecipeFocuses, I
 
 		int configButtonX = searchFieldX + searchFieldWidth + 1;
 		int configButtonY = guiProperties.getScreenHeight() - buttonSize - borderPadding;
-		configButton = new GuiButtonExt(2, configButtonX, configButtonY, buttonSize, buttonSize, null);
+		configButton = new GuiButton(2, configButtonX, configButtonY, buttonSize, buttonSize, null);
 		ResourceLocation configButtonIconLocation = new ResourceLocation(Constants.RESOURCE_DOMAIN, Constants.TEXTURE_RECIPE_BACKGROUND_PATH);
 		GuiHelper guiHelper = Internal.getHelpers().getGuiHelper();
 		configButtonIcon = guiHelper.createDrawable(configButtonIconLocation, 0, 166, 16, 16);
@@ -201,6 +200,7 @@ public class ItemListOverlay implements IItemListOverlay, IShowsRecipeFocuses, I
 		return guiAreas;
 	}
 
+	@Nullable
 	private <T extends GuiContainer> List<Rectangle> getGuiAreas(GuiContainer guiContainer, IAdvancedGuiHandler<T> advancedGuiHandler) {
 		if (advancedGuiHandler.getGuiContainerClass().isAssignableFrom(guiContainer.getClass())) {
 			T guiT = advancedGuiHandler.getGuiContainerClass().cast(guiContainer);
@@ -314,7 +314,7 @@ public class ItemListOverlay implements IItemListOverlay, IShowsRecipeFocuses, I
 		}
 
 		GlStateManager.disableLighting();
-		
+
 		minecraft.fontRendererObj.drawString(pageNumDisplayString, pageNumDisplayX, pageNumDisplayY, Color.white.getRGB(), true);
 		searchField.drawTextBox();
 
@@ -367,7 +367,7 @@ public class ItemListOverlay implements IItemListOverlay, IShowsRecipeFocuses, I
 		if (!isOpen()) {
 			return;
 		}
-		
+
 		boolean mouseOver = isMouseOver(mouseX, mouseY);
 		if (mouseOver && shouldShowDeleteItemTooltip(minecraft)) {
 			String deleteItem = Translator.translateToLocal("jei.tooltip.delete.item");
@@ -552,11 +552,11 @@ public class ItemListOverlay implements IItemListOverlay, IShowsRecipeFocuses, I
 		return guiProperties.getScreenHeight() - (buttonSize + searchHeight + 2 + (4 * borderPadding));
 	}
 
-	private int getColumns(GuiProperties guiProperties) {
+	private static int getColumns(GuiProperties guiProperties) {
 		return getItemButtonXSpace(guiProperties) / itemStackWidth;
 	}
 
-	private int getRows(GuiProperties guiProperties) {
+	private static int getRows(GuiProperties guiProperties) {
 		return getItemButtonYSpace(guiProperties) / itemStackHeight;
 	}
 
@@ -582,6 +582,10 @@ public class ItemListOverlay implements IItemListOverlay, IShowsRecipeFocuses, I
 	public void open() {
 		open = true;
 		setKeyboardFocus(false);
+	}
+
+	public ItemFilter getItemFilter() {
+		return itemFilter;
 	}
 
 	@Override

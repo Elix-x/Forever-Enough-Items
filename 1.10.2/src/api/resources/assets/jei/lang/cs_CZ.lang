@@ -48,12 +48,23 @@ config.jei.interface.overlayEnabled.comment=Zobrazí list itemů vedle otevřen�
 config.jei.interface.recipeAnimationsEnabled=Animované Recepty
 config.jei.interface.recipeAnimationsEnabled.comment=Zobrazí animace u receptů (ohen v peci, progresova bary, atd.)
 
+config.jei.search=Nastavení Hledání
+config.jei.search.comment=Nastavení související s hledacím polem.
+config.jei.search.atPrefixRequiredForModName=Vyžaduje @ pro jméno módu
+config.jei.search.atPrefixRequiredForModName.comment=Vyžaduje "@" před slovem pro hledání v módu.
+config.jei.search.prefixRequiredForTooltipSearch=Vyžaduje # pro nástrojový tip
+config.jei.search.prefixRequiredForTooltipSearch.comment=Vyžaduje "#" před slovem pro hledání tipů.
+config.jei.search.prefixRequiredForOreDictSearch=Vyžaduje $ pro Slovín Rud
+config.jei.search.prefixRequiredForOreDictSearch.comment=Vyžaduje "$" před slovem pro hledání jedné z rud.
+config.jei.search.prefixRequiredForCreativeTabSearch=Vyžaduje %% pro jméno v Creative Tabulce
+config.jei.search.prefixRequiredForCreativeTabSearch.comment=Vyžaduje "%" před slovem pro hledání v creative tabulce.
+config.jei.search.prefixRequiredForColorSearch=Vyžaduje ^ pro barvy
+config.jei.search.prefixRequiredForColorSearch.comment=Vyžaduje "^" před slovem pro hledání barev itemů.
+
 config.jei.advanced=Pokročilé
 config.jei.advanced.comment=Pokročilé funkce pro JEI.
 config.jei.advanced.itemBlacklist=Černý list itemů
 config.jei.advanced.itemBlacklist.comment=List itemů které se nezobrazí na listu itemů. Formát: modId[:jméno[:data]]. Edit Mód automaticky přidá/odstraní záznamy.
-config.jei.advanced.hideMissingModelsEnabled=Schovat Itemy s chybnými texturami
-config.jei.advanced.hideMissingModelsEnabled.comment=Itemy s chybějícími texturami budou skryty.
 config.jei.advanced.colorSearchEnabled=Hledání dle barvy
 config.jei.advanced.colorSearchEnabled.comment=Hledání itemů dle barvy a zobrazí vyhledávatelné barvy v nástrojových tupech v listu itemů.
 config.jei.advanced.debugModeEnabled=Programovací Mód
@@ -63,12 +74,12 @@ config.jei.advanced.centerSearchBarEnabled.comment=Přesune JEI bar dolů dopros
 
 # Edit Mode
 gui.jei.editMode.description=JEI Item List Editovací Mód:
-gui.jei.editMode.description.hide=Ctrl-klik pro skrytí.
-gui.jei.editMode.description.show=Hidden. Ctrl-klik pro zobrazení.
-gui.jei.editMode.description.hide.wild=Ctrl-pravý-klik pro schování divoké karty.
-gui.jei.editMode.description.show.wild=Schováno Divokou Kartou. Ctrl-pravý-klik pro zobrazení.
-gui.jei.editMode.description.hide.mod.id=Ctrl-Shift-klik pro schování ModId.
-gui.jei.editMode.description.show.mod.id=Schováno ModId. Ctrl-Shift-klik pro zobrazení.
+gui.jei.editMode.description.hide=%CTRL-klik pro skrytí.
+gui.jei.editMode.description.show=Hidden. %CTRL-klik pro zobrazení.
+gui.jei.editMode.description.hide.wild=%CTRL-pravý-klik pro schování divoké karty.
+gui.jei.editMode.description.show.wild=Schováno Divokou Kartou. %CTRL-pravý-klik pro zobrazení.
+gui.jei.editMode.description.hide.mod.id=%CTRL-SHIFT-klik pro schování ModId.
+gui.jei.editMode.description.show.mod.id=Schováno ModId. %CTRL-SHIFT-klik pro zobrazení.
 
 # Recipe Categories
 gui.jei.category.craftingTable=Výroba

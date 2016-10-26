@@ -48,12 +48,23 @@ config.jei.interface.overlayEnabled.comment=在打開的GUI一側顯示物品清
 config.jei.interface.recipeAnimationsEnabled=合成介面動畫
 config.jei.interface.recipeAnimationsEnabled.comment=顯示部分合成的動畫效果，如熔爐火焰、進度條等。
 
+config.jei.search=搜索選項
+config.jei.search.comment=關於搜索的設定。
+config.jei.search.atPrefixRequiredForModName=需要@來按模組名搜索
+config.jei.search.atPrefixRequiredForModName.comment=當按模組名搜索物品時，要求使用“@”作為首碼。
+config.jei.search.prefixRequiredForTooltipSearch=需要#來按物品提示搜索
+config.jei.search.prefixRequiredForTooltipSearch.comment=當按物品提示搜索時，要求使用“#”作為首碼。
+config.jei.search.prefixRequiredForOreDictSearch=需要$來按礦物詞典搜索
+config.jei.search.prefixRequiredForOreDictSearch.comment=當按礦物詞典搜索時，要求使用“$”作為首碼。
+config.jei.search.prefixRequiredForCreativeTabSearch=需要%%來按創造模式標籤頁搜索
+config.jei.search.prefixRequiredForCreativeTabSearch.comment=當按創造模式物品欄的標籤頁搜索時，要求使用“%”作為首碼。
+config.jei.search.prefixRequiredForColorSearch=需要^來按顏色搜索
+config.jei.search.prefixRequiredForColorSearch.comment=當按物品顏色搜索時，要求使用“^”作為首碼。
+
 config.jei.advanced=高級設定
 config.jei.advanced.comment=用於更改JEI功能的高級選項。
 config.jei.advanced.itemBlacklist=物品黑名單
 config.jei.advanced.itemBlacklist.comment=黑名單中物品將不會顯示於JEI物品清單。添加格式：modId[:name[:meta]]。使用編輯模式可自動添加或删除這裡的條目。
-config.jei.advanced.hideMissingModelsEnabled=隱藏模型遺失的物品
-config.jei.advanced.hideMissingModelsEnabled.comment=開啟後，缺失模型的物品將不會出現在物品清單中。
 config.jei.advanced.colorSearchEnabled=啟用顏色搜索
 config.jei.advanced.colorSearchEnabled.comment=按顏色搜索物品，並在可以這樣搜索的物品提示中加以注明。
 config.jei.advanced.debugModeEnabled=調試模式
@@ -63,12 +74,12 @@ config.jei.advanced.centerSearchBarEnabled.comment=啟用後，搜索框會被�
 
 # Edit Mode 編輯模式
 gui.jei.editMode.description=JEI物品清單編輯模式：
-gui.jei.editMode.description.hide=按住Ctrl點擊以隱藏。
-gui.jei.editMode.description.show=已隱藏。按住Ctrl點擊以顯示。
-gui.jei.editMode.description.hide.wild=按住Ctrl右擊以隱藏相同id的物品。
-gui.jei.editMode.description.show.wild=相同ID物品以隱藏。按住Ctrl右擊以顯示。
-gui.jei.editMode.description.hide.mod.id=同時按下Ctrl和Shift時點擊以按模組ID隱藏。
-gui.jei.editMode.description.show.mod.id=已按模組ID隱藏。同時按下Ctrl和Shift時點擊以顯示。
+gui.jei.editMode.description.hide=按住%CTRL點擊以隱藏。
+gui.jei.editMode.description.show=已隱藏。按住%CTRL點擊以顯示。
+gui.jei.editMode.description.hide.wild=按住%CTRL右擊以隱藏相同id的物品。
+gui.jei.editMode.description.show.wild=相同ID物品以隱藏。按住%CTRL右擊以顯示。
+gui.jei.editMode.description.hide.mod.id=同時按下%CTRL和SHIFT時點擊以按模組ID隱藏。
+gui.jei.editMode.description.show.mod.id=已按模組ID隱藏。同時按下%CTRL和SHIFT時點擊以顯示。
 
 # Recipe Categories 合成類別
 gui.jei.category.craftingTable=合成

@@ -30,6 +30,7 @@ import mezz.jei.api.recipe.IRecipeRegistryPlugin;
 import mezz.jei.api.recipe.IRecipeWrapper;
 import mezz.jei.api.recipe.transfer.IRecipeTransferHandler;
 import mezz.jei.config.Config;
+import mezz.jei.config.Constants;
 import mezz.jei.gui.Focus;
 import mezz.jei.gui.RecipeClickableArea;
 import mezz.jei.util.ErrorUtil;
@@ -48,6 +49,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fml.common.ProgressManager;
 
 public class RecipeRegistry implements IRecipeRegistry {
 	private final StackHelper stackHelper;
@@ -69,7 +71,7 @@ public class RecipeRegistry implements IRecipeRegistry {
 			StackHelper stackHelper,
 			List<IRecipeCategory> recipeCategories,
 			List<IRecipeHandler> recipeHandlers,
-			List<IRecipeTransferHandler> recipeTransferHandlers,
+			ImmutableTable<Class, String, IRecipeTransferHandler> recipeTransferHandlers,
 			List<Object> recipes,
 			Multimap<Class<? extends GuiContainer>, RecipeClickableArea> recipeClickableAreasMap,
 			Multimap<String, ItemStack> craftItemsForCategories,
@@ -79,7 +81,7 @@ public class RecipeRegistry implements IRecipeRegistry {
 		this.stackHelper = stackHelper;
 		this.ingredientRegistry = ingredientRegistry;
 		this.recipeCategoriesMap = buildRecipeCategoriesMap(recipeCategories);
-		this.recipeTransferHandlers = buildRecipeTransferHandlerTable(recipeTransferHandlers);
+		this.recipeTransferHandlers = recipeTransferHandlers;
 		this.recipeHandlers = buildRecipeHandlersList(recipeHandlers);
 		this.recipeClickableAreasMap = ImmutableMultimap.copyOf(recipeClickableAreasMap);
 
@@ -153,22 +155,17 @@ public class RecipeRegistry implements IRecipeRegistry {
 		return listBuilder.build();
 	}
 
-	private static ImmutableTable<Class, String, IRecipeTransferHandler> buildRecipeTransferHandlerTable(List<IRecipeTransferHandler> recipeTransferHandlers) {
-		ImmutableTable.Builder<Class, String, IRecipeTransferHandler> builder = ImmutableTable.builder();
-		for (IRecipeTransferHandler recipeTransferHelper : recipeTransferHandlers) {
-			builder.put(recipeTransferHelper.getContainerClass(), recipeTransferHelper.getRecipeCategoryUid(), recipeTransferHelper);
-		}
-		return builder.build();
-	}
-
 	private void addRecipes(@Nullable List<Object> recipes) {
 		if (recipes == null) {
 			return;
 		}
 
+		ProgressManager.ProgressBar progressBar = ProgressManager.push("Adding recipes", recipes.size());
 		for (Object recipe : recipes) {
+			progressBar.step("");
 			addRecipe(recipe);
 		}
+		ProgressManager.pop(progressBar);
 	}
 
 	@Override
@@ -246,7 +243,7 @@ public class RecipeRegistry implements IRecipeRegistry {
 		Ingredients ingredients = new Ingredients();
 		try {
 			recipeWrapper.getIngredients(ingredients);
-		} catch (LinkageError ignored) {
+		} catch (AbstractMethodError ignored) {
 			// older recipe wrappers do not support getIngredients
 		}
 
@@ -592,7 +589,13 @@ public class RecipeRegistry implements IRecipeRegistry {
 			return null;
 		}
 
-		return recipeTransferHandlers.get(container.getClass(), recipeCategory.getUid());
+		Class<? extends Container> containerClass = container.getClass();
+		IRecipeTransferHandler recipeTransferHandler = recipeTransferHandlers.get(containerClass, recipeCategory.getUid());
+		if (recipeTransferHandler != null) {
+			return recipeTransferHandler;
+		}
+
+		return recipeTransferHandlers.get(containerClass, Constants.UNIVERSAL_RECIPE_TRANSFER_UID);
 	}
 
 }

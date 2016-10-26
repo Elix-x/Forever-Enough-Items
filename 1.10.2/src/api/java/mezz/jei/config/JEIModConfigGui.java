@@ -21,7 +21,9 @@ public class JEIModConfigGui extends GuiConfig {
 		super(getParent(parent), getConfigElements(), Constants.MOD_ID, false, false, getTitle(parent));
 	}
 
-	/** Don't return to a RecipesGui, it will not be valid after configs are changed. */
+	/**
+	 * Don't return to a RecipesGui, it will not be valid after configs are changed.
+	 */
 	private static GuiScreen getParent(GuiScreen parent) {
 		if (parent instanceof RecipesGui) {
 			GuiScreen parentScreen = ((RecipesGui) parent).getParentScreen();
@@ -47,6 +49,9 @@ public class JEIModConfigGui extends GuiConfig {
 
 		ConfigCategory categoryAdvanced = Config.getConfig().getCategory(Config.CATEGORY_ADVANCED);
 		configElements.addAll(new ConfigElement(categoryAdvanced).getChildElements());
+
+		ConfigCategory categorySearch = Config.getConfig().getCategory(Config.CATEGORY_SEARCH);
+		configElements.add(new ConfigElement(categorySearch));
 
 		return configElements;
 	}

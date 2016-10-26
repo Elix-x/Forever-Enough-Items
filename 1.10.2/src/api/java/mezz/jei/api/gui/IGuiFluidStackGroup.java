@@ -7,9 +7,9 @@ import net.minecraftforge.fluids.FluidStack;
 
 /**
  * IGuiFluidStackGroup displays one or more {@link FluidStack} in a gui.
- *
+ * <p>
  * If multiple FluidStacks are set, they will be displayed in rotation.
- *
+ * <p>
  * Get an instance from {@link IRecipeLayout#getFluidStacks()}.
  */
 public interface IGuiFluidStackGroup extends IGuiIngredientGroup<FluidStack> {
@@ -30,10 +30,11 @@ public interface IGuiFluidStackGroup extends IGuiIngredientGroup<FluidStack> {
 	void init(int slotIndex, boolean input, int xPosition, int yPosition, int width, int height, int capacityMb, boolean showCapacity, @Nullable IDrawable overlay);
 
 	@Override
+	@Deprecated
 	void set(int slotIndex, Collection<FluidStack> fluidStacks);
 
 	@Override
-	void set(int slotIndex, FluidStack fluidStack);
+	void set(int slotIndex, @Nullable FluidStack fluidStack);
 
 	@Override
 	void addTooltipCallback(ITooltipCallback<FluidStack> tooltipCallback);

@@ -8,10 +8,10 @@ import net.minecraft.inventory.Container;
 
 /**
  * A recipe transfer handler moves items into a crafting area, based on the items in a recipe.
- *
+ * <p>
  * Implementing this interface gives full control over the recipe transfer process.
  * Mods that use a regular slotted inventory can use {@link IRecipeTransferInfo} instead, which is much simpler.
- *
+ * <p>
  * Useful functions for implementing a recipe transfer handler can be found in {@link IRecipeTransferHandlerHelper}.
  */
 public interface IRecipeTransferHandler<C extends Container> {
@@ -22,7 +22,11 @@ public interface IRecipeTransferHandler<C extends Container> {
 
 	/**
 	 * The type of recipe that this recipe transfer handler deals with.
+	 *
+	 * @deprecated since JEI 3.12.4.
+	 * Use the recipe-category-specific registration {@link IRecipeTransferRegistry#addRecipeTransferHandler(IRecipeTransferHandler, String)}
 	 */
+	@Deprecated
 	String getRecipeCategoryUid();
 
 	/**

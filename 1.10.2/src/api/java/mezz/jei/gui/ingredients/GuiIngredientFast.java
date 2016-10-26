@@ -3,6 +3,7 @@ package mezz.jei.gui.ingredients;
 import javax.annotation.Nullable;
 import java.awt.Color;
 import java.awt.Rectangle;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -15,6 +16,7 @@ import mezz.jei.api.ingredients.IIngredientRenderer;
 import mezz.jei.config.Config;
 import mezz.jei.config.Constants;
 import mezz.jei.gui.TooltipRenderer;
+import mezz.jei.util.Log;
 import mezz.jei.util.Translator;
 import mezz.jei.util.color.ColorNamer;
 import net.minecraft.client.Minecraft;
@@ -258,7 +260,19 @@ public class GuiIngredientFast {
 	}
 
 	private static <V> List<String> getTooltip(Minecraft minecraft, V ingredient, IIngredientRenderer<V> ingredientRenderer, IIngredientHelper<V> ingredientHelper) {
-		List<String> list = ingredientRenderer.getTooltip(minecraft, ingredient);
+		List<String> list;
+		try {
+			list = ingredientRenderer.getTooltip(minecraft, ingredient);
+		} catch (RuntimeException e) {
+			Log.error("Tooltip crashed.", e);
+			list = new ArrayList<String>();
+			list.add(Translator.translateToLocal("jei.tooltip.error.crash"));
+		} catch (LinkageError e) {
+			Log.error("Tooltip crashed.", e);
+			list = new ArrayList<String>();
+			list.add(Translator.translateToLocal("jei.tooltip.error.crash"));
+		}
+
 		Internal.getModIdUtil().addModNameToIngredientTooltip(list, ingredient, ingredientHelper);
 
 		int maxWidth = Constants.MAX_TOOLTIP_WIDTH;
@@ -284,27 +298,36 @@ public class GuiIngredientFast {
 		if (Config.isEditModeEnabled()) {
 			list.add("");
 			list.add(TextFormatting.ITALIC + Translator.translateToLocal("gui.jei.editMode.description"));
+
+			String controlKeyLocalization = Translator.translateToLocal(Minecraft.IS_RUNNING_ON_MAC ? "key.jei.ctrl.mac" : "key.jei.ctrl");
+
 			if (Config.isIngredientOnConfigBlacklist(ingredient, Config.IngredientBlacklistType.ITEM, ingredientHelper)) {
-				String description = TextFormatting.YELLOW + Translator.translateToLocal("gui.jei.editMode.description.show");
+				String message = Translator.translateToLocal("gui.jei.editMode.description.show").replace("%CTRL", controlKeyLocalization);
+				String description = TextFormatting.YELLOW + message;
 				list.addAll(minecraft.fontRendererObj.listFormattedStringToWidth(description, maxWidth));
 			} else {
-				String description = TextFormatting.YELLOW + Translator.translateToLocal("gui.jei.editMode.description.hide");
+				String message = Translator.translateToLocal("gui.jei.editMode.description.hide").replace("%CTRL", controlKeyLocalization);
+				String description = TextFormatting.YELLOW + message;
 				list.addAll(minecraft.fontRendererObj.listFormattedStringToWidth(description, maxWidth));
 			}
 
 			if (Config.isIngredientOnConfigBlacklist(ingredient, Config.IngredientBlacklistType.WILDCARD, ingredientHelper)) {
-				String description = TextFormatting.RED + Translator.translateToLocal("gui.jei.editMode.description.show.wild");
+				String message = Translator.translateToLocal("gui.jei.editMode.description.show.wild").replace("%CTRL", controlKeyLocalization);
+				String description = TextFormatting.RED + message;
 				list.addAll(minecraft.fontRendererObj.listFormattedStringToWidth(description, maxWidth));
 			} else {
-				String description = TextFormatting.RED + Translator.translateToLocal("gui.jei.editMode.description.hide.wild");
+				String message = Translator.translateToLocal("gui.jei.editMode.description.hide.wild").replace("%CTRL", controlKeyLocalization);
+				String description = TextFormatting.RED + message;
 				list.addAll(minecraft.fontRendererObj.listFormattedStringToWidth(description, maxWidth));
 			}
 
 			if (Config.isIngredientOnConfigBlacklist(ingredient, Config.IngredientBlacklistType.MOD_ID, ingredientHelper)) {
-				String description = TextFormatting.BLUE + Translator.translateToLocal("gui.jei.editMode.description.show.mod.id");
+				String message = Translator.translateToLocal("gui.jei.editMode.description.show.mod.id").replace("%CTRL", controlKeyLocalization);
+				String description = TextFormatting.BLUE + message;
 				list.addAll(minecraft.fontRendererObj.listFormattedStringToWidth(description, maxWidth));
 			} else {
-				String description = TextFormatting.BLUE + Translator.translateToLocal("gui.jei.editMode.description.hide.mod.id");
+				String message = Translator.translateToLocal("gui.jei.editMode.description.hide.mod.id").replace("%CTRL", controlKeyLocalization);
+				String description = TextFormatting.BLUE + message;
 				list.addAll(minecraft.fontRendererObj.listFormattedStringToWidth(description, maxWidth));
 			}
 		}

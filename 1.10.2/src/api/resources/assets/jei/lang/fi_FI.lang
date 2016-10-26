@@ -39,23 +39,26 @@ config.jei.interface.overlayEnabled.comment=Näytä tavaralista avointen käytt�
 config.jei.interface.recipeAnimationsEnabled=Reseptien animaatiot
 config.jei.interface.recipeAnimationsEnabled.comment=Näytä reseptien animaatiot (uunin tuli, edistymispalkki jne.)
 
+config.jei.search=Haku
+config.jei.search.comment=Hakuun liittyviä asetuksia.
+config.jei.search.atPrefixRequiredForModName=Käytä @-merkkiä modihakua varten
+config.jei.search.atPrefixRequiredForModName.comment=Vaadi "@ModinNimi" hakeaksesi modin nimellä pelkän "ModinNimi" sijaan.
+
 config.jei.advanced=Edistynyt
 config.jei.advanced.comment=Edistyneitä asetuksia jotka muokkaavat JEI:n toimintaa.
 config.jei.advanced.nbtKeyIgnoreList=NBT-avaimien sivuutuslista
 config.jei.advanced.nbtKeyIgnoreList.comment=Lista NBT-avaimista jotka pitäisi sivuuttaa reseptejä noutaessa.
 config.jei.advanced.itemBlacklist=Tavaroiden musta lista
 config.jei.advanced.itemBlacklist.comment=Lista tavaroista joita ei pitäisi näyttää JEI:n tavaralistassa. Muoto: modinId:nimi[:metadata]. Muokkaustila lisää tai poistaa merkintöjä tästä.
-config.jei.advanced.hideMissingModelsEnabled=Piilota puuttuvat tavaramallit
-config.jei.advanced.hideMissingModelsEnabled.comment=Tavarat joilta puuttuvat mallit poistetaan tavaralistasta.
 config.jei.advanced.debugModeEnabled=Debug-tila
 config.jei.advanced.debugModeEnabled.comment=Lisää muutamia asioita jotka auttavat JEI:n kehitystä.
 
 # Edit Mode
 gui.jei.editMode.description=JEI:n tavaralistan muokkaustila:
-gui.jei.editMode.description.hide=Paina Ctrl pohjassa piilottaaksesi.
-gui.jei.editMode.description.show=Piilossa. Paina Ctrl pohjassa näyttääksesi.
-gui.jei.editMode.description.hide.wild=Paina hiiren oikeaa painiketta Ctrl pohjassa piilottaaksesi jokerimerkin perusteella.
-gui.jei.editMode.description.show.wild=Piilotettu jokerimerkin perusteella. Näytä painamalla hiiren oikeaa painiketta Ctrl pohjassa.
+gui.jei.editMode.description.hide=Paina %CTRL pohjassa piilottaaksesi.
+gui.jei.editMode.description.show=Piilossa. Paina %CTRL pohjassa näyttääksesi.
+gui.jei.editMode.description.hide.wild=Paina hiiren oikeaa painiketta %CTRL pohjassa piilottaaksesi jokerimerkin perusteella.
+gui.jei.editMode.description.show.wild=Piilotettu jokerimerkin perusteella. Näytä painamalla hiiren oikeaa painiketta %CTRL pohjassa.
 
 # Recipe Categories
 gui.jei.category.craftingTable=Työpöytä

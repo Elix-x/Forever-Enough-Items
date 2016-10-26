@@ -1,31 +1,25 @@
 package mezz.jei;
 
 import javax.annotation.Nullable;
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.List;
 
 import mezz.jei.api.IModPlugin;
-import mezz.jei.api.gui.IAdvancedGuiHandler;
 import mezz.jei.config.Config;
 import mezz.jei.config.Constants;
 import mezz.jei.config.KeyBindings;
 import mezz.jei.config.SessionData;
 import mezz.jei.gui.ItemListOverlay;
-import mezz.jei.gui.RecipesGui;
 import mezz.jei.network.packets.PacketJEI;
 import mezz.jei.plugins.jei.JEIInternalPlugin;
 import mezz.jei.plugins.vanilla.VanillaPlugin;
 import mezz.jei.util.AnnotatedInstanceUtil;
 import mezz.jei.util.Log;
-import mezz.jei.util.ModIdUtil;
-import mezz.jei.util.ModRegistry;
-import mezz.jei.util.StackHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.client.resources.IReloadableResourceManager;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.IResourceManagerReloadListener;
-import net.minecraft.crash.CrashReport;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.ForgeVersion;
 import net.minecraftforge.common.MinecraftForge;
@@ -37,14 +31,13 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @SuppressWarnings("unused")
 public class ProxyCommonClient extends ProxyCommon {
+	private List<IModPlugin> plugins = new ArrayList<IModPlugin>();
 	@Nullable
-	private GuiEventHandler guiEventHandler;
-	private List<IModPlugin> plugins;
+	private JeiStarter starter;
 
 	private static void initVersionChecker() {
 		final NBTTagCompound compound = new NBTTagCompound();
@@ -52,7 +45,7 @@ public class ProxyCommonClient extends ProxyCommon {
 		compound.setString("curseFilenameParser", "jei_" + ForgeVersion.mcVersion + "-[].jar");
 		FMLInterModComms.sendRuntimeMessage(Constants.MOD_ID, "VersionChecker", "addCurseCheck", compound);
 	}
-	
+
 	@Override
 	public void preInit(FMLPreInitializationEvent event) {
 		Config.preInit(event);
@@ -108,142 +101,42 @@ public class ProxyCommonClient extends ProxyCommon {
 		reloadableResourceManager.registerReloadListener(new IResourceManagerReloadListener() {
 			@Override
 			public void onResourceManagerReload(IResourceManager resourceManager) {
-				restartJEI();
+				if (SessionData.hasJoinedWorld()) {
+					restartJEI();
+				}
 			}
 		});
+
+		long jeiStartTime = System.currentTimeMillis();
+		Log.info("Beginning postInit...");
+		this.starter = new JeiStarter(this.plugins);
+		Log.info("Finished postInit in {} ms", System.currentTimeMillis() - jeiStartTime);
+
+		this.starter.start(this.plugins);
 	}
 
 	@SubscribeEvent
 	public void onEntityJoinedWorld(EntityJoinWorldEvent event) {
-		if (!SessionData.isJeiStarted() && Minecraft.getMinecraft().thePlayer != null) {
-			try {
-				startJEI();
-			} catch (Throwable e) {
-				Minecraft.getMinecraft().displayCrashReport(new CrashReport("JEI failed to start:", e));
-			}
+		if (event.getWorld().isRemote && !SessionData.hasJoinedWorld() && Minecraft.getMinecraft().thePlayer != null) {
+			SessionData.setJoinedWorld();
+			Config.syncWorldConfig();
 		}
-	}
-
-	private void startJEI() {
-		long jeiStartTime = System.currentTimeMillis();
-		Log.info("Beginning startup...");
-		SessionData.setJeiStarted();
-
-		Config.startJei();
-
-		SubtypeRegistry subtypeRegistry = new SubtypeRegistry();
-
-		Iterator<IModPlugin> iterator = plugins.iterator();
-		while (iterator.hasNext()) {
-			IModPlugin plugin = iterator.next();
-			try {
-				plugin.registerItemSubtypes(subtypeRegistry);
-			} catch (RuntimeException e) {
-				Log.error("Failed to register item subtypes for mod plugin: {}", plugin.getClass(), e);
-				iterator.remove();
-			} catch (LinkageError ignored) {
-				// legacy mod plugins do not have registerItemSubtypes
-			}
-		}
-
-		StackHelper stackHelper = new StackHelper(subtypeRegistry);
-		stackHelper.enableUidCache();
-		Internal.setStackHelper(stackHelper);
-
-		ModIngredientRegistration modIngredientRegistry = new ModIngredientRegistration();
-
-		iterator = plugins.iterator();
-		while (iterator.hasNext()) {
-			IModPlugin plugin = iterator.next();
-			try {
-				plugin.registerIngredients(modIngredientRegistry);
-			} catch (RuntimeException e) {
-				Log.error("Failed to register Ingredients for mod plugin: {}", plugin.getClass(), e);
-				iterator.remove();
-			} catch (LinkageError ignored) {
-				// legacy mod plugins do not have registerIngredients
-			}
-		}
-
-		IngredientRegistry ingredientRegistry = modIngredientRegistry.createIngredientRegistry();
-		Internal.setIngredientRegistry(ingredientRegistry);
-
-		JeiHelpers jeiHelpers = new JeiHelpers(ingredientRegistry, stackHelper, subtypeRegistry);
-		Internal.setHelpers(jeiHelpers);
-
-		ModIdUtil modIdUtil = Internal.getModIdUtil();
-		ItemRegistry itemRegistry = ItemRegistryFactory.createItemRegistry(ingredientRegistry, modIdUtil);
-
-		ModRegistry modRegistry = new ModRegistry(jeiHelpers, itemRegistry, ingredientRegistry);
-
-		iterator = plugins.iterator();
-		while (iterator.hasNext()) {
-			IModPlugin plugin = iterator.next();
-			try {
-				long start_time = System.currentTimeMillis();
-				Log.info("Registering plugin: {} ...", plugin.getClass().getName());
-				plugin.register(modRegistry);
-				long timeElapsedMs = System.currentTimeMillis() - start_time;
-				Log.info("Registered  plugin: {} in {} ms", plugin.getClass().getName(), timeElapsedMs);
-			} catch (RuntimeException e) {
-				Log.error("Failed to register mod plugin: {}", plugin.getClass(), e);
-				iterator.remove();
-			} catch (LinkageError e) {
-				Log.error("Failed to register mod plugin: {}", plugin.getClass(), e);
-				iterator.remove();
-			}
-		}
-
-		long start_time = System.currentTimeMillis();
-		Log.info("Building recipe registry...");
-		RecipeRegistry recipeRegistry = modRegistry.createRecipeRegistry(stackHelper, ingredientRegistry);
-		Log.info("Built    recipe registry in {} ms", System.currentTimeMillis() - start_time);
-
-		start_time = System.currentTimeMillis();
-		Log.info("Building item filter...");
-		ItemFilter itemFilter = new ItemFilter(ingredientRegistry, jeiHelpers);
-		Log.info("Built    item filter in {} ms", System.currentTimeMillis() - start_time);
-
-		start_time = System.currentTimeMillis();
-		Log.info("Building runtime...");
-		List<IAdvancedGuiHandler<?>> advancedGuiHandlers = modRegistry.getAdvancedGuiHandlers();
-		ItemListOverlay itemListOverlay = new ItemListOverlay(itemFilter, advancedGuiHandlers, ingredientRegistry);
-		RecipesGui recipesGui = new RecipesGui(recipeRegistry);
-
-		JeiRuntime jeiRuntime = new JeiRuntime(recipeRegistry, itemListOverlay, recipesGui, ingredientRegistry);
-		Internal.setRuntime(jeiRuntime);
-
-		iterator = plugins.iterator();
-		while (iterator.hasNext()) {
-			IModPlugin plugin = iterator.next();
-			try {
-				plugin.onRuntimeAvailable(jeiRuntime);
-			} catch (RuntimeException e) {
-				Log.error("Mod plugin failed: {}", plugin.getClass(), e);
-				iterator.remove();
-			} catch (LinkageError e) {
-				Log.error("Mod plugin failed: {}", plugin.getClass(), e);
-				iterator.remove();
-			}
-		}
-
-		stackHelper.disableUidCache();
-		Log.info("Built    runtime in {} ms", System.currentTimeMillis() - start_time);
-
-		if (guiEventHandler != null) {
-			MinecraftForge.EVENT_BUS.unregister(guiEventHandler);
-			guiEventHandler = null;
-		}
-		guiEventHandler = new GuiEventHandler(jeiRuntime);
-		MinecraftForge.EVENT_BUS.register(guiEventHandler);
-		Log.info("Finished startup in {} ms", System.currentTimeMillis() - jeiStartTime);
 	}
 
 	@Override
 	public void restartJEI() {
 		// check that JEI has been started before. if not, do nothing
-		if (SessionData.isJeiStarted()) {
-			startJEI();
+		if (this.starter != null && this.starter.hasStarted()) {
+			this.starter.start(this.plugins);
+		}
+	}
+
+	private static void reloadItemList() {
+		JeiRuntime runtime = Internal.getRuntime();
+		if (runtime != null) {
+			ItemListOverlay itemListOverlay = runtime.getItemListOverlay();
+			ItemFilter itemFilter = itemListOverlay.getItemFilter();
+			itemFilter.build();
 		}
 	}
 
@@ -255,15 +148,14 @@ public class ProxyCommonClient extends ProxyCommon {
 		}
 	}
 
-	// subscribe to event with low priority so that addon mods that use the config can do their stuff first
-	@SubscribeEvent(priority = EventPriority.LOW)
+	@SubscribeEvent
 	public void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent eventArgs) {
 		if (!Constants.MOD_ID.equals(eventArgs.getModID())) {
 			return;
 		}
 
-		if (SessionData.isJeiStarted() && Config.syncAllConfig()) {
-			restartJEI(); // reload everything, configs can change available recipes
+		if (Config.syncAllConfig()) {
+			reloadItemList();
 		}
 	}
 }

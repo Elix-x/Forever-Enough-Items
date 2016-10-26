@@ -4,7 +4,6 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -34,8 +33,26 @@ public class BasicRecipeTransferHandlerServer {
 			slotMap.put(entry.getKey(), stack);
 		}
 
+		int maxRemovedSets = maxTransfer ? 64 : 1;
+		for (Map.Entry<Integer, ItemStack> entry : slotMap.entrySet()) {
+			ItemStack stack = entry.getValue();
+			if (stack.isStackable()) {
+				Integer craftNumber = entry.getKey();
+				Integer slotNumber = craftingSlots.get(craftNumber);
+				Slot craftSlot = container.getSlot(slotNumber);
+				int maxStackSize = Math.min(craftSlot.getItemStackLimit(stack), stack.getMaxStackSize());
+				maxRemovedSets = Math.min(maxRemovedSets, maxStackSize);
+			} else {
+				maxRemovedSets = 1;
+			}
+		}
+
+		if (maxRemovedSets <= 0) {
+			return;
+		}
+
 		// remove required recipe items
-		int removedSets = removeSetsFromInventory(container, slotMap.values(), craftingSlots, inventorySlots, maxTransfer);
+		int removedSets = removeSetsFromInventory(container, slotMap.values(), craftingSlots, inventorySlots, maxRemovedSets);
 		if (removedSets == 0) {
 			return;
 		}
@@ -57,44 +74,33 @@ public class BasicRecipeTransferHandlerServer {
 			Slot slot = container.getSlot(slotNumber);
 
 			ItemStack stack = entry.getValue();
-			if (stack.isStackable()) {
-				int maxStackSize = Math.min(slot.getItemStackLimit(stack), stack.getMaxStackSize());
-				int maxSets = maxStackSize / stack.stackSize;
-				stack.stackSize *= Math.min(maxSets, removedSets);
+			stack.stackSize *= removedSets;
+			if (slot.isItemValid(stack)) {
+				slot.putStack(stack);
+			} else {
+				clearedCraftingItems.add(stack);
 			}
-
-			slot.putStack(stack);
 		}
 
-		// put cleared items back into the player's inventory
+		// put cleared items back into the inventory
 		for (ItemStack oldCraftingItem : clearedCraftingItems) {
-			InventoryHelper.addStack(container, inventorySlots, oldCraftingItem, true);
+			int added = InventoryHelper.addStack(container, inventorySlots, oldCraftingItem, true);
+			if (added < oldCraftingItem.stackSize) {
+				if (!player.inventory.addItemStackToInventory(oldCraftingItem)) {
+					player.dropItem(oldCraftingItem, false);
+				}
+			}
 		}
 
 		container.detectAndSendChanges();
 	}
 
-	private static int removeSetsFromInventory(Container container, Collection<ItemStack> required, List<Integer> craftingSlots, List<Integer> inventorySlots, boolean maxTransfer) {
-		if (maxTransfer) {
-			List<ItemStack> requiredCopy = new ArrayList<ItemStack>();
-			requiredCopy.addAll(required);
-
-			int removedSets = 0;
-			while (!requiredCopy.isEmpty() && removeSetsFromInventory(container, requiredCopy, craftingSlots, inventorySlots)) {
-				removedSets++;
-				Iterator<ItemStack> iterator = requiredCopy.iterator();
-				while (iterator.hasNext()) {
-					ItemStack stack = iterator.next();
-					if (!stack.isStackable() || (stack.stackSize * (removedSets + 1) > stack.getMaxStackSize())) {
-						iterator.remove();
-					}
-				}
-			}
-			return removedSets;
-		} else {
-			boolean success = removeSetsFromInventory(container, required, craftingSlots, inventorySlots);
-			return success ? 1 : 0;
+	private static int removeSetsFromInventory(Container container, Collection<ItemStack> required, List<Integer> craftingSlots, List<Integer> inventorySlots, final int maxRemovedSets) {
+		int removedSets = 0;
+		while (removedSets < maxRemovedSets && removeSetsFromInventory(container, required, craftingSlots, inventorySlots)) {
+			removedSets++;
 		}
+		return removedSets;
 	}
 
 	private static boolean removeSetsFromInventory(Container container, Iterable<ItemStack> required, List<Integer> craftingSlots, List<Integer> inventorySlots) {

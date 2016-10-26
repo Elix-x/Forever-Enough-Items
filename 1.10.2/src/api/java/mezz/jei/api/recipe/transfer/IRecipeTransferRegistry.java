@@ -22,15 +22,33 @@ public interface IRecipeTransferRegistry {
 
 	/**
 	 * Advanced method for adding a recipe transfer handler.
-	 *
+	 * <p>
 	 * Use this when recipe slots or inventory slots are spread out in different number ranges.
 	 */
 	<C extends Container> void addRecipeTransferHandler(IRecipeTransferInfo<C> recipeTransferInfo);
 
 	/**
 	 * Complete control over recipe transfer.
-	 *
 	 * Use this when the container has a non-standard inventory or crafting area.
+	 *
+	 * @since JEI 3.12.4
 	 */
+	void addRecipeTransferHandler(IRecipeTransferHandler<?> recipeTransferHandler, String recipeCategoryUid);
+
+	/**
+	 * Add a universal handler that can handle any category of recipe.
+	 * Useful for mods with recipe pattern encoding, for automated recipe systems.
+	 *
+	 * @since JEI 3.12.4
+	 */
+	void addUniversalRecipeTransferHandler(IRecipeTransferHandler<?> recipeTransferHandler);
+
+	/**
+	 * Complete control over recipe transfer.
+	 * Use this when the container has a non-standard inventory or crafting area.
+	 *
+	 * @deprecated since JEI 3.12.4. Use {@link #addRecipeTransferHandler(IRecipeTransferHandler, String)}
+	 */
+	@Deprecated
 	void addRecipeTransferHandler(IRecipeTransferHandler<?> recipeTransferHandler);
 }

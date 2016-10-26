@@ -10,7 +10,7 @@ public class Constants {
 	// Mod info
 	public static final String MOD_ID = "JEI";
 	public static final String NAME = "Just Enough Items";
-	public static final String VERSION = "3.12.3";
+	public static final String VERSION = "@VERSION@";
 
 	// Textures
 	public static final String RESOURCE_DOMAIN = MOD_ID.toLowerCase(Locale.ENGLISH);
@@ -21,6 +21,8 @@ public class Constants {
 	public static final int MAX_TOOLTIP_WIDTH = 125;
 
 	public static final String RECIPE_TRANSFER_TOOLTIP = Translator.translateToLocal("jei.tooltip.transfer");
+
+	public static final String UNIVERSAL_RECIPE_TRANSFER_UID = "universal recipe transfer handler";
 
 	private Constants() {
 

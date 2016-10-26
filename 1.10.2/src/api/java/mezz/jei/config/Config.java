@@ -21,8 +21,8 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
 public class Config {
 	private static final String configKeyPrefix = "config.jei";
-	private static File jeiConfigurationDir;
 
+	public static final String CATEGORY_SEARCH = "search";
 	public static final String CATEGORY_ADVANCED = "advanced";
 	public static final String CATEGORY_SEARCH_COLORS = "searchColors";
 
@@ -35,9 +35,15 @@ public class Config {
 	// advanced
 	private static boolean debugModeEnabled = false;
 	private static boolean debugItemEnabled = false;
-	private static boolean hideMissingModelsEnabled = true;
 	private static boolean colorSearchEnabled = false;
 	private static boolean centerSearchBarEnabled = false;
+
+	// search
+	private static boolean prefixRequiredForModNameSearch = true;
+	private static boolean prefixRequiredForTooltipSearch = false;
+	private static boolean prefixRequiredForOreDictSearch = true;
+	private static boolean prefixRequiredForCreativeTabSearch = true;
+	private static boolean prefixRequiredForColorSearch = true;
 
 	// per-world
 	private static final boolean defaultOverlayEnabled = true;
@@ -100,16 +106,32 @@ public class Config {
 		return cheatItemsEnabled && SessionData.isJeiOnServer();
 	}
 
-	public static boolean isHideMissingModelsEnabled() {
-		return hideMissingModelsEnabled;
-	}
-
 	public static boolean isColorSearchEnabled() {
 		return colorSearchEnabled;
 	}
 
 	public static boolean isCenterSearchBarEnabled() {
 		return centerSearchBarEnabled;
+	}
+
+	public static boolean isPrefixRequiredForModNameSearch() {
+		return prefixRequiredForModNameSearch;
+	}
+
+	public static boolean isPrefixRequiredForTooltipSearch() {
+		return prefixRequiredForTooltipSearch;
+	}
+
+	public static boolean isPrefixRequiredForOreDictSearch() {
+		return prefixRequiredForOreDictSearch;
+	}
+
+	public static boolean isPrefixRequiredForCreativeTabSearch() {
+		return prefixRequiredForCreativeTabSearch;
+	}
+
+	public static boolean isPrefixRequiredForColorSearch() {
+		return prefixRequiredForColorSearch;
 	}
 
 	public static boolean setFilterText(String filterText) {
@@ -149,7 +171,7 @@ public class Config {
 
 	public static void preInit(FMLPreInitializationEvent event) {
 
-		jeiConfigurationDir = new File(event.getModConfigurationDirectory(), Constants.MOD_ID);
+		File jeiConfigurationDir = new File(event.getModConfigurationDirectory(), Constants.MOD_ID);
 		if (!jeiConfigurationDir.exists()) {
 			try {
 				if (!jeiConfigurationDir.mkdir()) {
@@ -165,6 +187,8 @@ public class Config {
 		final File configFile = new File(jeiConfigurationDir, "jei.cfg");
 		final File itemBlacklistConfigFile = new File(jeiConfigurationDir, "itemBlacklist.cfg");
 		final File searchColorsConfigFile = new File(jeiConfigurationDir, "searchColors.cfg");
+		final File worldConfigFile = new File(jeiConfigurationDir, "worldSettings.cfg");
+		worldConfig = new Configuration(worldConfigFile, "0.1.0");
 
 		{
 			final File oldConfigFile = event.getSuggestedConfigurationFile();
@@ -198,12 +222,6 @@ public class Config {
 
 		syncConfig();
 		syncItemBlacklistConfig();
-	}
-
-	public static void startJei() {
-		final File worldConfigFile = new File(jeiConfigurationDir, "worldSettings.cfg");
-		worldConfig = new Configuration(worldConfigFile, "0.1.0");
-		syncWorldConfig();
 		syncSearchColorsConfig();
 	}
 
@@ -231,6 +249,7 @@ public class Config {
 	private static boolean syncConfig() {
 		boolean needsReload = false;
 
+		config.addCategory(CATEGORY_SEARCH);
 		config.addCategory(CATEGORY_ADVANCED);
 
 		ConfigCategory modeCategory = config.getCategory("mode");
@@ -248,20 +267,20 @@ public class Config {
 			config.removeCategory(interfaceCategory);
 		}
 
-		ConfigCategory searchCategory = config.getCategory("search");
-		if (searchCategory != null) {
-			config.removeCategory(searchCategory);
+		prefixRequiredForModNameSearch = config.getBoolean(CATEGORY_SEARCH, "atPrefixRequiredForModName", prefixRequiredForModNameSearch);
+		prefixRequiredForTooltipSearch = config.getBoolean(CATEGORY_SEARCH, "prefixRequiredForTooltipSearch", prefixRequiredForTooltipSearch);
+		prefixRequiredForOreDictSearch = config.getBoolean(CATEGORY_SEARCH, "prefixRequiredForOreDictSearch", prefixRequiredForOreDictSearch);
+		prefixRequiredForCreativeTabSearch = config.getBoolean(CATEGORY_SEARCH, "prefixRequiredForCreativeTabSearch", prefixRequiredForCreativeTabSearch);
+		prefixRequiredForColorSearch = config.getBoolean(CATEGORY_SEARCH, "prefixRequiredForColorSearch", prefixRequiredForColorSearch);
+		if (config.getCategory(CATEGORY_SEARCH).hasChanged()) {
+			needsReload = true;
 		}
 
 		ConfigCategory categoryAdvanced = config.getCategory(CATEGORY_ADVANCED);
 		categoryAdvanced.remove("nbtKeyIgnoreList");
 		categoryAdvanced.remove("deleteItemsInCheatModeEnabled");
 		categoryAdvanced.remove("hideLaggyModelsEnabled");
-
-		hideMissingModelsEnabled = config.getBoolean(CATEGORY_ADVANCED, "hideMissingModelsEnabled", hideMissingModelsEnabled);
-		if (categoryAdvanced.get("hideMissingModelsEnabled").hasChanged()) {
-			needsReload = true;
-		}
+		categoryAdvanced.remove("hideMissingModelsEnabled");
 
 		colorSearchEnabled = config.getBoolean(CATEGORY_ADVANCED, "colorSearchEnabled", colorSearchEnabled);
 		if (categoryAdvanced.get("colorSearchEnabled").hasChanged()) {
@@ -313,7 +332,7 @@ public class Config {
 		return configChanged;
 	}
 
-	private static boolean syncWorldConfig() {
+	public static boolean syncWorldConfig() {
 		if (worldConfig == null) {
 			return false;
 		}

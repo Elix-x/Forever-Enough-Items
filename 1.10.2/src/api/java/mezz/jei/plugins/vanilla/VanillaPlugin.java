@@ -5,6 +5,7 @@ import javax.annotation.Nullable;
 import mezz.jei.Internal;
 import mezz.jei.api.BlankModPlugin;
 import mezz.jei.api.IGuiHelper;
+import mezz.jei.api.IItemBlacklist;
 import mezz.jei.api.IJeiHelpers;
 import mezz.jei.api.IModRegistry;
 import mezz.jei.api.ISubtypeRegistry;
@@ -36,6 +37,7 @@ import mezz.jei.plugins.vanilla.ingredients.FluidStackRenderer;
 import mezz.jei.plugins.vanilla.ingredients.ItemStackHelper;
 import mezz.jei.plugins.vanilla.ingredients.ItemStackListFactory;
 import mezz.jei.plugins.vanilla.ingredients.ItemStackRenderer;
+import mezz.jei.util.Log;
 import mezz.jei.util.StackHelper;
 import net.minecraft.client.gui.inventory.GuiBrewingStand;
 import net.minecraft.client.gui.inventory.GuiCrafting;
@@ -134,5 +136,9 @@ public class VanillaPlugin extends BlankModPlugin {
 		registry.addRecipes(FuelRecipeMaker.getFuelRecipes(ingredientRegistry, jeiHelpers));
 		registry.addRecipes(BrewingRecipeMaker.getBrewingRecipes(ingredientRegistry));
 		registry.addRecipes(TippedArrowRecipeMaker.getTippedArrowRecipes());
+
+		IItemBlacklist itemBlacklist = registry.getJeiHelpers().getItemBlacklist();
+		// Game freezes when loading player skulls, see https://bugs.mojang.com/browse/MC-65587
+		itemBlacklist.addItemToBlacklist(new ItemStack(Items.SKULL, 1, 3));
 	}
 }
