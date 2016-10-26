@@ -30,26 +30,24 @@
 < import mezz.jei.input.IKeyable;
 < import mezz.jei.input.IMouseHandler;
 < import mezz.jei.input.IShowsRecipeFocuses;
-50d48
-< import net.minecraft.client.renderer.RenderHelper;
-54,55d51
+53,57d51
 < import net.minecraft.util.ResourceLocation;
 < import net.minecraft.util.text.TextFormatting;
-57,58d52
+< import net.minecraftforge.fml.client.config.GuiButtonExt;
 < import net.minecraftforge.fml.client.config.HoverChecker;
 < import org.lwjgl.input.Keyboard;
-60c54
+59c53
 < public class ItemListOverlay implements IItemListOverlay, IShowsRecipeFocuses, IMouseHandler, IKeyable, ICloseable {
 ---
 > public class ItemListOverlayOverride extends ItemListOverlay {
-63d56
+62d55
 < 	private static final int searchHeight = 16;
-80,83d72
+79,82d71
 < 	private GuiButton configButton;
 < 	private IDrawable configButtonIcon;
 < 	private IDrawable configButtonCheatIcon;
 < 	private HoverChecker configButtonHoverChecker;
-101c90,97
+100c89,96
 < 	public ItemListOverlay(ItemFilter itemFilter, List<IAdvancedGuiHandler<?>> advancedGuiHandlers, IIngredientRegistry ingredientRegistry) {
 ---
 > 	private boolean canGiveItems;
@@ -60,92 +58,92 @@
 > 
 > 	public ItemListOverlayOverride(ItemFilter itemFilter, List<IAdvancedGuiHandler<?>> advancedGuiHandlers, IIngredientRegistry ingredientRegistry, boolean canGiveItems, boolean canDeleteItems, int searchFieldWidth, int searchFieldHeight){
 > 		super(itemFilter, advancedGuiHandlers, ingredientRegistry);
-104a101,105
+103a100,104
 > 
 > 		this.canGiveItems = canGiveItems;
 > 		this.canDeleteItems = canDeleteItems;
 > 		this.searchFieldWidth = searchFieldWidth;
 > 		this.searchFieldHeight = searchFieldHeight;
-107c108
+106c107
 < 	public void initGui(GuiScreen guiScreen) {
 ---
 > 	public void initGui(GuiScreen guiScreen){
-109c110
+108c109
 < 		if (guiProperties == null) {
 ---
 > 		if(guiProperties == null){
-115c116
+114c115
 < 		if (!activeAdvancedGuiHandlers.isEmpty() && guiScreen instanceof GuiContainer) {
 ---
 > 		if(!activeAdvancedGuiHandlers.isEmpty() && guiScreen instanceof GuiContainer){
-118c119
+117c118
 < 		} else {
 ---
 > 		} else{
-123c124
+122c123
 < 		if (columns < 4) {
 ---
 > 		if(columns < 4){
-145,146c146
+144,145c145
 < 		final int searchFieldY = guiProperties.getScreenHeight() - searchHeight - borderPadding - 2;
 < 		final int searchFieldWidth;
 ---
 > 		final int searchFieldY = guiProperties.getScreenHeight() - searchFieldHeight - borderPadding - 2;
-148c148
+147c147
 < 		if (isSearchBarCentered(guiProperties)) {
 ---
 > 		if(isSearchBarCentered(guiProperties)){
-150,151c150
+149,150c149
 < 			searchFieldWidth = guiProperties.getGuiXSize() - buttonSize - 1;
 < 		} else {
 ---
 > 		} else{
-153d151
+152d150
 < 			searchFieldWidth = rightEdge - leftEdge - buttonSize - 1;
-157c155
+156c154
 < 		searchField = new GuiTextFieldFilter(0, fontRenderer, searchFieldX, searchFieldY, searchFieldWidth, searchHeight);
 ---
 > 		searchField = new GuiTextFieldFilter(0, fontRenderer, searchFieldX, searchFieldY, searchFieldWidth, searchFieldHeight);
-161,169d158
+160,168d157
 < 		int configButtonX = searchFieldX + searchFieldWidth + 1;
 < 		int configButtonY = guiProperties.getScreenHeight() - buttonSize - borderPadding;
-< 		configButton = new GuiButtonExt(2, configButtonX, configButtonY, buttonSize, buttonSize, null);
+< 		configButton = new GuiButton(2, configButtonX, configButtonY, buttonSize, buttonSize, null);
 < 		ResourceLocation configButtonIconLocation = new ResourceLocation(Constants.RESOURCE_DOMAIN, Constants.TEXTURE_RECIPE_BACKGROUND_PATH);
 < 		GuiHelper guiHelper = Internal.getHelpers().getGuiHelper();
 < 		configButtonIcon = guiHelper.createDrawable(configButtonIconLocation, 0, 166, 16, 16);
 < 		configButtonCheatIcon = guiHelper.createDrawable(configButtonIconLocation, 16, 166, 16, 16);
 < 		configButtonHoverChecker = new HoverChecker(configButton, 0);
 < 
-175,177c164,165
+174,176c163,164
 < 	private static boolean isSearchBarCentered(GuiProperties guiProperties) {
 < 		return Config.isCenterSearchBarEnabled() &&
 < 				guiProperties.getGuiTop() + guiProperties.getGuiYSize() + searchHeight < guiProperties.getScreenHeight();
 ---
 > 	private boolean isSearchBarCentered(GuiProperties guiProperties){
 > 		return Config.isCenterSearchBarEnabled();
-180c168
+179c167
 < 	private List<IAdvancedGuiHandler<?>> getActiveAdvancedGuiHandlers(GuiScreen guiScreen) {
 ---
 > 	private List<IAdvancedGuiHandler<?>> getActiveAdvancedGuiHandlers(GuiScreen guiScreen){
-182c170
+181c169
 < 		if (guiScreen instanceof GuiContainer) {
 ---
 > 		if(guiScreen instanceof GuiContainer){
-184,185c172,173
+183,184c171,172
 < 			for (IAdvancedGuiHandler<?> advancedGuiHandler : advancedGuiHandlers) {
 < 				if (advancedGuiHandler.getGuiContainerClass().isAssignableFrom(guiContainer.getClass())) {
 ---
 > 			for(IAdvancedGuiHandler<?> advancedGuiHandler : advancedGuiHandlers){
 > 				if(advancedGuiHandler.getGuiContainerClass().isAssignableFrom(guiContainer.getClass())){
-193c181
+192c180
 < 	private List<Rectangle> getGuiAreas(GuiContainer guiContainer) {
 ---
 > 	private List<Rectangle> getGuiAreas(GuiContainer guiContainer){
-195c183
+194c182
 < 		for (IAdvancedGuiHandler<?> advancedGuiHandler : activeAdvancedGuiHandlers) {
 ---
 > 		for(IAdvancedGuiHandler<?> advancedGuiHandler : activeAdvancedGuiHandlers){
-197c185
+196c184
 < 			if (guiExtraAreas != null) {
 ---
 > 			if(guiExtraAreas != null){
@@ -251,10 +249,6 @@
 ---
 > 	public void drawScreen(Minecraft minecraft, int mouseX, int mouseY){
 > 		if(!isOpen()){
-317c305
-< 		
----
-> 
 323,326d310
 < 		configButton.drawButton(minecraft, mouseX, mouseY);
 < 
@@ -302,10 +296,6 @@
 ---
 > 	public void drawTooltips(Minecraft minecraft, int mouseX, int mouseY){
 > 		if(!isOpen()){
-370c354
-< 		
----
-> 
 372c356
 < 		if (mouseOver && shouldShowDeleteItemTooltip(minecraft)) {
 ---
@@ -376,7 +366,7 @@
 ---
 > 	public boolean handleMouseClicked(int mouseX, int mouseY, int mouseButton){
 > 		if(!isMouseOver(mouseX, mouseY)){
-448,455c419,425
+448,455c419,439
 < 		if (Config.isDeleteItemsInCheatModeActive()) {
 < 			Minecraft minecraft = Minecraft.getMinecraft();
 < 			EntityPlayerSP player = minecraft.thePlayer;
@@ -393,7 +383,8 @@
 > 				if(mouseButton == 0) itemstack.stackSize = itemstack.getMaxStackSize();
 > 				else itemstack.stackSize = 1;
 > 				ForeverEnoughItemsBase.net.sendToServer(new FEIGiveItemStackPacket(itemstack));
-457a428,439
+> 				return true;
+> 			}
 > 		} else{
 > 			if(canDeleteItems && FEIConfiguration.canDeleteItems(Minecraft.getMinecraft().thePlayer)){
 > 				Minecraft minecraft = Minecraft.getMinecraft();
@@ -405,38 +396,38 @@
 > 					JustEnoughItems.getProxy().sendPacketToServer(packet);
 > 					return true;
 > 				}
-> 			}
-461c443
+> 			} else if(Minecraft.getMinecraft().thePlayer.isCreative()){
+461c445
 < 		if (buttonClicked) {
 ---
 > 		if(buttonClicked){
-470,471c452,453
+470,471c454,455
 < 	public boolean handleMouseScrolled(int mouseX, int mouseY, int scrollDelta) {
 < 		if (!isMouseOver(mouseX, mouseY)) {
 ---
 > 	public boolean handleMouseScrolled(int mouseX, int mouseY, int scrollDelta){
 > 		if(!isMouseOver(mouseX, mouseY)){
-474c456
+474c458
 < 		if (scrollDelta < 0) {
 ---
 > 		if(scrollDelta < 0){
-477c459
+477c461
 < 		} else if (scrollDelta > 0) {
 ---
 > 		} else if(scrollDelta > 0){
-484c466
+484c468
 < 	private boolean handleMouseClickedButtons(int mouseX, int mouseY) {
 ---
 > 	private boolean handleMouseClickedButtons(int mouseX, int mouseY){
-486c468
+486c470
 < 		if (nextButton.mousePressed(minecraft, mouseX, mouseY)) {
 ---
 > 		if(nextButton.mousePressed(minecraft, mouseX, mouseY)){
-490c472
+490c474
 < 		} else if (backButton.mousePressed(minecraft, mouseX, mouseY)) {
 ---
 > 		} else if(backButton.mousePressed(minecraft, mouseX, mouseY)){
-494,505d475
+494,505d477
 < 		} else if (configButton.mousePressed(minecraft, mouseX, mouseY)) {
 < 			configButton.playPressSound(minecraft.getSoundHandler());
 < 			if (Keyboard.getEventKeyState() && (Keyboard.getEventKey() == Keyboard.KEY_LCONTROL || Keyboard.getEventKey() == Keyboard.KEY_RCONTROL)) {
@@ -449,39 +440,39 @@
 < 				}
 < 			}
 < 			return true;
-510c480
+510c482
 < 	private boolean handleMouseClickedSearch(int mouseX, int mouseY, int mouseButton) {
 ---
 > 	private boolean handleMouseClickedSearch(int mouseX, int mouseY, int mouseButton){
-513c483
+513c485
 < 		if (searchClicked && searchField.handleMouseClicked(mouseX, mouseY, mouseButton)) {
 ---
 > 		if(searchClicked && searchField.handleMouseClicked(mouseX, mouseY, mouseButton)){
-520c490
+520c492
 < 	public boolean hasKeyboardFocus() {
 ---
 > 	public boolean hasKeyboardFocus(){
-525,526c495,496
+525,526c497,498
 < 	public void setKeyboardFocus(boolean keyboardFocus) {
 < 		if (searchField != null) {
 ---
 > 	public void setKeyboardFocus(boolean keyboardFocus){
 > 		if(searchField != null){
-532,533c502,503
+532,533c504,505
 < 	public boolean onKeyPressed(char typedChar, int keyCode) {
 < 		if (hasKeyboardFocus()) {
 ---
 > 	public boolean onKeyPressed(char typedChar, int keyCode){
 > 		if(hasKeyboardFocus()){
-535c505
+535c507
 < 			if (changed) {
 ---
 > 			if(changed){
-544c514
+544c516
 < 	private static int getItemButtonXSpace(GuiProperties guiProperties) {
 ---
 > 	private static int getItemButtonXSpace(GuiProperties guiProperties){
-548,552c518,519
+548,552c520,521
 < 	private static int getItemButtonYSpace(GuiProperties guiProperties) {
 < 		if (isSearchBarCentered(guiProperties)) {
 < 			return guiProperties.getScreenHeight() - (buttonSize + (3 * borderPadding));
@@ -490,84 +481,88 @@
 ---
 > 	private int getItemButtonYSpace(GuiProperties guiProperties){
 > 		return guiProperties.getScreenHeight() - (buttonSize + (isSearchBarCentered(guiProperties) ? 0 : (searchFieldHeight + 2)) + (4 * borderPadding));
-555c522
-< 	private int getColumns(GuiProperties guiProperties) {
+555c524
+< 	private static int getColumns(GuiProperties guiProperties) {
 ---
 > 	private int getColumns(GuiProperties guiProperties){
-559c526
-< 	private int getRows(GuiProperties guiProperties) {
+559c528
+< 	private static int getRows(GuiProperties guiProperties) {
 ---
 > 	private int getRows(GuiProperties guiProperties){
-563c530
+563c532
 < 	private int getPageCount() {
 ---
 > 	private int getPageCount(){
-566c533
+566c535
 < 		if (stacksPerPage == 0) {
 ---
 > 		if(stacksPerPage == 0){
-574c541
+574c543
 < 	private int getPageNum() {
 ---
 > 	private int getPageNum(){
-576c543
+576c545
 < 		if (stacksPerPage == 0) {
 ---
 > 		if(stacksPerPage == 0){
-582c549,550
+582c551,552
 < 	public void open() {
 ---
 > 	@Override
 > 	public void open(){
-588c556
+587c557
+< 	public ItemFilter getItemFilter() {
+---
+> 	public ItemFilter getItemFilter(){
+592c562
 < 	public void close() {
 ---
 > 	public void close(){
-595c563
+599c569
 < 	public boolean isOpen() {
 ---
 > 	public boolean isOpen(){
-601,602c569,570
+605,606c575,576
 < 	public ItemStack getStackUnderMouse() {
 < 		if (hovered != null) {
 ---
 > 	public ItemStack getStackUnderMouse(){
 > 		if(hovered != null){
-604c572
+608c578
 < 			if (ingredient instanceof ItemStack) {
 ---
 > 			if(ingredient instanceof ItemStack){
-612,613c580,581
+616,617c586,587
 < 	public void setFilterText(@Nullable String filterText) {
 < 		if (filterText == null) {
 ---
 > 	public void setFilterText(@Nullable String filterText){
 > 		if(filterText == null){
-620c588
+624c594
 < 		if (searchField != null) {
 ---
 > 		if(searchField != null){
-628c596
+632c602
 < 	public String getFilterText() {
 ---
 > 	public String getFilterText(){
-633c601
+637c607
 < 	public ImmutableList<ItemStack> getVisibleStacks() {
 ---
 > 	public ImmutableList<ItemStack> getVisibleStacks(){
-635c603
+639c609
 < 		for (GuiIngredientFast guiItemStack : guiIngredientList.getAllGuiIngredients()) {
 ---
 > 		for(GuiIngredientFast guiItemStack : guiIngredientList.getAllGuiIngredients()){
-637c605
+641c611
 < 			if (ingredient instanceof ItemStack) {
 ---
 > 			if(ingredient instanceof ItemStack){
-646c614
+650c620
 < 	public ImmutableList<ItemStack> getFilteredStacks() {
 ---
 > 	public ImmutableList<ItemStack> getFilteredStacks(){
-651c619
+655c625
 < 	public void highlightStacks(Collection<ItemStack> stacks) {
 ---
 > 	public void highlightStacks(Collection<ItemStack> stacks){

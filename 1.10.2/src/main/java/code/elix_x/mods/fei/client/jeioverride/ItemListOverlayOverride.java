@@ -49,7 +49,6 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ChatAllowedCharacters;
-import net.minecraftforge.fml.client.config.GuiButtonExt;
 
 public class ItemListOverlayOverride extends ItemListOverlay {
 
@@ -139,8 +138,8 @@ public class ItemListOverlayOverride extends ItemListOverlay {
 		final int buttonStartY = buttonSize + (2 * borderPadding) + (yItemButtonSpace - itemButtonsHeight) / 2;
 		createItemButtons(guiIngredientList, guiAreas, leftEdge, buttonStartY, columns, rows);
 
-		nextButton = new GuiButtonExt(0, rightEdge - buttonSize, borderPadding, buttonSize, buttonSize, nextLabel);
-		backButton = new GuiButtonExt(1, leftEdge, borderPadding, buttonSize, buttonSize, backLabel);
+		nextButton = new GuiButton(0, rightEdge - buttonSize, borderPadding, buttonSize, buttonSize, nextLabel);
+		backButton = new GuiButton(1, leftEdge, borderPadding, buttonSize, buttonSize, backLabel);
 
 		final int searchFieldX;
 		final int searchFieldY = guiProperties.getScreenHeight() - searchFieldHeight - borderPadding - 2;
@@ -189,6 +188,7 @@ public class ItemListOverlayOverride extends ItemListOverlay {
 		return guiAreas;
 	}
 
+	@Nullable
 	private <T extends GuiContainer> List<Rectangle> getGuiAreas(GuiContainer guiContainer, IAdvancedGuiHandler<T> advancedGuiHandler){
 		if(advancedGuiHandler.getGuiContainerClass().isAssignableFrom(guiContainer.getClass())){
 			T guiT = advancedGuiHandler.getGuiContainerClass().cast(guiContainer);
@@ -436,6 +436,8 @@ public class ItemListOverlayOverride extends ItemListOverlay {
 					JustEnoughItems.getProxy().sendPacketToServer(packet);
 					return true;
 				}
+			} else if(Minecraft.getMinecraft().thePlayer.isCreative()){
+				return true;
 			}
 		}
 
@@ -550,6 +552,10 @@ public class ItemListOverlayOverride extends ItemListOverlay {
 	public void open(){
 		open = true;
 		setKeyboardFocus(false);
+	}
+
+	public ItemFilter getItemFilter(){
+		return itemFilter;
 	}
 
 	@Override

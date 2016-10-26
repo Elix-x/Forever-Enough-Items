@@ -13,10 +13,10 @@ import code.elix_x.mods.fei.api.gui.FEIGuiOverride;
 import code.elix_x.mods.fei.api.gui.elements.IConfigurableFEIGuiElement;
 import code.elix_x.mods.fei.api.gui.elements.INotDisableableFEIGuiElement;
 import code.elix_x.mods.fei.api.gui.elements.ISaveableFEIGuiElement;
+import code.elix_x.mods.fei.api.profile.FEIChangeProfileEvent;
 import code.elix_x.mods.fei.api.profile.Profile;
 import code.elix_x.mods.fei.config.FEIConfiguration;
 import mezz.jei.Internal;
-import mezz.jei.ItemFilter;
 import mezz.jei.JeiRuntime;
 import mezz.jei.JustEnoughItems;
 import mezz.jei.ProxyCommonClient;
@@ -37,6 +37,8 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @JEIPlugin
 public class JeiReflector implements IModPlugin, IGuiElement<FEIGuiOverride>, INotDisableableFEIGuiElement, ISaveableFEIGuiElement, IConfigurableFEIGuiElement {
@@ -45,15 +47,15 @@ public class JeiReflector implements IModPlugin, IGuiElement<FEIGuiOverride>, IN
 
 	private static final AField<JeiRuntime, ItemListOverlay> itemListOverlay = new AField(JeiRuntime.class, "itemListOverlay").setAccessible(true).setFinal(false);
 	private static final AField<StackHelper, Boolean> uidCacheEnabled = new AField(StackHelper.class, "uidCacheEnabled").setAccessible(true);
-	private static final AField<ItemListOverlay, ItemFilter> itemFilter = new AField(ItemListOverlay.class, "itemFilter").setAccessible(true);
 	private static final AField<ItemListOverlay, List<IAdvancedGuiHandler<?>>> advancedGuiHandlers = new AField(ItemListOverlay.class, "advancedGuiHandlers").setAccessible(true);
 	private static final AField<ProxyCommonClient, List<IModPlugin>> plugins = new AField(ProxyCommonClient.class, "plugins").setAccessible(true);
-	private static final AField<Config, File> jeiConfigurationDir = new AField(Config.class, "jeiConfigurationDir").setAccessible(true);
 	private static final AField<Config, LocalizedConfiguration> itemBlacklistConfig = new AField(Config.class, "itemBlacklistConfig").setAccessible(true);
 	private static final AField<Config, LocalizedConfiguration> searchColorsConfig = new AField(Config.class, "searchColorsConfig").setAccessible(true);
 	private static final AField<Config, Boolean> centerSearchBarEnabled = new AField(Config.class, "centerSearchBarEnabled").setAccessible(true);
 	private static final AField<Configuration, File> file = new AField(Configuration.class, "file").setAccessible(true);
 	private static final AField<Configuration, Boolean> changed = new AField(Configuration.class, "changed").setAccessible(true);
+
+	public static final JeiReflector INSTANCE = null;
 
 	public boolean canGiveItems;
 	public boolean canDeleteItemsAboveItemsList;
@@ -62,7 +64,20 @@ public class JeiReflector implements IModPlugin, IGuiElement<FEIGuiOverride>, IN
 	public int searchFieldHeight;
 
 	public JeiReflector(){
+		if(INSTANCE != null) throw new IllegalArgumentException("An instance already exists!");
 		FEIGuiOverride.addElement(this);
+		MinecraftForge.EVENT_BUS.register(this);
+		new AField(JeiReflector.class, "INSTANCE").setFinal(false).set(null, INSTANCE);
+	}
+
+	public void reloadItemListOverlay(final IJeiRuntime jeiRuntime){
+		ItemListOverlayOverride overlay = new ItemListOverlayOverride(((ItemListOverlay) jeiRuntime.getItemListOverlay()).getItemFilter(), advancedGuiHandlers.get((ItemListOverlay) jeiRuntime.getItemListOverlay()), Internal.getIngredientRegistry(), canGiveItems, canDeleteItemsAboveItemsList, searchFieldWidth, searchFieldHeight);
+		itemListOverlay.set((JeiRuntime) jeiRuntime, overlay);
+	}
+
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	public void provileReload(FEIChangeProfileEvent event){
+		reloadItemListOverlay(Internal.getRuntime());
 	}
 
 	@Override
@@ -82,8 +97,8 @@ public class JeiReflector implements IModPlugin, IGuiElement<FEIGuiOverride>, IN
 
 					}
 				}
-				ItemListOverlayOverride overlay = new ItemListOverlayOverride(itemFilter.get((ItemListOverlay) jeiRuntime.getItemListOverlay()), advancedGuiHandlers.get((ItemListOverlay) jeiRuntime.getItemListOverlay()), Internal.getIngredientRegistry(), canGiveItems, canDeleteItemsAboveItemsList, searchFieldWidth, searchFieldHeight);
-				itemListOverlay.set((JeiRuntime) jeiRuntime, overlay);
+
+				reloadItemListOverlay(jeiRuntime);
 
 				Iterator<IModPlugin> iterator = plugins.get((ProxyCommonClient) JustEnoughItems.getProxy()).iterator();
 				while(iterator.hasNext()){
@@ -125,7 +140,6 @@ public class JeiReflector implements IModPlugin, IGuiElement<FEIGuiOverride>, IN
 
 		File jeiDir = new File(profile.getSaveDir(), "JEI");
 		jeiDir.mkdir();
-		jeiConfigurationDir.set(null, jeiDir);
 
 		if(FEIConfiguration.loadJeiFromProfileConfig){
 			LocalizedConfiguration config = Config.getConfig();

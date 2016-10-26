@@ -55,7 +55,7 @@ public class SelectProfileIconGuiScreen extends GuiScreen {
 		this.parent = parent;
 		this.itemstack = itemstack;
 
-		list = new ItemListCustom(new ItemFilter(Internal.getIngredientRegistry(), Internal.getHelpers()));
+		list = new ItemListCustom(Internal.getRuntime().getItemListOverlay().getItemFilter());
 	}
 
 	@Override
