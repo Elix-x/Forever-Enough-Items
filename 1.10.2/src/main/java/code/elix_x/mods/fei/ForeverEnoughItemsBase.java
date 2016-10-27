@@ -31,6 +31,7 @@ import code.elix_x.mods.fei.net.MagnetStatePacket;
 import code.elix_x.mods.fei.net.SyncPermissionsManagerPacket;
 import code.elix_x.mods.fei.net.SyncedFEIUtilPropertyPacket;
 import code.elix_x.mods.fei.permission.FEIPermissionsManager;
+import code.elix_x.mods.fei.proxy.IFEIProxy;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTBase;
@@ -47,6 +48,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
@@ -59,7 +61,7 @@ public class ForeverEnoughItemsBase implements IMod<ForeverEnoughItemsBase, IPro
 
 	public static final String MODID = "FEI";
 	public static final String NAME = "Forever Enough Items";
-	public static final String VERSION = "1.0.17";
+	public static final String VERSION = "1.0.17.1";
 
 	public static final String JEIDEPENDENCY = mezz.jei.config.Constants.MOD_ID + "@[" + mezz.jei.config.Constants.VERSION + ",)";
 	public static final String BAUBLESDEPENDENCY = "Baubles";
@@ -67,7 +69,7 @@ public class ForeverEnoughItemsBase implements IMod<ForeverEnoughItemsBase, IPro
 	public static final String MOREOVERLAYSDEPENDENCY = MoreOverlays.MOD_ID + "@[" + MoreOverlays.VERSION + ",)";
 
 	@SidedProxy(modId = MODID, serverSide = "code.elix_x.mods.fei.proxy.ServerProxy", clientSide = "code.elix_x.mods.fei.proxy.ClientProxy")
-	public static IProxy<ForeverEnoughItemsBase> proxy;
+	public static IFEIProxy proxy;
 
 	public static File configDir;
 
@@ -215,6 +217,11 @@ public class ForeverEnoughItemsBase implements IMod<ForeverEnoughItemsBase, IPro
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent event){
 		proxy.postInit(event);
+	}
+
+	@EventHandler
+	public void loadComplete(FMLLoadCompleteEvent event){
+		proxy.loadComplete(event);
 	}
 
 	@EventHandler

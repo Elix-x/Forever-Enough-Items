@@ -6,7 +6,6 @@ import com.mmyzd.llor.LightLevelOverlayReloaded;
 
 import at.feldim2425.moreoverlays.MoreOverlays;
 import code.elix_x.excore.utils.color.RGBA;
-import code.elix_x.excore.utils.proxy.IProxy;
 import code.elix_x.excore.utils.reflection.AdvancedReflectionHelper.AField;
 import code.elix_x.mods.fei.ForeverEnoughItemsBase;
 import code.elix_x.mods.fei.api.FEIApi;
@@ -32,10 +31,11 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.CustomModLoadingErrorDisplayException;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
-public class ClientProxy implements IProxy<ForeverEnoughItemsBase> {
+public class ClientProxy implements IFEIProxy {
 
 	public FEIUtilsGrid grid;
 
@@ -122,7 +122,10 @@ public class ClientProxy implements IProxy<ForeverEnoughItemsBase> {
 		FEIGuiOverride.addElement(new FEIModsItemsDropdown());
 
 		FEIGuiOverride.addElement(new FEIProfilesSwitcher());
+	}
 
+	@Override
+	public void loadComplete(FMLLoadCompleteEvent event){
 		Profile.load();
 
 		FEIGuiOverride.loadFromCurrentProfile();
