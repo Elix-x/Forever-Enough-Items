@@ -2,19 +2,17 @@ package mezz.jei;
 
 import java.util.Map;
 
-import mezz.jei.config.Config;
 import mezz.jei.config.Constants;
 import mezz.jei.config.SessionData;
-import mezz.jei.debug.DebugItem;
 import mezz.jei.network.PacketHandler;
-import net.minecraft.item.Item;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.network.FMLEventChannel;
 import net.minecraftforge.fml.common.network.NetworkCheckHandler;
-import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 
 @Mod(modid = Constants.MOD_ID,
@@ -25,13 +23,9 @@ import net.minecraftforge.fml.relauncher.Side;
 		dependencies = "required-after:Forge@[12.18.1.2053,);")
 public class JustEnoughItems {
 
+	@SuppressWarnings("NullableProblems")
 	@SidedProxy(clientSide = "mezz.jei.ProxyCommonClient", serverSide = "mezz.jei.ProxyCommon")
 	private static ProxyCommon proxy;
-	private static PacketHandler packetHandler;
-
-	public static PacketHandler getPacketHandler() {
-		return packetHandler;
-	}
 
 	public static ProxyCommon getProxy() {
 		return proxy;
@@ -49,16 +43,11 @@ public class JustEnoughItems {
 
 	@Mod.EventHandler
 	public void preInit(FMLPreInitializationEvent event) {
-		packetHandler = new PacketHandler();
-		proxy.preInit(event);
+		PacketHandler packetHandler = new PacketHandler();
+		FMLEventChannel channel = NetworkRegistry.INSTANCE.newEventDrivenChannel(PacketHandler.CHANNEL_ID);
+		channel.register(packetHandler);
 
-		if (Config.isDebugItemEnabled()) {
-			String name = "jeiDebug";
-			Item debugItem = new DebugItem(name);
-			debugItem.setUnlocalizedName(name);
-			debugItem.setRegistryName(name);
-			GameRegistry.register(debugItem);
-		}
+		proxy.preInit(event);
 	}
 
 	@Mod.EventHandler
@@ -67,7 +56,7 @@ public class JustEnoughItems {
 	}
 
 	@Mod.EventHandler
-	public void postInit(FMLPostInitializationEvent event) {
-		proxy.postInit(event);
+	public void loadComplete(FMLLoadCompleteEvent event) {
+		proxy.loadComplete(event);
 	}
 }

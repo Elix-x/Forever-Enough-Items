@@ -10,13 +10,13 @@ public class Constants {
 	// Mod info
 	public static final String MOD_ID = "JEI";
 	public static final String NAME = "Just Enough Items";
-	public static final String VERSION = "3.13.0";
+	public static final String VERSION = "@VERSION@";
 
 	// Textures
 	public static final String RESOURCE_DOMAIN = MOD_ID.toLowerCase(Locale.ENGLISH);
 	public static final String TEXTURE_GUI_PATH = "textures/gui/";
-	public static final String TEXTURE_RECIPE_BACKGROUND_PATH = Constants.TEXTURE_GUI_PATH + "recipeBackground.png";
-	public static final String TEXTURE_RECIPE_BACKGROUND_TALL_PATH = Constants.TEXTURE_GUI_PATH + "recipeBackgroundTall.png";
+	public static final String TEXTURE_RECIPE_BACKGROUND_PATH = Constants.TEXTURE_GUI_PATH + "recipeBackground2.png";
+	public static final String TEXTURE_RECIPE_BACKGROUND_TALL_PATH = Constants.TEXTURE_GUI_PATH + "recipeBackgroundTall2.png";
 
 	public static final int MAX_TOOLTIP_WIDTH = 125;
 

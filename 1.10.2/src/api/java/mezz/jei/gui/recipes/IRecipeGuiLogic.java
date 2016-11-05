@@ -1,8 +1,8 @@
-package mezz.jei.gui;
+package mezz.jei.gui.recipes;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
 import mezz.jei.api.recipe.IFocus;
 import mezz.jei.api.recipe.IRecipeCategory;
 import net.minecraft.item.ItemStack;
@@ -21,15 +21,16 @@ public interface IRecipeGuiLogic {
 
 	void nextRecipeCategory();
 
+	void setRecipeCategory(IRecipeCategory category);
+
 	boolean hasMultiplePages();
 
 	void previousPage();
 
 	void nextPage();
 
-	boolean setFocus(IFocus focus);
+	<V> boolean setFocus(IFocus<V> focus);
 
-	@Nullable
 	IFocus getFocus();
 
 	boolean back();
@@ -40,10 +41,13 @@ public interface IRecipeGuiLogic {
 
 	boolean setCategoryFocus(List<String> recipeCategoryUids);
 
-	@Nullable
-	IRecipeCategory getRecipeCategory();
+	IRecipeCategory getSelectedRecipeCategory();
+
+	ImmutableList<IRecipeCategory> getRecipeCategories();
 
 	List<ItemStack> getRecipeCategoryCraftingItems();
 
-	List<RecipeLayout> getRecipeWidgets(int posX, int posY, int spacingY);
+	List<ItemStack> getRecipeCategoryCraftingItems(IRecipeCategory recipeCategory);
+
+	List<RecipeLayout> getRecipeLayouts(int posX, int posY, int spacingY);
 }

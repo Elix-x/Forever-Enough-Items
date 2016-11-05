@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+import mezz.jei.JeiRuntime;
 import mezz.jei.RecipeRegistry;
 import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.api.ingredients.IIngredientRegistry;
@@ -11,9 +12,9 @@ import mezz.jei.api.recipe.IFocus;
 import mezz.jei.config.Config;
 import mezz.jei.config.KeyBindings;
 import mezz.jei.gui.Focus;
-import mezz.jei.gui.ItemListOverlay;
-import mezz.jei.gui.RecipeClickableArea;
-import mezz.jei.gui.RecipesGui;
+import mezz.jei.gui.ItemListOverlayInternal;
+import mezz.jei.gui.recipes.RecipeClickableArea;
+import mezz.jei.gui.recipes.RecipesGui;
 import mezz.jei.util.Commands;
 import mezz.jei.util.MouseHelper;
 import net.minecraft.client.Minecraft;
@@ -30,27 +31,26 @@ public class InputHandler {
 	private final RecipeRegistry recipeRegistry;
 	private final IIngredientRegistry ingredientRegistry;
 	private final RecipesGui recipesGui;
-	private final ItemListOverlay itemListOverlay;
-	private MouseHelper mouseHelper;
+	@Nullable
+	private final ItemListOverlayInternal itemListOverlayInternal;
+	private final MouseHelper mouseHelper;
 	private final List<IShowsRecipeFocuses> showsRecipeFocuses = new ArrayList<IShowsRecipeFocuses>();
 
 	private boolean clickHandled = false;
 
-	public InputHandler(RecipeRegistry recipeRegistry, IIngredientRegistry ingredientRegistry, RecipesGui recipesGui, ItemListOverlay itemListOverlay) {
-		this.recipeRegistry = recipeRegistry;
-		this.ingredientRegistry = ingredientRegistry;
-		this.recipesGui = recipesGui;
-		this.itemListOverlay = itemListOverlay;
+	public InputHandler(JeiRuntime runtime, @Nullable ItemListOverlayInternal itemListOverlayInternal) {
+		this.recipeRegistry = runtime.getRecipeRegistry();
+		this.ingredientRegistry = runtime.getIngredientRegistry();
+		this.recipesGui = runtime.getRecipesGui();
+		this.itemListOverlayInternal = itemListOverlayInternal;
 
 		this.mouseHelper = new MouseHelper();
 
 		showsRecipeFocuses.add(recipesGui);
-		showsRecipeFocuses.add(itemListOverlay);
+		if (itemListOverlayInternal != null) {
+			showsRecipeFocuses.add(itemListOverlayInternal);
+		}
 		showsRecipeFocuses.add(new GuiContainerWrapper());
-	}
-
-	public void onScreenResized() {
-		this.mouseHelper = new MouseHelper();
 	}
 
 	public boolean handleMouseEvent(GuiScreen guiScreen, int mouseX, int mouseY) {
@@ -72,11 +72,11 @@ public class InputHandler {
 	}
 
 	private boolean handleMouseScroll(int dWheel, int mouseX, int mouseY) {
-		return itemListOverlay.handleMouseScrolled(mouseX, mouseY, dWheel);
+		return itemListOverlayInternal != null && itemListOverlayInternal.handleMouseScrolled(mouseX, mouseY, dWheel);
 	}
 
 	private boolean handleMouseClick(GuiScreen guiScreen, int mouseButton, int mouseX, int mouseY) {
-		if (itemListOverlay.handleMouseClicked(mouseX, mouseY, mouseButton)) {
+		if (itemListOverlayInternal != null && itemListOverlayInternal.handleMouseClicked(mouseX, mouseY, mouseButton)) {
 			return true;
 		}
 
@@ -190,18 +190,16 @@ public class InputHandler {
 		char typedChar = Keyboard.getEventCharacter();
 		int eventKey = Keyboard.getEventKey();
 
-		if ((eventKey == 0 && typedChar >= 32) || Keyboard.getEventKeyState()) {
-			return handleKeyDown(typedChar, eventKey);
-		}
-		return false;
+		return ((eventKey == 0 && typedChar >= 32) || Keyboard.getEventKeyState()) &&
+				handleKeyDown(typedChar, eventKey);
 	}
 
 	private boolean handleKeyDown(char typedChar, int eventKey) {
-		if (itemListOverlay.isOpen() && itemListOverlay.hasKeyboardFocus()) {
+		if (itemListOverlayInternal != null && itemListOverlayInternal.hasKeyboardFocus()) {
 			if (isInventoryCloseKey(eventKey) || isEnterKey(eventKey)) {
-				itemListOverlay.setKeyboardFocus(false);
+				itemListOverlayInternal.setKeyboardFocus(false);
 				return true;
-			} else if (itemListOverlay.onKeyPressed(typedChar, eventKey)) {
+			} else if (itemListOverlayInternal.onKeyPressed(typedChar, eventKey)) {
 				return true;
 			}
 		}
@@ -211,14 +209,14 @@ public class InputHandler {
 			return false;
 		}
 
-		if (itemListOverlay.isOpen()) {
+		if (itemListOverlayInternal != null) {
 			if (KeyBindings.toggleCheatMode.isActiveAndMatches(eventKey)) {
 				Config.toggleCheatItemsEnabled();
 				return true;
 			}
 
 			if (KeyBindings.focusSearch.isActiveAndMatches(eventKey)) {
-				itemListOverlay.setKeyboardFocus(true);
+				itemListOverlayInternal.setKeyboardFocus(true);
 				return true;
 			}
 		}
@@ -235,7 +233,7 @@ public class InputHandler {
 				}
 			}
 
-			if (itemListOverlay.isOpen() && itemListOverlay.onKeyPressed(typedChar, eventKey)) {
+			if (itemListOverlayInternal != null && itemListOverlayInternal.onKeyPressed(typedChar, eventKey)) {
 				return true;
 			}
 		}

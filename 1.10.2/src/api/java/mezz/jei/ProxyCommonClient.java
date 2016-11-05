@@ -10,7 +10,7 @@ import mezz.jei.config.Constants;
 import mezz.jei.config.KeyBindings;
 import mezz.jei.config.SessionData;
 import mezz.jei.gui.ItemListOverlay;
-import mezz.jei.network.packets.PacketJEI;
+import mezz.jei.network.packets.PacketJei;
 import mezz.jei.plugins.jei.JEIInternalPlugin;
 import mezz.jei.plugins.vanilla.VanillaPlugin;
 import mezz.jei.util.AnnotatedInstanceUtil;
@@ -29,15 +29,14 @@ import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.discovery.ASMDataTable;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @SuppressWarnings("unused")
 public class ProxyCommonClient extends ProxyCommon {
 	private List<IModPlugin> plugins = new ArrayList<IModPlugin>();
-	@Nullable
-	private JeiStarter starter;
+	private final JeiStarter starter = new JeiStarter();
 
 	private static void initVersionChecker() {
 		final NBTTagCompound compound = new NBTTagCompound();
@@ -94,7 +93,7 @@ public class ProxyCommonClient extends ProxyCommon {
 	}
 
 	@Override
-	public void postInit(FMLPostInitializationEvent event) {
+	public void loadComplete(FMLLoadCompleteEvent event) {
 		// Reload when resources change
 		Minecraft minecraft = Minecraft.getMinecraft();
 		IReloadableResourceManager reloadableResourceManager = (IReloadableResourceManager) minecraft.getResourceManager();
@@ -107,12 +106,11 @@ public class ProxyCommonClient extends ProxyCommon {
 			}
 		});
 
-		long jeiStartTime = System.currentTimeMillis();
-		Log.info("Beginning postInit...");
-		this.starter = new JeiStarter(this.plugins);
-		Log.info("Finished postInit in {} ms", System.currentTimeMillis() - jeiStartTime);
-
-		this.starter.start(this.plugins);
+		try {
+			this.starter.start(plugins, true);
+		} catch (Exception e) {
+			Log.error("Exception on load", e);
+		}
 	}
 
 	@SubscribeEvent
@@ -126,8 +124,8 @@ public class ProxyCommonClient extends ProxyCommon {
 	@Override
 	public void restartJEI() {
 		// check that JEI has been started before. if not, do nothing
-		if (this.starter != null && this.starter.hasStarted()) {
-			this.starter.start(this.plugins);
+		if (this.starter.hasStarted()) {
+			this.starter.start(this.plugins, false);
 		}
 	}
 
@@ -136,12 +134,12 @@ public class ProxyCommonClient extends ProxyCommon {
 		if (runtime != null) {
 			ItemListOverlay itemListOverlay = runtime.getItemListOverlay();
 			ItemFilter itemFilter = itemListOverlay.getItemFilter();
-			itemFilter.build();
+			itemFilter.rebuild();
 		}
 	}
 
 	@Override
-	public void sendPacketToServer(PacketJEI packet) {
+	public void sendPacketToServer(PacketJei packet) {
 		NetHandlerPlayClient netHandler = FMLClientHandler.instance().getClient().getConnection();
 		if (netHandler != null) {
 			netHandler.sendPacket(packet.getPacket());

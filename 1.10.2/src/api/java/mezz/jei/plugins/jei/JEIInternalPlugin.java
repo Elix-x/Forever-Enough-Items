@@ -20,7 +20,6 @@ import mezz.jei.config.Config;
 import mezz.jei.plugins.jei.debug.DebugRecipe;
 import mezz.jei.plugins.jei.debug.DebugRecipeCategory;
 import mezz.jei.plugins.jei.debug.DebugRecipeHandler;
-import mezz.jei.plugins.jei.debug.DebugRecipeRegistryPlugin;
 import mezz.jei.plugins.jei.description.ItemDescriptionRecipeCategory;
 import mezz.jei.plugins.jei.description.ItemDescriptionRecipeHandler;
 import mezz.jei.plugins.jei.ingredients.DebugIngredient;
@@ -30,11 +29,15 @@ import mezz.jei.plugins.jei.ingredients.DebugIngredientRenderer;
 import net.minecraft.client.gui.inventory.GuiBrewingStand;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
 
 @JEIPlugin
 public class JEIInternalPlugin extends BlankModPlugin {
-	public static IJeiHelpers jeiHelpers;
+	@Nullable
 	public static IIngredientRegistry ingredientRegistry;
+	@Nullable
 	public static IJeiRuntime jeiRuntime;
 
 	@Override
@@ -46,7 +49,7 @@ public class JEIInternalPlugin extends BlankModPlugin {
 
 	@Override
 	public void register(IModRegistry registry) {
-		jeiHelpers = registry.getJeiHelpers();
+		IJeiHelpers jeiHelpers = registry.getJeiHelpers();
 		ingredientRegistry = registry.getIngredientRegistry();
 		IGuiHelper guiHelper = jeiHelpers.getGuiHelper();
 
@@ -95,9 +98,16 @@ public class JEIInternalPlugin extends BlankModPlugin {
 							new Rectangle(guiContainer.guiLeft + guiContainer.xSize, guiContainer.guiTop + 40, size, size)
 					);
 				}
-			});
 
-			registry.addRecipeRegistryPlugin(new DebugRecipeRegistryPlugin());
+				@Nullable
+				@Override
+				public Object getIngredientUnderMouse(GuiBrewingStand guiContainer, int mouseX, int mouseY) {
+					if (mouseX < 10 && mouseY < 10) {
+						return new FluidStack(FluidRegistry.WATER, Fluid.BUCKET_VOLUME);
+					}
+					return null;
+				}
+			});
 		}
 	}
 

@@ -1,9 +1,10 @@
-package mezz.jei.gui;
+package mezz.jei.gui.recipes;
 
 import javax.annotation.Nullable;
 
 import mezz.jei.api.recipe.transfer.IRecipeTransferError;
 import mezz.jei.config.Constants;
+import mezz.jei.gui.TooltipRenderer;
 import mezz.jei.transfer.RecipeTransferErrorInternal;
 import mezz.jei.transfer.RecipeTransferUtil;
 import net.minecraft.client.Minecraft;
@@ -12,17 +13,16 @@ import net.minecraft.inventory.Container;
 import net.minecraftforge.fml.client.config.GuiButtonExt;
 
 public class RecipeTransferButton extends GuiButtonExt {
-	private RecipeLayout recipeLayout;
+	private final RecipeLayout recipeLayout;
 	@Nullable
 	private IRecipeTransferError recipeTransferError;
 
-	public RecipeTransferButton(int id, int xPos, int yPos, int width, int height, String displayString) {
+	public RecipeTransferButton(int id, int xPos, int yPos, int width, int height, String displayString, RecipeLayout recipeLayout) {
 		super(id, xPos, yPos, width, height, displayString);
+		this.recipeLayout = recipeLayout;
 	}
 
-	public void init(@Nullable Container container, RecipeLayout recipeLayout, EntityPlayer player) {
-		this.recipeLayout = recipeLayout;
-
+	public void init(@Nullable Container container, EntityPlayer player) {
 		if (container != null) {
 			this.recipeTransferError = RecipeTransferUtil.getTransferRecipeError(container, recipeLayout, player);
 		} else {

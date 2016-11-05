@@ -4,10 +4,14 @@ import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
 
+import mezz.jei.api.gui.IRecipeLayoutDrawable;
 import mezz.jei.api.recipe.IFocus;
 import mezz.jei.api.recipe.IRecipeCategory;
 import mezz.jei.api.recipe.IRecipeHandler;
 import mezz.jei.api.recipe.IRecipeWrapper;
+import mezz.jei.api.recipe.transfer.IRecipeTransferHandler;
+import mezz.jei.api.recipe.transfer.IRecipeTransferRegistry;
+import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -71,6 +75,29 @@ public interface IRecipeRegistry {
 	 * @since JEI 3.11.0
 	 */
 	List<ItemStack> getCraftingItems(IRecipeCategory recipeCategory, IFocus focus);
+
+	/**
+	 * Returns the recipe transfer handler for the given container and category, if one exists.
+	 *
+	 * @param container      The container to transfer items in.
+	 * @param recipeCategory The type of recipe that the recipe transfer handler acts on.
+	 * @see IRecipeTransferRegistry
+	 * @since JEI 3.13.2
+	 */
+	@Nullable
+	IRecipeTransferHandler getRecipeTransferHandler(Container container, IRecipeCategory recipeCategory);
+
+	/**
+	 * Returns a drawable recipe layout, for addons that want to draw the layouts somewhere.
+	 * Layouts created this way do not have recipe transfer buttons, they are not useful for this purpose.
+	 *
+	 * @param recipeCategory the recipe category that the recipe belongs to
+	 * @param recipeWrapper  the specific recipe wrapper to draw.
+	 * @param focus          the focus of the recipe layout.
+	 * @since JEI 3.13.2
+	 */
+	@Nullable
+	<T extends IRecipeWrapper> IRecipeLayoutDrawable createRecipeLayoutDrawable(IRecipeCategory<T> recipeCategory, T recipeWrapper, IFocus focus);
 
 	/**
 	 * Add a new recipe while the game is running.

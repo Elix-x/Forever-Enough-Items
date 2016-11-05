@@ -20,7 +20,7 @@ public class JeiPlugin implements IModPlugin {
 
   @Override
   public void register(@Nonnull IModRegistry registry) {
-    registry.addAdvancedGuiHandlers(new IAdvancedGuiHandler<GuiMultiModule>() {
+    /*registry.addAdvancedGuiHandlers(new IAdvancedGuiHandler<GuiMultiModule>() {
       @Nonnull
       @Override
       public Class<GuiMultiModule> getGuiContainerClass() {
@@ -32,7 +32,7 @@ public class JeiPlugin implements IModPlugin {
       public List<Rectangle> getGuiExtraAreas(@Nonnull GuiMultiModule guiContainer) {
         return guiContainer.getModuleAreas();
       }
-    });
+    });*/
   }
 
   @Override

@@ -1,4 +1,4 @@
-package mezz.jei.gui;
+package mezz.jei.gui.recipes;
 
 import java.util.Arrays;
 import java.util.List;

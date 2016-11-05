@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
 import mezz.jei.api.IRecipeRegistry;
+import mezz.jei.api.gui.IRecipeLayoutDrawable;
 import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.api.ingredients.IIngredientRegistry;
 import mezz.jei.api.recipe.IFocus;
@@ -32,7 +33,8 @@ import mezz.jei.api.recipe.transfer.IRecipeTransferHandler;
 import mezz.jei.config.Config;
 import mezz.jei.config.Constants;
 import mezz.jei.gui.Focus;
-import mezz.jei.gui.RecipeClickableArea;
+import mezz.jei.gui.recipes.RecipeClickableArea;
+import mezz.jei.gui.recipes.RecipeLayout;
 import mezz.jei.util.ErrorUtil;
 import mezz.jei.util.IngredientUtil;
 import mezz.jei.util.Ingredients;
@@ -290,11 +292,7 @@ public class RecipeRegistry implements IRecipeRegistry {
 
 	@Override
 	public List<IRecipeCategory> getRecipeCategories() {
-		return getRecipeCategories(createFocus(IFocus.Mode.NONE, null));
-	}
-
-	public int getRecipeCategoryCount() {
-		return recipeCategoriesMap.size();
+		return new ArrayList<IRecipeCategory>(recipeCategoriesMap.values());
 	}
 
 	@Override
@@ -598,4 +596,9 @@ public class RecipeRegistry implements IRecipeRegistry {
 		return recipeTransferHandlers.get(containerClass, Constants.UNIVERSAL_RECIPE_TRANSFER_UID);
 	}
 
+	@Nullable
+	@Override
+	public <T extends IRecipeWrapper> IRecipeLayoutDrawable createRecipeLayoutDrawable(IRecipeCategory<T> recipeCategory, T recipeWrapper, IFocus focus) {
+		return new RecipeLayout(-1, recipeCategory, recipeWrapper, focus);
+	}
 }

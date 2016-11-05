@@ -8,7 +8,7 @@ import mezz.jei.api.IJeiRuntime;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.gui.IAdvancedGuiHandler;
 import mezz.jei.gui.ItemListOverlay;
-import mezz.jei.gui.RecipesGui;
+import mezz.jei.gui.recipes.RecipesGui;
 import mezz.jei.plugins.vanilla.VanillaPlugin;
 import mezz.jei.util.Log;
 import mezz.jei.util.ModIdUtil;
@@ -18,24 +18,23 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.ProgressManager;
 
 public class JeiStarter {
-	private final ModRegistry modRegistry;
-	private final StackHelper stackHelper;
-	private final IngredientRegistry ingredientRegistry;
-
 	private boolean started;
 	@Nullable
 	private GuiEventHandler guiEventHandler;
 
-	public JeiStarter(List<IModPlugin> plugins) {
+	public void start(List<IModPlugin> plugins, boolean showProgressBar) {
+		long jeiStartTime = System.currentTimeMillis();
+
+		Log.info("Starting JEI...");
 		SubtypeRegistry subtypeRegistry = new SubtypeRegistry();
 
 		registerItemSubtypes(plugins, subtypeRegistry);
 
-		stackHelper = new StackHelper(subtypeRegistry);
+		StackHelper stackHelper = new StackHelper(subtypeRegistry);
 		stackHelper.enableUidCache();
 		Internal.setStackHelper(stackHelper);
 
-		ingredientRegistry = registerIngredients(plugins);
+		IngredientRegistry ingredientRegistry = registerIngredients(plugins);
 		Internal.setIngredientRegistry(ingredientRegistry);
 
 		JeiHelpers jeiHelpers = new JeiHelpers(ingredientRegistry, stackHelper, subtypeRegistry);
@@ -44,32 +43,27 @@ public class JeiStarter {
 		ModIdUtil modIdUtil = Internal.getModIdUtil();
 		ItemRegistry itemRegistry = new ItemRegistry(ingredientRegistry, modIdUtil);
 
-		modRegistry = new ModRegistry(jeiHelpers, itemRegistry, ingredientRegistry);
+		ModRegistry modRegistry = new ModRegistry(jeiHelpers, itemRegistry, ingredientRegistry);
 
 		registerPlugins(plugins, modRegistry);
-	}
-
-	public void start(List<IModPlugin> plugins) {
-		stackHelper.enableUidCache();
 
 		Log.info("Building recipe registry...");
 		long start_time = System.currentTimeMillis();
 		RecipeRegistry recipeRegistry = modRegistry.createRecipeRegistry(stackHelper, ingredientRegistry);
 		Log.info("Built    recipe registry in {} ms", System.currentTimeMillis() - start_time);
 
+		ItemFilter itemFilter = new ItemFilter(showProgressBar);
+
 		Log.info("Building runtime...");
 		start_time = System.currentTimeMillis();
 		List<IAdvancedGuiHandler<?>> advancedGuiHandlers = modRegistry.getAdvancedGuiHandlers();
-		ItemFilter itemFilter = new ItemFilter();
 		ItemListOverlay itemListOverlay = new ItemListOverlay(itemFilter, advancedGuiHandlers, ingredientRegistry);
 		RecipesGui recipesGui = new RecipesGui(recipeRegistry);
-		JeiRuntime jeiRuntime = new JeiRuntime(recipeRegistry, itemListOverlay, recipesGui, ingredientRegistry);
+		JeiRuntime jeiRuntime = new JeiRuntime(recipeRegistry, itemListOverlay, recipesGui, ingredientRegistry, advancedGuiHandlers);
 		Internal.setRuntime(jeiRuntime);
 		Log.info("Built    runtime in {} ms", System.currentTimeMillis() - start_time);
 
 		stackHelper.disableUidCache();
-
-		itemFilter.build();
 
 		sendRuntime(plugins, jeiRuntime);
 
@@ -80,6 +74,7 @@ public class JeiStarter {
 		MinecraftForge.EVENT_BUS.register(guiEventHandler);
 
 		started = true;
+		Log.info("Finished Starting JEI in {} ms", System.currentTimeMillis() - jeiStartTime);
 	}
 
 	public boolean hasStarted() {
