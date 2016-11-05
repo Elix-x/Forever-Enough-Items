@@ -70,9 +70,9 @@ public class JeiReflector implements IModPlugin, IGuiElement<FEIGuiOverride>, IN
 		new AField(JeiReflector.class, "INSTANCE").setFinal(false).set(null, INSTANCE);
 	}
 
-	public void reloadItemListOverlay(final IJeiRuntime jeiRuntime){
-		ItemListOverlayOverride overlay = new ItemListOverlayOverride(((ItemListOverlay) jeiRuntime.getItemListOverlay()).getItemFilter(), advancedGuiHandlers.get((ItemListOverlay) jeiRuntime.getItemListOverlay()), Internal.getIngredientRegistry(), canGiveItems, canDeleteItemsAboveItemsList, searchFieldWidth, searchFieldHeight);
-		itemListOverlay.set((JeiRuntime) jeiRuntime, overlay);
+	public void reloadItemListOverlay(final IJeiRuntime runtime){
+		JeiRuntime jeiRuntime = (JeiRuntime) runtime;
+		itemListOverlay.set(jeiRuntime, new ItemListOverlayOverride(jeiRuntime.getItemListOverlay().getItemFilter(), advancedGuiHandlers.get(jeiRuntime.getItemListOverlay()), Internal.getIngredientRegistry(), canGiveItems, canDeleteItemsAboveItemsList, searchFieldWidth, searchFieldHeight));
 	}
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)

@@ -119,7 +119,7 @@ public class FEIProfilesSwitcher extends ListGuiElement<FEIGuiOverride> implemen
 	@Override
 	public boolean handleKeyboardEvent(FEIGuiOverride fei, GuiScreen gui, boolean down, int key, char c){
 		if(down && gui.isCtrlKeyDown() && key == Keyboard.KEY_P){
-			if(!Internal.getRuntime().getItemListOverlay().hasKeyboardFocus()){
+			if(!Internal.getRuntime().getItemListOverlay().getInternal().hasKeyboardFocus()){
 				gui.mc.displayGuiScreen(new ProfilesGuiScreen(gui, fei));
 				return true;
 			}

@@ -3,9 +3,7 @@ package code.elix_x.mods.fei.client.jeioverride;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -17,13 +15,13 @@ import code.elix_x.mods.fei.ForeverEnoughItemsBase;
 import code.elix_x.mods.fei.config.FEIConfiguration;
 import code.elix_x.mods.fei.net.FEIGiveItemStackPacket;
 import mezz.jei.Internal;
-import mezz.jei.ItemFilter;
 import mezz.jei.JustEnoughItems;
 import mezz.jei.api.gui.IAdvancedGuiHandler;
 import mezz.jei.api.ingredients.IIngredientRegistry;
 import mezz.jei.config.Config;
 import mezz.jei.gui.GuiProperties;
 import mezz.jei.gui.ItemListOverlay;
+import mezz.jei.gui.ItemListOverlayInternal;
 import mezz.jei.gui.TooltipRenderer;
 import mezz.jei.gui.ingredients.GuiIngredientFast;
 import mezz.jei.gui.ingredients.GuiIngredientFastList;
@@ -33,9 +31,7 @@ import mezz.jei.input.ClickedIngredient;
 import mezz.jei.input.GuiTextFieldFilter;
 import mezz.jei.input.IClickedIngredient;
 import mezz.jei.network.packets.PacketDeletePlayerItem;
-import mezz.jei.network.packets.PacketJEI;
 import mezz.jei.util.Java6Helper;
-import mezz.jei.util.Log;
 import mezz.jei.util.MathUtil;
 import mezz.jei.util.StackHelper;
 import mezz.jei.util.Translator;
@@ -50,7 +46,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ChatAllowedCharacters;
 
-public class ItemListOverlayOverride extends ItemListOverlay {
+public class ItemListOverlayInternalOverride extends ItemListOverlayInternal {
 
 	private static final int borderPadding = 2;
 	private static final int buttonSize = 20;
@@ -62,29 +58,24 @@ public class ItemListOverlayOverride extends ItemListOverlay {
 	private static final int itemStackHeight = GuiItemStackGroup.getHeight(itemStackPadding);
 	private static int firstItemIndex = 0;
 
-	private final ItemFilter itemFilter;
-	private final List<IAdvancedGuiHandler<?>> advancedGuiHandlers;
-	private final Set<ItemStack> highlightedStacks = new HashSet<ItemStack>();
+	private final ItemListOverlay parent;
 
-	private final GuiIngredientFastList guiIngredientList;
-	private GuiButton nextButton;
-	private GuiButton backButton;
-	private GuiTextFieldFilter searchField;
+	private final GuiButton nextButton;
+	private final GuiButton backButton;
+	private final GuiTextFieldFilter searchField;
 
-	private String pageNumDisplayString;
+	private String pageNumDisplayString = "1/1";
 	private int pageNumDisplayX;
 	private int pageNumDisplayY;
 
+	private final GuiIngredientFastList guiIngredientList;
+	@Nullable
 	private GuiIngredientFast hovered = null;
 
 	// properties of the gui we're beside
-	@Nullable
-	private GuiProperties guiProperties;
-	@Nullable
-	private List<Rectangle> guiAreas;
+	private final GuiProperties guiProperties;
+	private final List<Rectangle> guiAreas;
 	private List<IAdvancedGuiHandler<?>> activeAdvancedGuiHandlers = Collections.emptyList();
-
-	private boolean open = false;
 
 	private boolean canGiveItems;
 	private boolean canDeleteItems;
@@ -92,23 +83,17 @@ public class ItemListOverlayOverride extends ItemListOverlay {
 	private int searchFieldWidth;
 	private int searchFieldHeight;
 
-	public ItemListOverlayOverride(ItemFilter itemFilter, List<IAdvancedGuiHandler<?>> advancedGuiHandlers, IIngredientRegistry ingredientRegistry, boolean canGiveItems, boolean canDeleteItems, int searchFieldWidth, int searchFieldHeight){
-		super(itemFilter, advancedGuiHandlers, ingredientRegistry);
-		this.itemFilter = itemFilter;
-		this.advancedGuiHandlers = advancedGuiHandlers;
-		this.guiIngredientList = new GuiIngredientFastList(ingredientRegistry);
+	public ItemListOverlayInternalOverride(ItemListOverlay parent, IIngredientRegistry ingredientRegistry, GuiScreen guiScreen, GuiProperties guiProperties, boolean canGiveItems, boolean canDeleteItems, int searchFieldWidth, int searchFieldHeight){
+		super(parent, ingredientRegistry, guiScreen, guiProperties);
 
 		this.canGiveItems = canGiveItems;
 		this.canDeleteItems = canDeleteItems;
 		this.searchFieldWidth = searchFieldWidth;
 		this.searchFieldHeight = searchFieldHeight;
-	}
 
-	public void initGui(GuiScreen guiScreen){
-		GuiProperties guiProperties = GuiProperties.create(guiScreen);
-		if(guiProperties == null){
-			return;
-		}
+		this.parent = parent;
+
+		this.guiIngredientList = new GuiIngredientFastList(ingredientRegistry);
 
 		this.guiProperties = guiProperties;
 		this.activeAdvancedGuiHandlers = getActiveAdvancedGuiHandlers(guiScreen);
@@ -116,16 +101,11 @@ public class ItemListOverlayOverride extends ItemListOverlay {
 			GuiContainer guiContainer = (GuiContainer) guiScreen;
 			guiAreas = getGuiAreas(guiContainer);
 		} else{
-			guiAreas = null;
+			guiAreas = Collections.emptyList();
 		}
 
-		final int columns = getColumns(guiProperties);
-		if(columns < 4){
-			close();
-			return;
-		}
-
-		final int rows = getRows(guiProperties);
+		final int columns = getColumns_(guiProperties);
+		final int rows = getRows_(guiProperties);
 		final int xSize = columns * itemStackWidth;
 		final int xEmptySpace = guiProperties.getScreenWidth() - guiProperties.getGuiLeft() - guiProperties.getGuiXSize() - xSize;
 
@@ -151,25 +131,22 @@ public class ItemListOverlayOverride extends ItemListOverlay {
 		}
 
 		FontRenderer fontRenderer = Minecraft.getMinecraft().fontRendererObj;
-		searchField = new GuiTextFieldFilter(0, fontRenderer, searchFieldX, searchFieldY, searchFieldWidth, searchFieldHeight);
+		searchField = new GuiTextFieldFilter(0, fontRenderer, searchFieldX, searchFieldY, searchFieldWidth, searchFieldHeight, parent.getItemFilter());
 		setKeyboardFocus(false);
-		searchField.setItemFilter(itemFilter);
 
 		updateLayout();
-
-		open();
 	}
 
-	private boolean isSearchBarCentered(GuiProperties guiProperties){
+	private static boolean isSearchBarCentered(GuiProperties guiProperties){
 		return Config.isCenterSearchBarEnabled();
 	}
 
 	private List<IAdvancedGuiHandler<?>> getActiveAdvancedGuiHandlers(GuiScreen guiScreen){
 		List<IAdvancedGuiHandler<?>> activeAdvancedGuiHandler = new ArrayList<IAdvancedGuiHandler<?>>();
 		if(guiScreen instanceof GuiContainer){
-			GuiContainer guiContainer = (GuiContainer) guiScreen;
-			for(IAdvancedGuiHandler<?> advancedGuiHandler : advancedGuiHandlers){
-				if(advancedGuiHandler.getGuiContainerClass().isAssignableFrom(guiContainer.getClass())){
+			for(IAdvancedGuiHandler<?> advancedGuiHandler : parent.getAdvancedGuiHandlers()){
+				Class<?> guiContainerClass = advancedGuiHandler.getGuiContainerClass();
+				if(guiContainerClass.isInstance(guiScreen)){
 					activeAdvancedGuiHandler.add(advancedGuiHandler);
 				}
 			}
@@ -189,32 +166,34 @@ public class ItemListOverlayOverride extends ItemListOverlay {
 	}
 
 	@Nullable
-	private <T extends GuiContainer> List<Rectangle> getGuiAreas(GuiContainer guiContainer, IAdvancedGuiHandler<T> advancedGuiHandler){
-		if(advancedGuiHandler.getGuiContainerClass().isAssignableFrom(guiContainer.getClass())){
-			T guiT = advancedGuiHandler.getGuiContainerClass().cast(guiContainer);
+	private <T extends GuiContainer> List<Rectangle> getGuiAreas(GuiContainer gui, IAdvancedGuiHandler<T> advancedGuiHandler){
+		Class<T> guiClass = advancedGuiHandler.getGuiContainerClass();
+		if(guiClass.isInstance(gui)){
+			T guiT = guiClass.cast(gui);
 			return advancedGuiHandler.getGuiExtraAreas(guiT);
 		}
 		return null;
 	}
 
-	public void updateGui(GuiScreen guiScreen){
-		if(this.guiProperties == null){
-			initGui(guiScreen);
-		} else{
-			GuiProperties guiProperties = GuiProperties.create(guiScreen);
-			if(guiProperties == null){
-				return;
-			}
-			if(!this.guiProperties.equals(guiProperties)){
-				initGui(guiScreen);
-			} else if(!activeAdvancedGuiHandlers.isEmpty() && guiScreen instanceof GuiContainer){
-				GuiContainer guiContainer = (GuiContainer) guiScreen;
-				List<Rectangle> guiAreas = getGuiAreas(guiContainer);
-				if(!Java6Helper.equals(this.guiAreas, guiAreas)){
-					initGui(guiContainer);
-				}
+	public boolean hasScreenChanged(GuiScreen guiScreen){
+		if(!Config.isOverlayEnabled()){
+			return true;
+		}
+		GuiProperties guiProperties = GuiProperties.create(guiScreen);
+		if(guiProperties == null){
+			return true;
+		}
+		if(!this.guiProperties.equals(guiProperties)){
+			return true;
+		} else if(!activeAdvancedGuiHandlers.isEmpty() && guiScreen instanceof GuiContainer){
+			GuiContainer guiContainer = (GuiContainer) guiScreen;
+			List<Rectangle> guiAreas = getGuiAreas(guiContainer);
+			if(!Java6Helper.equals(this.guiAreas, guiAreas)){
+				return true;
 			}
 		}
+
+		return false;
 	}
 
 	private static void createItemButtons(GuiIngredientFastList guiItemStacks, @Nullable List<Rectangle> guiAreas, final int xStart, final int yStart, final int columnCount, final int rowCount){
@@ -246,7 +225,7 @@ public class ItemListOverlayOverride extends ItemListOverlay {
 	}
 
 	private void updateLayout(){
-		ImmutableList<IIngredientListElement> ingredientList = itemFilter.getIngredientList();
+		ImmutableList<IIngredientListElement> ingredientList = parent.getItemFilter().getIngredientList();
 		guiIngredientList.set(firstItemIndex, ingredientList);
 
 		FontRenderer fontRendererObj = Minecraft.getMinecraft().fontRendererObj;
@@ -260,7 +239,7 @@ public class ItemListOverlayOverride extends ItemListOverlay {
 	}
 
 	private void nextPage(){
-		final int itemsCount = itemFilter.size();
+		final int itemsCount = parent.getItemFilter().size();
 		if(itemsCount == 0){
 			firstItemIndex = 0;
 			return;
@@ -279,7 +258,7 @@ public class ItemListOverlayOverride extends ItemListOverlay {
 			firstItemIndex = 0;
 			return;
 		}
-		final int itemsCount = itemFilter.size();
+		final int itemsCount = parent.getItemFilter().size();
 
 		int pageNum = firstItemIndex / itemsPerPage;
 		if(pageNum == 0){
@@ -297,10 +276,6 @@ public class ItemListOverlayOverride extends ItemListOverlay {
 	}
 
 	public void drawScreen(Minecraft minecraft, int mouseX, int mouseY){
-		if(!isOpen()){
-			return;
-		}
-
 		GlStateManager.disableLighting();
 
 		minecraft.fontRendererObj.drawString(pageNumDisplayString, pageNumDisplayX, pageNumDisplayY, Color.white.getRGB(), true);
@@ -318,6 +293,7 @@ public class ItemListOverlayOverride extends ItemListOverlay {
 			hovered = guiIngredientList.render(minecraft, mouseOver, mouseX, mouseY);
 		}
 
+		Set<ItemStack> highlightedStacks = parent.getHighlightedStacks();
 		if(!highlightedStacks.isEmpty()){
 			StackHelper helper = Internal.getHelpers().getStackHelper();
 			for(GuiIngredientFast guiItemStack : guiIngredientList.getAllGuiIngredients()){
@@ -348,10 +324,6 @@ public class ItemListOverlayOverride extends ItemListOverlay {
 	}
 
 	public void drawTooltips(Minecraft minecraft, int mouseX, int mouseY){
-		if(!isOpen()){
-			return;
-		}
-
 		boolean mouseOver = isMouseOver(mouseX, mouseY);
 		if(mouseOver && shouldShowDeleteItemTooltip(minecraft)){
 			String deleteItem = Translator.translateToLocal("jei.tooltip.delete.item");
@@ -363,26 +335,19 @@ public class ItemListOverlayOverride extends ItemListOverlay {
 		}
 	}
 
-	@Override
 	public void handleTick(){
-		if(searchField != null){
-			searchField.updateCursorCounter();
-		}
+		searchField.updateCursorCounter();
 	}
 
 	@Override
 	public boolean isMouseOver(int mouseX, int mouseY){
-		if(guiProperties == null || !isOpen()){
-			return false;
-		} else if(mouseX < guiProperties.getGuiLeft() + guiProperties.getGuiXSize()){
+		if(mouseX < guiProperties.getGuiLeft() + guiProperties.getGuiXSize()){
 			return isSearchBarCentered(guiProperties) && searchField.isMouseOver(mouseX, mouseY);
 		}
 
-		if(guiAreas != null){
-			for(Rectangle guiArea : guiAreas){
-				if(guiArea.contains(mouseX, mouseY)){
-					return false;
-				}
+		for(Rectangle guiArea : guiAreas){
+			if(guiArea.contains(mouseX, mouseY)){
+				return false;
 			}
 		}
 
@@ -432,7 +397,7 @@ public class ItemListOverlayOverride extends ItemListOverlay {
 				ItemStack itemStack = player.inventory.getItemStack();
 				if(itemStack != null){
 					player.inventory.setItemStack(null);
-					PacketJEI packet = new PacketDeletePlayerItem(itemStack);
+					PacketDeletePlayerItem packet = new PacketDeletePlayerItem(itemStack);
 					JustEnoughItems.getProxy().sendPacketToServer(packet);
 					return true;
 				}
@@ -490,14 +455,12 @@ public class ItemListOverlayOverride extends ItemListOverlay {
 
 	@Override
 	public boolean hasKeyboardFocus(){
-		return searchField != null && searchField.isFocused();
+		return searchField.isFocused();
 	}
 
 	@Override
 	public void setKeyboardFocus(boolean keyboardFocus){
-		if(searchField != null){
-			searchField.setFocused(keyboardFocus);
-		}
+		if(searchField != null) searchField.setFocused(keyboardFocus);
 	}
 
 	@Override
@@ -513,7 +476,7 @@ public class ItemListOverlayOverride extends ItemListOverlay {
 		return false;
 	}
 
-	private static int getItemButtonXSpace(GuiProperties guiProperties){
+	private int getItemButtonXSpace(GuiProperties guiProperties){
 		return guiProperties.getScreenWidth() - (guiProperties.getGuiLeft() + guiProperties.getGuiXSize() + (2 * borderPadding));
 	}
 
@@ -521,16 +484,16 @@ public class ItemListOverlayOverride extends ItemListOverlay {
 		return guiProperties.getScreenHeight() - (buttonSize + (isSearchBarCentered(guiProperties) ? 0 : (searchFieldHeight + 2)) + (4 * borderPadding));
 	}
 
-	private int getColumns(GuiProperties guiProperties){
+	public int getColumns_(GuiProperties guiProperties){
 		return getItemButtonXSpace(guiProperties) / itemStackWidth;
 	}
 
-	private int getRows(GuiProperties guiProperties){
+	public int getRows_(GuiProperties guiProperties){
 		return getItemButtonYSpace(guiProperties) / itemStackHeight;
 	}
 
 	private int getPageCount(){
-		final int itemCount = itemFilter.size();
+		final int itemCount = parent.getItemFilter().size();
 		final int stacksPerPage = guiIngredientList.size();
 		if(stacksPerPage == 0){
 			return 1;
@@ -548,30 +511,12 @@ public class ItemListOverlayOverride extends ItemListOverlay {
 		return firstItemIndex / stacksPerPage;
 	}
 
-	@Override
-	public void open(){
-		open = true;
-		setKeyboardFocus(false);
-	}
-
-	public ItemFilter getItemFilter(){
-		return itemFilter;
-	}
-
-	@Override
 	public void close(){
-		open = false;
 		setKeyboardFocus(false);
 		Config.saveFilterText();
 	}
 
-	@Override
-	public boolean isOpen(){
-		return open && Config.isOverlayEnabled();
-	}
-
 	@Nullable
-	@Override
 	public ItemStack getStackUnderMouse(){
 		if(hovered != null){
 			Object ingredient = hovered.getIngredient();
@@ -582,28 +527,12 @@ public class ItemListOverlayOverride extends ItemListOverlay {
 		return null;
 	}
 
-	@Override
-	public void setFilterText(@Nullable String filterText){
-		if(filterText == null){
-			Log.error("null filterText", new NullPointerException());
-			return;
-		}
-
-		Config.setFilterText(filterText);
-
-		if(searchField != null){
-			firstItemIndex = 0;
-			searchField.setText(filterText);
-			updateLayout();
-		}
+	public void setFilterText(String filterText){
+		firstItemIndex = 0;
+		searchField.setText(filterText);
+		updateLayout();
 	}
 
-	@Override
-	public String getFilterText(){
-		return Config.getFilterText();
-	}
-
-	@Override
 	public ImmutableList<ItemStack> getVisibleStacks(){
 		ImmutableList.Builder<ItemStack> visibleStacks = ImmutableList.builder();
 		for(GuiIngredientFast guiItemStack : guiIngredientList.getAllGuiIngredients()){
@@ -616,14 +545,4 @@ public class ItemListOverlayOverride extends ItemListOverlay {
 		return visibleStacks.build();
 	}
 
-	@Override
-	public ImmutableList<ItemStack> getFilteredStacks(){
-		return itemFilter.getItemStacks();
-	}
-
-	@Override
-	public void highlightStacks(Collection<ItemStack> stacks){
-		highlightedStacks.clear();
-		highlightedStacks.addAll(stacks);
-	}
 }

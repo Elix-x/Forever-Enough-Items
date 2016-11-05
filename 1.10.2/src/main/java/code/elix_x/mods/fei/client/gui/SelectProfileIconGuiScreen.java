@@ -161,9 +161,8 @@ public class SelectProfileIconGuiScreen extends GuiScreen {
 			int searchFieldY = this.screenHeight - searchHeight - borderPadding - 2;
 			int searchFieldWidth = rightEdge - leftEdge;
 			FontRenderer fontRenderer = Minecraft.getMinecraft().fontRendererObj;
-			searchField = new GuiTextFieldFilter(0, fontRenderer, leftEdge, searchFieldY, searchFieldWidth, searchHeight);
+			searchField = new GuiTextFieldFilter(0, fontRenderer, leftEdge, searchFieldY, searchFieldWidth, searchHeight, itemFilter);
 			setKeyboardFocus(false);
-			searchField.setItemFilter(itemFilter);
 
 			updateLayout();
 		}

@@ -2,7 +2,7 @@ package code.elix_x.mods.fei.client.events;
 
 import code.elix_x.mods.fei.api.gui.FEIGuiOverride;
 import code.elix_x.mods.fei.api.profile.FEIChangeProfileEvent;
-import mezz.jei.gui.RecipesGui;
+import mezz.jei.gui.recipes.RecipesGui;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
