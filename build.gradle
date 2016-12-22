@@ -13,6 +13,7 @@ buildscript {
 }
 repositories {
 	maven { url "https://elix-x.github.io/maven2" }
+	maven { url "http://dvs1.progwml6.com/files/maven" }
 	mavenCentral()
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
@@ -23,6 +24,7 @@ targetCompatibility = java_version
 
 dependencies {
 	compile "code.elix_x.excore:EXCore:$excore_version-$minecraft_version"
+	compile "mezz.jei:jei_$minecraft_version:$jei_version"
 }
 
 def theName = name
