@@ -13,6 +13,7 @@ import code.elix_x.excomms.math.IntUtils;
 import code.elix_x.excore.utils.client.gui.elements.ButtonGuiElement;
 import code.elix_x.excore.utils.client.gui.elements.IGuiElement;
 import code.elix_x.excore.utils.client.gui.elements.IGuiElementsHandler;
+import code.elix_x.excore.utils.client.gui.elements.IntegralLogorithmicSliderGuiElement;
 import code.elix_x.excore.utils.client.gui.elements.ListGuiElement;
 import code.elix_x.mods.fei.container.ContainerFEIEffect;
 import net.minecraft.client.gui.GuiScreen;

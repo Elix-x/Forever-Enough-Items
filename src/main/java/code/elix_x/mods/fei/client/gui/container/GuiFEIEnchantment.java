@@ -12,8 +12,10 @@ import code.elix_x.excore.utils.client.gui.elements.CheckBoxGuiElement;
 import code.elix_x.excore.utils.client.gui.elements.GuiElement;
 import code.elix_x.excore.utils.client.gui.elements.IGuiElement;
 import code.elix_x.excore.utils.client.gui.elements.IGuiElementsHandler;
+import code.elix_x.excore.utils.client.gui.elements.IntegralLogorithmicSliderGuiElement;
 import code.elix_x.excore.utils.client.gui.elements.ListGuiElement;
 import code.elix_x.mods.fei.container.ContainerFEIEnchantment;
+import net.minecraft.client.gui.GuiEnchantment;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -133,10 +135,10 @@ public class GuiFEIEnchantment extends GuiContainer implements IGuiElementsHandl
 
 		this.open += 0.2F;
 
-		this.open = MathHelper.clamp_float(this.open, 0.0F, 1.0F);
+		this.open = MathHelper.clamp(this.open, 0.0F, 1.0F);
 		float f1 = (this.flipT - this.flip) * 0.4F;
 		float f = 0.2F;
-		f1 = MathHelper.clamp_float(f1, -0.2F, 0.2F);
+		f1 = MathHelper.clamp(f1, -0.2F, 0.2F);
 		this.flipA += (f1 - this.flipA) * 0.9F;
 		this.flip += this.flipA;
 	}
@@ -172,8 +174,8 @@ public class GuiFEIEnchantment extends GuiContainer implements IGuiElementsHandl
 		GlStateManager.rotate(180.0F, 1.0F, 0.0F, 0.0F);
 		float f3 = this.oFlip + (this.flip - this.oFlip) * partialTicks + 0.25F;
 		float f4 = this.oFlip + (this.flip - this.oFlip) * partialTicks + 0.75F;
-		f3 = (f3 - (float) MathHelper.truncateDoubleToInt((double) f3)) * 1.6F - 0.3F;
-		f4 = (f4 - (float) MathHelper.truncateDoubleToInt((double) f4)) * 1.6F - 0.3F;
+		f3 = (f3 - (float) MathHelper.fastFloor((double) f3)) * 1.6F - 0.3F;
+		f4 = (f4 - (float) MathHelper.fastFloor((double) f4)) * 1.6F - 0.3F;
 
 		if(f3 < 0.0F){
 			f3 = 0.0F;

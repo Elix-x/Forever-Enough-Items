@@ -19,7 +19,7 @@ public class FEIInternalGuiDisplayUtil extends SinglePermissionRequiredSyncedFEI
 	@Override
 	public void onServerSelect(EntityPlayer player, boolean permission){
 		if(permission){
-			ForeverEnoughItemsBase.guiHandler.display(player, gui, 0, 0, 0);
+			ForeverEnoughItemsBase.guiHandler.display(gui, player, player.world, 0, 0, 0);
 		}
 	}
 

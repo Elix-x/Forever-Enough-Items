@@ -22,11 +22,9 @@ import mezz.jei.gui.TooltipRenderer;
 import mezz.jei.gui.ingredients.GuiIngredientFast;
 import mezz.jei.gui.ingredients.GuiIngredientFastList;
 import mezz.jei.gui.ingredients.GuiItemStackGroup;
-import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.input.ClickedIngredient;
 import mezz.jei.input.GuiTextFieldFilter;
 import mezz.jei.input.IClickedIngredient;
-import mezz.jei.input.IKeyable;
 import mezz.jei.input.IMouseHandler;
 import mezz.jei.input.IShowsRecipeFocuses;
 import mezz.jei.util.Log;
@@ -96,7 +94,7 @@ public class SelectProfileIconGuiScreen extends GuiScreen {
 		list.handleMouseClicked(mouseX, mouseY, mouseButton);
 	}
 
-	private static class ItemListCustom implements IItemListOverlay, IShowsRecipeFocuses, IMouseHandler, IKeyable {
+	private static class ItemListCustom implements IItemListOverlay, IShowsRecipeFocuses, IMouseHandler {
 
 		private static final int borderPadding = 2;
 		private static final int searchHeight = 16;
@@ -189,7 +187,7 @@ public class SelectProfileIconGuiScreen extends GuiScreen {
 		}
 
 		private void updateLayout(){
-			ImmutableList<IIngredientListElement> itemList = itemFilter.getIngredientList();
+			ImmutableList<Object> itemList = itemFilter.getIngredientList();
 			guiItemStacks.set(firstItemIndex, itemList);
 
 			FontRenderer fontRendererObj = Minecraft.getMinecraft().fontRendererObj;
@@ -264,7 +262,7 @@ public class SelectProfileIconGuiScreen extends GuiScreen {
 
 		private boolean shouldShowDeleteItemTooltip(Minecraft minecraft){
 			if(Config.isDeleteItemsInCheatModeActive()){
-				EntityPlayer player = minecraft.thePlayer;
+				EntityPlayer player = minecraft.player;
 				if(player.inventory.getItemStack() != null){
 					return true;
 				}
@@ -369,19 +367,16 @@ public class SelectProfileIconGuiScreen extends GuiScreen {
 			return searchClicked;
 		}
 
-		@Override
 		public boolean hasKeyboardFocus(){
 			return searchField != null && searchField.isFocused();
 		}
 
-		@Override
 		public void setKeyboardFocus(boolean keyboardFocus){
 			if(searchField != null){
 				searchField.setFocused(keyboardFocus);
 			}
 		}
 
-		@Override
 		public boolean onKeyPressed(char typedChar, int keyCode){
 			if(hasKeyboardFocus()){
 				char character = Keyboard.getEventCharacter();
