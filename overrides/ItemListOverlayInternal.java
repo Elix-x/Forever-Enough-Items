@@ -1,28 +1,23 @@
-package code.elix_x.mods.fei.client.jeioverride;
+package mezz.jei.gui;
 
+import javax.annotation.Nullable;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import javax.annotation.Nullable;
-
 import com.google.common.collect.ImmutableList;
-
-import code.elix_x.mods.fei.ForeverEnoughItemsBase;
-import code.elix_x.mods.fei.config.FEIConfiguration;
-import code.elix_x.mods.fei.net.FEIGiveItemStackPacket;
 import mezz.jei.Internal;
 import mezz.jei.JustEnoughItems;
 import mezz.jei.api.gui.IAdvancedGuiHandler;
+import mezz.jei.api.gui.IDrawable;
 import mezz.jei.api.ingredients.IIngredientRegistry;
 import mezz.jei.config.Config;
-import mezz.jei.gui.GuiProperties;
-import mezz.jei.gui.ItemListOverlay;
-import mezz.jei.gui.ItemListOverlayInternal;
-import mezz.jei.gui.TooltipRenderer;
+import mezz.jei.config.Constants;
+import mezz.jei.config.JEIModConfigGui;
 import mezz.jei.gui.ingredients.GuiIngredientFast;
 import mezz.jei.gui.ingredients.GuiIngredientFastList;
 import mezz.jei.gui.ingredients.GuiItemStackGroup;
@@ -33,6 +28,7 @@ import mezz.jei.input.IClickedIngredient;
 import mezz.jei.input.IMouseHandler;
 import mezz.jei.input.IShowsRecipeFocuses;
 import mezz.jei.network.packets.PacketDeletePlayerItem;
+import mezz.jei.network.packets.PacketJei;
 import mezz.jei.util.Java6Helper;
 import mezz.jei.util.MathUtil;
 import mezz.jei.util.StackHelper;
@@ -46,10 +42,15 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.fml.client.config.HoverChecker;
+import org.lwjgl.input.Keyboard;
 
-public class ItemListOverlayInternalOverride extends ItemListOverlayInternal {
+public class ItemListOverlayInternal implements IShowsRecipeFocuses, IMouseHandler {
 
 	private static final int borderPadding = 2;
+	private static final int searchHeight = 16;
 	private static final int buttonSize = 20;
 	private static final String nextLabel = ">";
 	private static final String backLabel = "<";
@@ -63,6 +64,10 @@ public class ItemListOverlayInternalOverride extends ItemListOverlayInternal {
 
 	private final GuiButton nextButton;
 	private final GuiButton backButton;
+	private final GuiButton configButton;
+	private final IDrawable configButtonIcon;
+	private final IDrawable configButtonCheatIcon;
+	private final HoverChecker configButtonHoverChecker;
 	private final GuiTextFieldFilter searchField;
 
 	private String pageNumDisplayString = "1/1";
@@ -78,35 +83,22 @@ public class ItemListOverlayInternalOverride extends ItemListOverlayInternal {
 	private final List<Rectangle> guiAreas;
 	private List<IAdvancedGuiHandler<?>> activeAdvancedGuiHandlers = Collections.emptyList();
 
-	private boolean canGiveItems;
-	private boolean canDeleteItems;
-
-	private int searchFieldWidth;
-	private int searchFieldHeight;
-
-	public ItemListOverlayInternalOverride(ItemListOverlay parent, IIngredientRegistry ingredientRegistry, GuiScreen guiScreen, GuiProperties guiProperties, boolean canGiveItems, boolean canDeleteItems, int searchFieldWidth, int searchFieldHeight){
-		super(parent, ingredientRegistry, guiScreen, guiProperties);
-
-		this.canGiveItems = canGiveItems;
-		this.canDeleteItems = canDeleteItems;
-		this.searchFieldWidth = searchFieldWidth;
-		this.searchFieldHeight = searchFieldHeight;
-
+	public ItemListOverlayInternal(ItemListOverlay parent, IIngredientRegistry ingredientRegistry, GuiScreen guiScreen, GuiProperties guiProperties) {
 		this.parent = parent;
 
 		this.guiIngredientList = new GuiIngredientFastList(ingredientRegistry);
 
 		this.guiProperties = guiProperties;
 		this.activeAdvancedGuiHandlers = getActiveAdvancedGuiHandlers(guiScreen);
-		if(!activeAdvancedGuiHandlers.isEmpty() && guiScreen instanceof GuiContainer){
+		if (!activeAdvancedGuiHandlers.isEmpty() && guiScreen instanceof GuiContainer) {
 			GuiContainer guiContainer = (GuiContainer) guiScreen;
 			guiAreas = getGuiAreas(guiContainer);
-		} else{
+		} else {
 			guiAreas = Collections.emptyList();
 		}
 
-		final int columns = getColumns_(guiProperties);
-		final int rows = getRows_(guiProperties);
+		final int columns = getColumns(guiProperties);
+		final int rows = getRows(guiProperties);
 		final int xSize = columns * itemStackWidth;
 		final int xEmptySpace = guiProperties.getScreenWidth() - guiProperties.getGuiLeft() - guiProperties.getGuiXSize() - xSize;
 
@@ -123,31 +115,44 @@ public class ItemListOverlayInternalOverride extends ItemListOverlayInternal {
 		backButton = new GuiButton(1, leftEdge, borderPadding, buttonSize, buttonSize, backLabel);
 
 		final int searchFieldX;
-		final int searchFieldY = guiProperties.getScreenHeight() - searchFieldHeight - borderPadding - 2;
+		final int searchFieldY = guiProperties.getScreenHeight() - searchHeight - borderPadding - 2;
+		final int searchFieldWidth;
 
-		if(isSearchBarCentered(guiProperties)){
+		if (isSearchBarCentered(guiProperties)) {
 			searchFieldX = guiProperties.getGuiLeft();
-		} else{
+			searchFieldWidth = guiProperties.getGuiXSize() - buttonSize - 1;
+		} else {
 			searchFieldX = leftEdge;
+			searchFieldWidth = rightEdge - leftEdge - buttonSize - 1;
 		}
 
 		FontRenderer fontRenderer = Minecraft.getMinecraft().fontRendererObj;
-		searchField = new GuiTextFieldFilter(0, fontRenderer, searchFieldX, searchFieldY, searchFieldWidth, searchFieldHeight, parent.getItemFilter());
+		searchField = new GuiTextFieldFilter(0, fontRenderer, searchFieldX, searchFieldY, searchFieldWidth, searchHeight, parent.getItemFilter());
 		setKeyboardFocus(false);
+
+		int configButtonX = searchFieldX + searchFieldWidth + 1;
+		int configButtonY = guiProperties.getScreenHeight() - buttonSize - borderPadding;
+		configButton = new GuiButton(2, configButtonX, configButtonY, buttonSize, buttonSize, "");
+		ResourceLocation configButtonIconLocation = new ResourceLocation(Constants.RESOURCE_DOMAIN, Constants.TEXTURE_RECIPE_BACKGROUND_PATH);
+		GuiHelper guiHelper = Internal.getHelpers().getGuiHelper();
+		configButtonIcon = guiHelper.createDrawable(configButtonIconLocation, 0, 166, 16, 16);
+		configButtonCheatIcon = guiHelper.createDrawable(configButtonIconLocation, 16, 166, 16, 16);
+		configButtonHoverChecker = new HoverChecker(configButton, 0);
 
 		updateLayout();
 	}
 
-	private static boolean isSearchBarCentered(GuiProperties guiProperties){
-		return Config.isCenterSearchBarEnabled();
+	private static boolean isSearchBarCentered(GuiProperties guiProperties) {
+		return Config.isCenterSearchBarEnabled() &&
+				guiProperties.getGuiTop() + guiProperties.getGuiYSize() + searchHeight < guiProperties.getScreenHeight();
 	}
 
-	private List<IAdvancedGuiHandler<?>> getActiveAdvancedGuiHandlers(GuiScreen guiScreen){
+	private List<IAdvancedGuiHandler<?>> getActiveAdvancedGuiHandlers(GuiScreen guiScreen) {
 		List<IAdvancedGuiHandler<?>> activeAdvancedGuiHandler = new ArrayList<IAdvancedGuiHandler<?>>();
-		if(guiScreen instanceof GuiContainer){
-			for(IAdvancedGuiHandler<?> advancedGuiHandler : parent.getAdvancedGuiHandlers()){
+		if (guiScreen instanceof GuiContainer) {
+			for (IAdvancedGuiHandler<?> advancedGuiHandler : parent.getAdvancedGuiHandlers()) {
 				Class<?> guiContainerClass = advancedGuiHandler.getGuiContainerClass();
-				if(guiContainerClass.isInstance(guiScreen)){
+				if (guiContainerClass.isInstance(guiScreen)) {
 					activeAdvancedGuiHandler.add(advancedGuiHandler);
 				}
 			}
@@ -155,11 +160,11 @@ public class ItemListOverlayInternalOverride extends ItemListOverlayInternal {
 		return activeAdvancedGuiHandler;
 	}
 
-	private List<Rectangle> getGuiAreas(GuiContainer guiContainer){
+	private List<Rectangle> getGuiAreas(GuiContainer guiContainer) {
 		List<Rectangle> guiAreas = new ArrayList<Rectangle>();
-		for(IAdvancedGuiHandler<?> advancedGuiHandler : activeAdvancedGuiHandlers){
+		for (IAdvancedGuiHandler<?> advancedGuiHandler : activeAdvancedGuiHandlers) {
 			List<Rectangle> guiExtraAreas = getGuiAreas(guiContainer, advancedGuiHandler);
-			if(guiExtraAreas != null){
+			if (guiExtraAreas != null) {
 				guiAreas.addAll(guiExtraAreas);
 			}
 		}
@@ -167,29 +172,29 @@ public class ItemListOverlayInternalOverride extends ItemListOverlayInternal {
 	}
 
 	@Nullable
-	private <T extends GuiContainer> List<Rectangle> getGuiAreas(GuiContainer gui, IAdvancedGuiHandler<T> advancedGuiHandler){
+	private <T extends GuiContainer> List<Rectangle> getGuiAreas(GuiContainer gui, IAdvancedGuiHandler<T> advancedGuiHandler) {
 		Class<T> guiClass = advancedGuiHandler.getGuiContainerClass();
-		if(guiClass.isInstance(gui)){
+		if (guiClass.isInstance(gui)) {
 			T guiT = guiClass.cast(gui);
 			return advancedGuiHandler.getGuiExtraAreas(guiT);
 		}
 		return null;
 	}
 
-	public boolean hasScreenChanged(GuiScreen guiScreen){
-		if(!Config.isOverlayEnabled()){
+	public boolean hasScreenChanged(GuiScreen guiScreen) {
+		if (!Config.isOverlayEnabled()) {
 			return true;
 		}
 		GuiProperties guiProperties = GuiProperties.create(guiScreen);
-		if(guiProperties == null){
+		if (guiProperties == null) {
 			return true;
 		}
-		if(!this.guiProperties.equals(guiProperties)){
+		if (!this.guiProperties.equals(guiProperties)) {
 			return true;
-		} else if(!activeAdvancedGuiHandlers.isEmpty() && guiScreen instanceof GuiContainer){
+		} else if (!activeAdvancedGuiHandlers.isEmpty() && guiScreen instanceof GuiContainer) {
 			GuiContainer guiContainer = (GuiContainer) guiScreen;
 			List<Rectangle> guiAreas = getGuiAreas(guiContainer);
-			if(!Java6Helper.equals(this.guiAreas, guiAreas)){
+			if (!Java6Helper.equals(this.guiAreas, guiAreas)) {
 				return true;
 			}
 		}
@@ -197,17 +202,17 @@ public class ItemListOverlayInternalOverride extends ItemListOverlayInternal {
 		return false;
 	}
 
-	private static void createItemButtons(GuiIngredientFastList guiItemStacks, @Nullable List<Rectangle> guiAreas, final int xStart, final int yStart, final int columnCount, final int rowCount){
+	private static void createItemButtons(GuiIngredientFastList guiItemStacks, @Nullable List<Rectangle> guiAreas, final int xStart, final int yStart, final int columnCount, final int rowCount) {
 		guiItemStacks.clear();
 
-		for(int row = 0; row < rowCount; row++){
+		for (int row = 0; row < rowCount; row++) {
 			int y = yStart + (row * itemStackHeight);
-			for(int column = 0; column < columnCount; column++){
+			for (int column = 0; column < columnCount; column++) {
 				int x = xStart + (column * itemStackWidth);
 				GuiIngredientFast guiIngredientFast = new GuiIngredientFast(x, y, itemStackPadding);
-				if(guiAreas != null){
+				if (guiAreas != null) {
 					Rectangle stackArea = guiIngredientFast.getArea();
-					if(intersects(guiAreas, stackArea)){
+					if (intersects(guiAreas, stackArea)) {
 						continue;
 					}
 				}
@@ -216,9 +221,9 @@ public class ItemListOverlayInternalOverride extends ItemListOverlayInternal {
 		}
 	}
 
-	private static boolean intersects(List<Rectangle> areas, Rectangle comparisonArea){
-		for(Rectangle area : areas){
-			if(area.intersects(comparisonArea)){
+	private static boolean intersects(List<Rectangle> areas, Rectangle comparisonArea) {
+		for (Rectangle area : areas) {
+			if (area.intersects(comparisonArea)) {
 				return true;
 			}
 		}
@@ -239,44 +244,44 @@ public class ItemListOverlayInternalOverride extends ItemListOverlayInternal {
 		searchField.update();
 	}
 
-	private void nextPage(){
+	private void nextPage() {
 		final int itemsCount = parent.getItemFilter().size();
-		if(itemsCount == 0){
+		if (itemsCount == 0) {
 			firstItemIndex = 0;
 			return;
 		}
 
 		firstItemIndex += guiIngredientList.size();
-		if(firstItemIndex >= itemsCount){
+		if (firstItemIndex >= itemsCount) {
 			firstItemIndex = 0;
 		}
 		updateLayout();
 	}
 
-	private void previousPage(){
+	private void previousPage() {
 		final int itemsPerPage = guiIngredientList.size();
-		if(itemsPerPage == 0){
+		if (itemsPerPage == 0) {
 			firstItemIndex = 0;
 			return;
 		}
 		final int itemsCount = parent.getItemFilter().size();
 
 		int pageNum = firstItemIndex / itemsPerPage;
-		if(pageNum == 0){
+		if (pageNum == 0) {
 			pageNum = itemsCount / itemsPerPage;
-		} else{
+		} else {
 			pageNum--;
 		}
 
 		firstItemIndex = itemsPerPage * pageNum;
-		if(firstItemIndex > 0 && firstItemIndex == itemsCount){
+		if (firstItemIndex > 0 && firstItemIndex == itemsCount) {
 			pageNum--;
 			firstItemIndex = itemsPerPage * pageNum;
 		}
 		updateLayout();
 	}
 
-	public void drawScreen(Minecraft minecraft, int mouseX, int mouseY){
+	public void drawScreen(Minecraft minecraft, int mouseX, int mouseY) {
 		GlStateManager.disableLighting();
 
 		minecraft.fontRendererObj.drawString(pageNumDisplayString, pageNumDisplayX, pageNumDisplayY, Color.white.getRGB(), true);
@@ -284,38 +289,42 @@ public class ItemListOverlayInternalOverride extends ItemListOverlayInternal {
 
 		nextButton.drawButton(minecraft, mouseX, mouseY);
 		backButton.drawButton(minecraft, mouseX, mouseY);
+		configButton.drawButton(minecraft, mouseX, mouseY);
+
+		IDrawable icon = Config.isCheatItemsEnabled() ? configButtonCheatIcon : configButtonIcon;
+		icon.draw(minecraft, configButton.xPosition + 2, configButton.yPosition + 2);
 
 		GlStateManager.disableBlend();
 
-		if(shouldShowDeleteItemTooltip(minecraft)){
+		if (shouldShowDeleteItemTooltip(minecraft)) {
 			hovered = guiIngredientList.render(minecraft, false, mouseX, mouseY);
-		} else{
+		} else {
 			boolean mouseOver = isMouseOver(mouseX, mouseY);
 			hovered = guiIngredientList.render(minecraft, mouseOver, mouseX, mouseY);
 		}
 
 		Set<ItemStack> highlightedStacks = parent.getHighlightedStacks();
-		if(!highlightedStacks.isEmpty()){
+		if (!highlightedStacks.isEmpty()) {
 			StackHelper helper = Internal.getHelpers().getStackHelper();
-			for(GuiIngredientFast guiItemStack : guiIngredientList.getAllGuiIngredients()){
+			for (GuiIngredientFast guiItemStack : guiIngredientList.getAllGuiIngredients()) {
 				Object ingredient = guiItemStack.getIngredient();
-				if(ingredient instanceof ItemStack){
-					if(helper.containsStack(highlightedStacks, (ItemStack) ingredient) != null){
+				if (ingredient instanceof ItemStack) {
+					if (helper.containsStack(highlightedStacks, (ItemStack) ingredient) != null) {
 						guiItemStack.drawHighlight();
 					}
 				}
 			}
 		}
 
-		if(hovered != null){
+		if (hovered != null) {
 			hovered.drawHovered(minecraft);
 		}
 
 		GlStateManager.enableAlpha();
 	}
 
-	private boolean shouldShowDeleteItemTooltip(Minecraft minecraft){
-		if(canDeleteItems && FEIConfiguration.canDeleteItems(Minecraft.getMinecraft().player)){
+	private boolean shouldShowDeleteItemTooltip(Minecraft minecraft) {
+		if (Config.isDeleteItemsInCheatModeActive()) {
 			EntityPlayer player = minecraft.player;
 			if (!player.inventory.getItemStack().isEmpty()) {
 				return true;
@@ -324,30 +333,44 @@ public class ItemListOverlayInternalOverride extends ItemListOverlayInternal {
 		return false;
 	}
 
-	public void drawTooltips(Minecraft minecraft, int mouseX, int mouseY){
+	public void drawTooltips(Minecraft minecraft, int mouseX, int mouseY) {
 		boolean mouseOver = isMouseOver(mouseX, mouseY);
-		if(mouseOver && shouldShowDeleteItemTooltip(minecraft)){
+		if (mouseOver && shouldShowDeleteItemTooltip(minecraft)) {
 			String deleteItem = Translator.translateToLocal("jei.tooltip.delete.item");
 			TooltipRenderer.drawHoveringText(minecraft, deleteItem, mouseX, mouseY);
 		}
 
-		if(hovered != null){
+		if (hovered != null) {
 			hovered.drawTooltip(minecraft, mouseX, mouseY);
+		}
+
+		if (configButtonHoverChecker.checkHover(mouseX, mouseY)) {
+			String configString = Translator.translateToLocal("jei.tooltip.config");
+			if (Config.isCheatItemsEnabled()) {
+				List<String> tooltip = Arrays.asList(
+						configString,
+						TextFormatting.RED + Translator.translateToLocal("jei.tooltip.cheat.mode")
+				);
+				TooltipRenderer.drawHoveringText(minecraft, tooltip, mouseX, mouseY);
+			} else {
+				TooltipRenderer.drawHoveringText(minecraft, configString, mouseX, mouseY);
+			}
 		}
 	}
 
-	public void handleTick(){
+	public void handleTick() {
 		searchField.updateCursorCounter();
 	}
 
 	@Override
-	public boolean isMouseOver(int mouseX, int mouseY){
-		if(mouseX < guiProperties.getGuiLeft() + guiProperties.getGuiXSize()){
-			return isSearchBarCentered(guiProperties) && searchField.isMouseOver(mouseX, mouseY);
+	public boolean isMouseOver(int mouseX, int mouseY) {
+		if (mouseX < guiProperties.getGuiLeft() + guiProperties.getGuiXSize()) {
+			return isSearchBarCentered(guiProperties) &&
+					(searchField.isMouseOver(mouseX, mouseY) || configButtonHoverChecker.checkHover(mouseX, mouseY));
 		}
 
-		for(Rectangle guiArea : guiAreas){
-			if(guiArea.contains(mouseX, mouseY)){
+		for (Rectangle guiArea : guiAreas) {
+			if (guiArea.contains(mouseX, mouseY)) {
 				return false;
 			}
 		}
@@ -357,13 +380,13 @@ public class ItemListOverlayInternalOverride extends ItemListOverlayInternal {
 
 	@Override
 	@Nullable
-	public IClickedIngredient<?> getIngredientUnderMouse(int mouseX, int mouseY){
-		if(!isMouseOver(mouseX, mouseY)){
+	public IClickedIngredient<?> getIngredientUnderMouse(int mouseX, int mouseY) {
+		if (!isMouseOver(mouseX, mouseY)) {
 			return null;
 		}
 
 		ClickedIngredient<?> clicked = guiIngredientList.getIngredientUnderMouse(mouseX, mouseY);
-		if(clicked != null){
+		if (clicked != null) {
 			setKeyboardFocus(false);
 			clicked.setAllowsCheating();
 		}
@@ -371,44 +394,31 @@ public class ItemListOverlayInternalOverride extends ItemListOverlayInternal {
 	}
 
 	@Override
-	public boolean canSetFocusWithMouse(){
+	public boolean canSetFocusWithMouse() {
 		return true;
 	}
 
 	@Override
-	public boolean handleMouseClicked(int mouseX, int mouseY, int mouseButton){
-		if(!isMouseOver(mouseX, mouseY)){
+	public boolean handleMouseClicked(int mouseX, int mouseY, int mouseButton) {
+		if (!isMouseOver(mouseX, mouseY)) {
 			setKeyboardFocus(false);
 			return false;
 		}
 
-		if(Minecraft.getMinecraft().player.inventory.getItemStack() == null){
- 			ClickedIngredient<?> f = guiIngredientList.getIngredientUnderMouse(mouseX, mouseY);
- 			if(f != null && f.getValue() instanceof ItemStack && canGiveItems && FEIConfiguration.canGiveItems(Minecraft.getMinecraft().player)){
- 				ItemStack itemstack = ((ItemStack) f.getValue()).copy();
- 				if(mouseButton == 0) itemstack.setCount(itemstack.getMaxStackSize());
- 				else itemstack.setCount(1);
- 				ForeverEnoughItemsBase.net.sendToServer(new FEIGiveItemStackPacket(itemstack));
- 				return true;
- 			}
- 		} else{
- 			if(canDeleteItems && FEIConfiguration.canDeleteItems(Minecraft.getMinecraft().player)){
- 				Minecraft minecraft = Minecraft.getMinecraft();
- 				EntityPlayerSP player = minecraft.player;
- 				ItemStack itemStack = player.inventory.getItemStack();
- 				if(itemStack != null){
- 					player.inventory.setItemStack(null);
- 					PacketDeletePlayerItem packet = new PacketDeletePlayerItem(itemStack);
- 					JustEnoughItems.getProxy().sendPacketToServer(packet);
- 					return true;
- 				}
- 			} else if(Minecraft.getMinecraft().player.isCreative()){
+		if (Config.isDeleteItemsInCheatModeActive()) {
+			Minecraft minecraft = Minecraft.getMinecraft();
+			EntityPlayerSP player = minecraft.player;
+			ItemStack itemStack = player.inventory.getItemStack();
+			if (!itemStack.isEmpty()) {
+				player.inventory.setItemStack(ItemStack.EMPTY);
+				PacketJei packet = new PacketDeletePlayerItem(itemStack);
+				JustEnoughItems.getProxy().sendPacketToServer(packet);
 				return true;
 			}
 		}
 
 		boolean buttonClicked = handleMouseClickedButtons(mouseX, mouseY);
-		if(buttonClicked){
+		if (buttonClicked) {
 			setKeyboardFocus(false);
 			return true;
 		}
@@ -417,53 +427,65 @@ public class ItemListOverlayInternalOverride extends ItemListOverlayInternal {
 	}
 
 	@Override
-	public boolean handleMouseScrolled(int mouseX, int mouseY, int scrollDelta){
-		if(!isMouseOver(mouseX, mouseY)){
+	public boolean handleMouseScrolled(int mouseX, int mouseY, int scrollDelta) {
+		if (!isMouseOver(mouseX, mouseY)) {
 			return false;
 		}
-		if(scrollDelta < 0){
+		if (scrollDelta < 0) {
 			nextPage();
 			return true;
-		} else if(scrollDelta > 0){
+		} else if (scrollDelta > 0) {
 			previousPage();
 			return true;
 		}
 		return false;
 	}
 
-	private boolean handleMouseClickedButtons(int mouseX, int mouseY){
+	private boolean handleMouseClickedButtons(int mouseX, int mouseY) {
 		Minecraft minecraft = Minecraft.getMinecraft();
-		if(nextButton.mousePressed(minecraft, mouseX, mouseY)){
+		if (nextButton.mousePressed(minecraft, mouseX, mouseY)) {
 			nextPage();
 			nextButton.playPressSound(minecraft.getSoundHandler());
 			return true;
-		} else if(backButton.mousePressed(minecraft, mouseX, mouseY)){
+		} else if (backButton.mousePressed(minecraft, mouseX, mouseY)) {
 			previousPage();
 			backButton.playPressSound(minecraft.getSoundHandler());
+			return true;
+		} else if (configButton.mousePressed(minecraft, mouseX, mouseY)) {
+			configButton.playPressSound(minecraft.getSoundHandler());
+			if (Keyboard.getEventKeyState() && (Keyboard.getEventKey() == Keyboard.KEY_LCONTROL || Keyboard.getEventKey() == Keyboard.KEY_RCONTROL)) {
+				Config.toggleCheatItemsEnabled();
+			} else {
+				if (minecraft.currentScreen != null) {
+					parent.close();
+					GuiScreen configScreen = new JEIModConfigGui(minecraft.currentScreen);
+					minecraft.displayGuiScreen(configScreen);
+				}
+			}
 			return true;
 		}
 		return false;
 	}
 
-	private boolean handleMouseClickedSearch(int mouseX, int mouseY, int mouseButton){
+	private boolean handleMouseClickedSearch(int mouseX, int mouseY, int mouseButton) {
 		boolean searchClicked = searchField.isMouseOver(mouseX, mouseY);
 		setKeyboardFocus(searchClicked);
-		if(searchClicked && searchField.handleMouseClicked(mouseX, mouseY, mouseButton)){
+		if (searchClicked && searchField.handleMouseClicked(mouseX, mouseY, mouseButton)) {
 			updateLayout();
 		}
 		return searchClicked;
 	}
 
-	public boolean hasKeyboardFocus(){
+	public boolean hasKeyboardFocus() {
 		return searchField.isFocused();
 	}
 
-	public void setKeyboardFocus(boolean keyboardFocus){
-		if(searchField != null) searchField.setFocused(keyboardFocus);
+	public void setKeyboardFocus(boolean keyboardFocus) {
+		searchField.setFocused(keyboardFocus);
 	}
 
-	public boolean onKeyPressed(char typedChar, int keyCode){
-		if(hasKeyboardFocus()){
+	public boolean onKeyPressed(char typedChar, int keyCode) {
+		if (hasKeyboardFocus()) {
 			boolean handled = searchField.textboxKeyTyped(typedChar, keyCode);
 			if (handled) {
 				boolean changed = Config.setFilterText(searchField.getText());
@@ -477,26 +499,29 @@ public class ItemListOverlayInternalOverride extends ItemListOverlayInternal {
 		return false;
 	}
 
-	private int getItemButtonXSpace(GuiProperties guiProperties){
+	private static int getItemButtonXSpace(GuiProperties guiProperties) {
 		return guiProperties.getScreenWidth() - (guiProperties.getGuiLeft() + guiProperties.getGuiXSize() + (2 * borderPadding));
 	}
 
-	private int getItemButtonYSpace(GuiProperties guiProperties){
-		return guiProperties.getScreenHeight() - (buttonSize + (isSearchBarCentered(guiProperties) ? 0 : (searchFieldHeight + 2)) + (4 * borderPadding));
+	private static int getItemButtonYSpace(GuiProperties guiProperties) {
+		if (isSearchBarCentered(guiProperties)) {
+			return guiProperties.getScreenHeight() - (buttonSize + (3 * borderPadding));
+		}
+		return guiProperties.getScreenHeight() - (buttonSize + searchHeight + 2 + (4 * borderPadding));
 	}
 
-	public int getColumns_(GuiProperties guiProperties){
+	public static int getColumns(GuiProperties guiProperties) {
 		return getItemButtonXSpace(guiProperties) / itemStackWidth;
 	}
 
-	public int getRows_(GuiProperties guiProperties){
+	public static int getRows(GuiProperties guiProperties) {
 		return getItemButtonYSpace(guiProperties) / itemStackHeight;
 	}
 
-	private int getPageCount(){
+	private int getPageCount() {
 		final int itemCount = parent.getItemFilter().size();
 		final int stacksPerPage = guiIngredientList.size();
-		if(stacksPerPage == 0){
+		if (stacksPerPage == 0) {
 			return 1;
 		}
 		int pageCount = MathUtil.divideCeil(itemCount, stacksPerPage);
@@ -504,31 +529,31 @@ public class ItemListOverlayInternalOverride extends ItemListOverlayInternal {
 		return pageCount;
 	}
 
-	private int getPageNum(){
+	private int getPageNum() {
 		final int stacksPerPage = guiIngredientList.size();
-		if(stacksPerPage == 0){
+		if (stacksPerPage == 0) {
 			return 1;
 		}
 		return firstItemIndex / stacksPerPage;
 	}
 
-	public void close(){
+	public void close() {
 		setKeyboardFocus(false);
 		Config.saveFilterText();
 	}
 
 	@Nullable
-	public ItemStack getStackUnderMouse(){
-		if(hovered != null){
+	public ItemStack getStackUnderMouse() {
+		if (hovered != null) {
 			Object ingredient = hovered.getIngredient();
-			if(ingredient instanceof ItemStack){
+			if (ingredient instanceof ItemStack) {
 				return (ItemStack) ingredient;
 			}
 		}
 		return null;
 	}
 
-	public void setFilterText(String filterText){
+	public void setFilterText(String filterText) {
 		searchField.setText(filterText);
 		setToFirstPage();
 		updateLayout();
@@ -538,11 +563,11 @@ public class ItemListOverlayInternalOverride extends ItemListOverlayInternal {
 		firstItemIndex = 0;
 	}
 
-	public ImmutableList<ItemStack> getVisibleStacks(){
+	public ImmutableList<ItemStack> getVisibleStacks() {
 		ImmutableList.Builder<ItemStack> visibleStacks = ImmutableList.builder();
-		for(GuiIngredientFast guiItemStack : guiIngredientList.getAllGuiIngredients()){
+		for (GuiIngredientFast guiItemStack : guiIngredientList.getAllGuiIngredients()) {
 			Object ingredient = guiItemStack.getIngredient();
-			if(ingredient instanceof ItemStack){
+			if (ingredient instanceof ItemStack) {
 				ItemStack itemStack = (ItemStack) ingredient;
 				visibleStacks.add(itemStack);
 			}
