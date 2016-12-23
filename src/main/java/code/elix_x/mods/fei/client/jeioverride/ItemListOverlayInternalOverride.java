@@ -226,6 +226,7 @@ public class ItemListOverlayInternalOverride extends ItemListOverlayInternal {
 	}
 
 	public void updateLayout() {
+		if(parent == null) return;
 		ImmutableList<Object> ingredientList = parent.getItemFilter().getIngredientList();
 		guiIngredientList.set(firstItemIndex, ingredientList);
 
@@ -382,7 +383,7 @@ public class ItemListOverlayInternalOverride extends ItemListOverlayInternal {
 			return false;
 		}
 
-		if(Minecraft.getMinecraft().player.inventory.getItemStack() == null){
+		if(Minecraft.getMinecraft().player.inventory.getItemStack().isEmpty()){
  			ClickedIngredient<?> f = guiIngredientList.getIngredientUnderMouse(mouseX, mouseY);
  			if(f != null && f.getValue() instanceof ItemStack && canGiveItems && FEIConfiguration.canGiveItems(Minecraft.getMinecraft().player)){
  				ItemStack itemstack = ((ItemStack) f.getValue()).copy();
@@ -397,7 +398,7 @@ public class ItemListOverlayInternalOverride extends ItemListOverlayInternal {
  				EntityPlayerSP player = minecraft.player;
  				ItemStack itemStack = player.inventory.getItemStack();
  				if(itemStack != null){
- 					player.inventory.setItemStack(null);
+ 					player.inventory.setItemStack(ItemStack.EMPTY);
  					PacketDeletePlayerItem packet = new PacketDeletePlayerItem(itemStack);
  					JustEnoughItems.getProxy().sendPacketToServer(packet);
  					return true;

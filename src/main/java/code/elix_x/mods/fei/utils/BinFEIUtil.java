@@ -8,6 +8,7 @@ import code.elix_x.mods.fei.config.FEIConfiguration;
 import code.elix_x.mods.fei.permission.FEIPermissionsManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -23,12 +24,12 @@ public class BinFEIUtil extends SinglePermissionRequiredSyncedFEIUtilProperty im
 	public void onSelect(){
 		super.onSelect();
 		if(FEIPermissionsManager.getPermissionLevels(Minecraft.getMinecraft().player).isHigherOrEqual(permissionLevel))
-			Minecraft.getMinecraft().player.inventory.setItemStack(null);
+			Minecraft.getMinecraft().player.inventory.setItemStack(ItemStack.EMPTY);
 	}
 
 	@Override
 	public void onServerSelect(EntityPlayer player, boolean permission){
-		if(permission) player.inventory.setItemStack(null);
+		if(permission) player.inventory.setItemStack(ItemStack.EMPTY);
 	}
 
 }

@@ -71,7 +71,7 @@ public enum FEIGuiType implements SmartGuiHandler.SmartGuiHandlerElement {
 			};
 			container.setValue(repair);
 			repair.inventorySlots.get(0).putStack(player.inventory.getItemStack());
-			player.inventory.setItemStack(null);
+			player.inventory.setItemStack(ItemStack.EMPTY);
 			return repair;
 		}
 
@@ -87,11 +87,9 @@ public enum FEIGuiType implements SmartGuiHandler.SmartGuiHandlerElement {
 		@Override
 		public Object getServerGuiElement(EntityPlayer player, World world, int x, int y, int z){
 			ContainerFEIEnchantment enchant = new ContainerFEIEnchantment(player.inventory);
-			if(player.inventory.getItemStack() != null){
-				enchant.inventorySlots.get(0).putStack(player.inventory.getItemStack());
-				enchant.transferEnchantmentFrom(player.inventory.getItemStack());
-				player.inventory.setItemStack(null);
-			}
+			enchant.inventorySlots.get(0).putStack(player.inventory.getItemStack());
+			enchant.transferEnchantmentFrom(player.inventory.getItemStack());
+			player.inventory.setItemStack(ItemStack.EMPTY);
 			return enchant;
 		}
 
