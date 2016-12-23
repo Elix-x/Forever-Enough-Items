@@ -2,9 +2,9 @@ package code.elix_x.mods.fei.api.client;
 
 import org.lwjgl.util.Rectangle;
 
+import code.elix_x.excomms.color.RGBA;
 import code.elix_x.excore.utils.client.gui.elements.GuiElement;
-import code.elix_x.excore.utils.client.render.ItemStackRenderer;
-import code.elix_x.excore.utils.color.RGBA;
+import code.elix_x.excore.utils.client.render.item.ItemStackRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.item.ItemStack;

@@ -2,7 +2,8 @@ package code.elix_x.mods.fei.client.jeioverride;
 
 import java.util.List;
 
-import code.elix_x.excore.utils.reflection.AdvancedReflectionHelper.AField;
+import code.elix_x.excomms.reflection.ReflectionHelper.AClass;
+import code.elix_x.excomms.reflection.ReflectionHelper.AField;
 import mezz.jei.ItemFilter;
 import mezz.jei.api.gui.IAdvancedGuiHandler;
 import mezz.jei.api.ingredients.IIngredientRegistry;
@@ -14,7 +15,7 @@ import net.minecraft.client.gui.GuiScreen;
 
 public class ItemListOverlayOverride extends ItemListOverlay {
 
-	public static final AField<ItemListOverlay, ItemListOverlayInternal> internal = new AField(ItemListOverlay.class, "internal").setAccessible(true);
+	public static final AField<ItemListOverlay, ItemListOverlayInternal> internal = new AClass<>(ItemListOverlay.class).<ItemListOverlayInternal>getDeclaredField("internal").setAccessible(true);
 
 	private final IIngredientRegistry ingredientRegistry;
 

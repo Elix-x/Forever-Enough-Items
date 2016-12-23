@@ -314,8 +314,8 @@ public class ItemListOverlayInternalOverride extends ItemListOverlayInternal {
 	}
 
 	private boolean shouldShowDeleteItemTooltip(Minecraft minecraft){
-		if(canDeleteItems && FEIConfiguration.canDeleteItems(Minecraft.getMinecraft().thePlayer)){
-			EntityPlayer player = minecraft.thePlayer;
+		if(canDeleteItems && FEIConfiguration.canDeleteItems(Minecraft.getMinecraft().player)){
+			EntityPlayer player = minecraft.player;
 			if(player.inventory.getItemStack() != null){
 				return true;
 			}
@@ -381,19 +381,19 @@ public class ItemListOverlayInternalOverride extends ItemListOverlayInternal {
 			return false;
 		}
 
-		if(Minecraft.getMinecraft().thePlayer.inventory.getItemStack() == null){
+		if(Minecraft.getMinecraft().player.inventory.getItemStack() == null){
 			ClickedIngredient<?> f = guiIngredientList.getIngredientUnderMouse(mouseX, mouseY);
-			if(f != null && f.getValue() instanceof ItemStack && canGiveItems && FEIConfiguration.canGiveItems(Minecraft.getMinecraft().thePlayer)){
+			if(f != null && f.getValue() instanceof ItemStack && canGiveItems && FEIConfiguration.canGiveItems(Minecraft.getMinecraft().player)){
 				ItemStack itemstack = ((ItemStack) f.getValue()).copy();
-				if(mouseButton == 0) itemstack.stackSize = itemstack.getMaxStackSize();
-				else itemstack.stackSize = 1;
+				if(mouseButton == 0) itemstack.setCount(itemstack.getMaxStackSize());
+				else itemstack.setCount(1);
 				ForeverEnoughItemsBase.net.sendToServer(new FEIGiveItemStackPacket(itemstack));
 				return true;
 			}
 		} else{
-			if(canDeleteItems && FEIConfiguration.canDeleteItems(Minecraft.getMinecraft().thePlayer)){
+			if(canDeleteItems && FEIConfiguration.canDeleteItems(Minecraft.getMinecraft().player)){
 				Minecraft minecraft = Minecraft.getMinecraft();
-				EntityPlayerSP player = minecraft.thePlayer;
+				EntityPlayerSP player = minecraft.player;
 				ItemStack itemStack = player.inventory.getItemStack();
 				if(itemStack != null){
 					player.inventory.setItemStack(null);
@@ -401,7 +401,7 @@ public class ItemListOverlayInternalOverride extends ItemListOverlayInternal {
 					JustEnoughItems.getProxy().sendPacketToServer(packet);
 					return true;
 				}
-			} else if(Minecraft.getMinecraft().thePlayer.isCreative()){
+			} else if(Minecraft.getMinecraft().player.isCreative()){
 				return true;
 			}
 		}

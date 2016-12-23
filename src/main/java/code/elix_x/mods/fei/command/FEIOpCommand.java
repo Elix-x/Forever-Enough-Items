@@ -24,12 +24,12 @@ public class FEIOpCommand extends CommandBase {
 	}
 
 	@Override
-	public String getCommandName(){
+	public String getName(){
 		return "feiop";
 	}
 
 	@Override
-	public String getCommandUsage(ICommandSender sender){
+	public String getUsage(ICommandSender sender){
 		return "/feiop <player> <level>";
 	}
 
@@ -40,12 +40,12 @@ public class FEIOpCommand extends CommandBase {
 
 	@Override
 	public boolean checkPermission(MinecraftServer server, ICommandSender sender){
-		return sender == server || (sender instanceof EntityPlayer && (FEIPermissionsManager.getPermissionLevels((EntityPlayer) sender).isAdmindistrator() || (!server.isDedicatedServer() && EntityPlayer.getUUID(Minecraft.getMinecraft().thePlayer.getGameProfile()).equals(EntityPlayer.getUUID(((EntityPlayer) sender).getGameProfile())) && sender.canCommandSenderUseCommand(4, getCommandName()))));
+		return sender == server || (sender instanceof EntityPlayer && (FEIPermissionsManager.getPermissionLevels((EntityPlayer) sender).isAdmindistrator() || (!server.isDedicatedServer() && EntityPlayer.getUUID(Minecraft.getMinecraft().player.getGameProfile()).equals(EntityPlayer.getUUID(((EntityPlayer) sender).getGameProfile())) && sender.canUseCommand(4, getName()))));
 	}
-
+	
 	@Override
-	public List<String> getTabCompletionOptions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos){
-		return args.length == 1 ? getListOfStringsMatchingLastWord(args, server.getAllUsernames()) : args.length == 2 ? getListOfStringsMatchingLastWord(args, FEIPermissionLevel.names()) : Collections.<String> emptyList();
+	public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos){
+		return args.length == 1 ? getListOfStringsMatchingLastWord(args, server.getOnlinePlayerNames()) : args.length == 2 ? getListOfStringsMatchingLastWord(args, FEIPermissionLevel.names()) : Collections.<String> emptyList();
 	}
 
 	@Override
@@ -54,7 +54,7 @@ public class FEIOpCommand extends CommandBase {
 		if(args.length == 0){
 			if(sender instanceof EntityPlayer){
 				if(!server.isDedicatedServer()){
-					if(EntityPlayer.getUUID(Minecraft.getMinecraft().thePlayer.getGameProfile()).equals(EntityPlayer.getUUID(((EntityPlayer) sender).getGameProfile()))){
+					if(EntityPlayer.getUUID(Minecraft.getMinecraft().player.getGameProfile()).equals(EntityPlayer.getUUID(((EntityPlayer) sender).getGameProfile()))){
 						FEIPermissionsManager.setPermissionLevels((EntityPlayer) sender, FEIPermissionLevel.OWNER);
 						return;
 					}

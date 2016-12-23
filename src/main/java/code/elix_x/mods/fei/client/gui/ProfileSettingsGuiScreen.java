@@ -1,5 +1,6 @@
 package code.elix_x.mods.fei.client.gui;
 
+import code.elix_x.excomms.color.RGBA;
 import code.elix_x.excore.utils.client.gui.ElementalGuiScreen;
 import code.elix_x.excore.utils.client.gui.elements.IGuiElement;
 import code.elix_x.excore.utils.client.gui.elements.IGuiElementsHandler;
@@ -7,7 +8,6 @@ import code.elix_x.excore.utils.client.gui.elements.ItemStackButtonGuiElement;
 import code.elix_x.excore.utils.client.gui.elements.ListGuiElement;
 import code.elix_x.excore.utils.client.gui.elements.StringGuiElement;
 import code.elix_x.excore.utils.client.gui.elements.TextFieldGuiElement;
-import code.elix_x.excore.utils.color.RGBA;
 import code.elix_x.mods.fei.api.client.gui.FEIGuiOverride;
 import code.elix_x.mods.fei.api.client.gui.elements.IConfigurableFEIGuiElement;
 import code.elix_x.mods.fei.api.profile.Profile;

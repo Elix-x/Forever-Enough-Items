@@ -1,6 +1,7 @@
 package code.elix_x.mods.fei.utils;
 
-import code.elix_x.excore.utils.reflection.AdvancedReflectionHelper.AField;
+import code.elix_x.excomms.reflection.ReflectionHelper.AClass;
+import code.elix_x.excomms.reflection.ReflectionHelper.AField;
 import code.elix_x.mods.fei.ForeverEnoughItemsBase;
 import code.elix_x.mods.fei.api.client.IRenderable;
 import code.elix_x.mods.fei.api.client.IRenderable.ResourceLocationRenderable;
@@ -15,7 +16,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ChunkBordersFEIUtil extends ForFEIUtil<Boolean> {
 
-	public static final AField<DebugRenderer, Boolean> field_190079_e = new AField<DebugRenderer, Boolean>(DebugRenderer.class, "field_190079_e").setAccessible(true);
+	public static final AField<DebugRenderer, Boolean> chunkBordersEnabled = new AClass<>(DebugRenderer.class).<Boolean>getDeclaredField("chunkBordersEnabled", "field_190079_e").setAccessible(true);
 
 	public static final String[] descs = {"off", "all"};
 	public static final ResourceLocation[] icons = {new ResourceLocation(ForeverEnoughItemsBase.MODID, FEIConfiguration.icons + "chunkborders_off.png"), new ResourceLocation(ForeverEnoughItemsBase.MODID, FEIConfiguration.icons + "chunkborders_all.png")};
@@ -27,7 +28,7 @@ public class ChunkBordersFEIUtil extends ForFEIUtil<Boolean> {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public Boolean getCurrent(){
-		return field_190079_e.get(Minecraft.getMinecraft().debugRenderer);
+		return chunkBordersEnabled.get(Minecraft.getMinecraft().debugRenderer);
 	}
 
 	@Override
@@ -43,7 +44,7 @@ public class ChunkBordersFEIUtil extends ForFEIUtil<Boolean> {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void onSelect(Boolean b){
-		field_190079_e.set(Minecraft.getMinecraft().debugRenderer, b);
+		chunkBordersEnabled.set(Minecraft.getMinecraft().debugRenderer, b);
 	}
 
 	@Override

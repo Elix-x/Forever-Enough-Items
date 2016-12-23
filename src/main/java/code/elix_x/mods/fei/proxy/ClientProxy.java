@@ -5,8 +5,8 @@ import java.io.File;
 import com.mmyzd.llor.LightLevelOverlayReloaded;
 
 import at.feldim2425.moreoverlays.MoreOverlays;
-import code.elix_x.excore.utils.color.RGBA;
-import code.elix_x.excore.utils.reflection.AdvancedReflectionHelper.AField;
+import code.elix_x.excomms.color.RGBA;
+import code.elix_x.excomms.reflection.ReflectionHelper.AClass;
 import code.elix_x.mods.fei.ForeverEnoughItemsBase;
 import code.elix_x.mods.fei.api.FEIApi;
 import code.elix_x.mods.fei.api.client.gui.FEIGuiOverride;
@@ -44,7 +44,7 @@ public class ClientProxy implements IFEIProxy {
 	public LightLevelOverlayToggleFEIUtil llorToggle;
 
 	public ClientProxy(){
-		new AField<FEIApi, FEIApi>(FEIApi.class, "INSTANCE").setFinal(false).set(null, new FEIApi(){
+		new AClass<>(FEIApi.class).getDeclaredField("INSTANCE").setFinal(false).set(null, new FEIApi(){
 
 			@Override
 			public void onUtilPropertySelect(int id){

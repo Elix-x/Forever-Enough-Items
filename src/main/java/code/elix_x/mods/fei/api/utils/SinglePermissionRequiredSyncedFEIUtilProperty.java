@@ -24,7 +24,7 @@ public abstract class SinglePermissionRequiredSyncedFEIUtilProperty extends Sing
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean isEnabled(){
-		return FEIPermissionsManager.getPermissionLevels(Minecraft.getMinecraft().thePlayer).isHigherOrEqual(permissionLevel);
+		return FEIPermissionsManager.getPermissionLevels(Minecraft.getMinecraft().player).isHigherOrEqual(permissionLevel);
 	}
 
 	@Override

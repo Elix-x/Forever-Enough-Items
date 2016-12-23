@@ -61,7 +61,7 @@ public class ContainerFEIEnchantment extends Container {
 	}
 
 	private void transferEnchantmentsTo(ItemStack itemstack){
-		if(itemstack.getItem() == Items.BOOK) itemstack.setItem(Items.ENCHANTED_BOOK);
+		if(itemstack.getItem() == Items.BOOK) itemstack = new ItemStack(Items.ENCHANTED_BOOK, itemstack.getCount(), itemstack.getMetadata());
 		if(itemstack.isItemEnchanted()) itemstack.getTagCompound().removeTag("ench");
 
 		for(Entry<Enchantment, Integer> e : enchantments.entrySet()){
@@ -154,7 +154,7 @@ public class ContainerFEIEnchantment extends Container {
 	public void onContainerClosed(EntityPlayer player){
 		super.onContainerClosed(player);
 
-		if(!player.worldObj.isRemote){
+		if(!player.world.isRemote){
 			for(int i = 0; i < this.inventory.getSizeInventory(); ++i){
 				ItemStack itemstack = this.inventory.removeStackFromSlot(i);
 
@@ -190,26 +190,26 @@ public class ContainerFEIEnchantment extends Container {
 					return null;
 				}
 
-				if(itemstack1.hasTagCompound() && itemstack1.stackSize == 1){
+				if(itemstack1.hasTagCompound() && itemstack1.getCount() == 1){
 					((Slot) this.inventorySlots.get(0)).putStack(itemstack1.copy());
-					itemstack1.stackSize = 0;
-				} else if(itemstack1.stackSize >= 1){
+					itemstack1.setCount(0);
+				} else if(itemstack1.getCount() >= 1){
 					((Slot) this.inventorySlots.get(0)).putStack(new ItemStack(itemstack1.getItem(), 1, itemstack1.getMetadata()));
-					--itemstack1.stackSize;
+					itemstack1.shrink(1);
 				}
 			}
 
-			if(itemstack1.stackSize == 0){
+			if(itemstack1.getCount() == 0){
 				slot.putStack((ItemStack) null);
 			} else{
 				slot.onSlotChanged();
 			}
 
-			if(itemstack1.stackSize == itemstack.stackSize){
+			if(itemstack1.getCount() == itemstack.getCount()){
 				return null;
 			}
 
-			slot.onPickupFromSlot(playerIn, itemstack1);
+			slot.onTake(playerIn, itemstack1);
 		}
 
 		return itemstack;

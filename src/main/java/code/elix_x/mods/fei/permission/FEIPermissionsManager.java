@@ -26,17 +26,17 @@ public class FEIPermissionsManager extends WorldSavedData implements IFEIPermiss
 	public static final MBT mbt = new MBT();
 
 	public static FEIPermissionLevel getPermissionLevels(EntityPlayer player){
-		return get(player.worldObj).getPermissionLevel(player);
+		return get(player.world).getPermissionLevel(player);
 	}
 
 	public static void setPermissionLevels(EntityPlayer player, FEIPermissionLevel level){
-		get(player.worldObj).setPermissionLevel(player, level);
+		get(player.world).setPermissionLevel(player, level);
 		syncWithAll();
 	}
 
 	public static void syncWith(EntityPlayer player){
 		NBTTagCompound nbt = new NBTTagCompound();
-		get(player.worldObj).writeToNBT(nbt);
+		get(player.world).writeToNBT(nbt);
 		ForeverEnoughItemsBase.net.sendTo(new SyncPermissionsManagerPacket(nbt), (EntityPlayerMP) player);
 	}
 
@@ -48,7 +48,7 @@ public class FEIPermissionsManager extends WorldSavedData implements IFEIPermiss
 
 	@SideOnly(Side.CLIENT)
 	public static void onSync(SyncPermissionsManagerPacket packet){
-		get(Minecraft.getMinecraft().theWorld).readFromNBT(packet.nbt);
+		get(Minecraft.getMinecraft().world).readFromNBT(packet.nbt);
 	}
 
 	public static FEIPermissionsManager get(World world){

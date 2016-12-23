@@ -33,7 +33,7 @@ public class MagnetFEIUtil extends PermissionRequiredSyncedForFEIUtil<Boolean> i
 	@Override
 	@SideOnly(Side.CLIENT)
 	public Boolean getCurrent(){
-		return Minecraft.getMinecraft().thePlayer.getCapability(MagnetCapability.CAPABILITY, null).active;
+		return Minecraft.getMinecraft().player.getCapability(MagnetCapability.CAPABILITY, null).active;
 	}
 
 	@Override

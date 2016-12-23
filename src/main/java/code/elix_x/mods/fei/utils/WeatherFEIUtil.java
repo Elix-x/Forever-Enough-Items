@@ -31,7 +31,7 @@ public class WeatherFEIUtil extends PermissionRequiredSyncedForFEIUtil<Integer> 
 	@Override
 	@SideOnly(Side.CLIENT)
 	public Integer getCurrent(){
-		return Minecraft.getMinecraft().theWorld.isThundering() ? 2 : Minecraft.getMinecraft().theWorld.isRaining() ? 1 : 0;
+		return Minecraft.getMinecraft().world.isThundering() ? 2 : Minecraft.getMinecraft().world.isRaining() ? 1 : 0;
 	}
 
 	@Override
@@ -52,8 +52,8 @@ public class WeatherFEIUtil extends PermissionRequiredSyncedForFEIUtil<Integer> 
 	@Override
 	public void onSelect(Integer i, EntityPlayer player, boolean permission){
 		if(permission){
-			player.worldObj.getWorldInfo().setRaining(i > 0);
-			player.worldObj.getWorldInfo().setThundering(i > 1);
+			player.world.getWorldInfo().setRaining(i > 0);
+			player.world.getWorldInfo().setThundering(i > 1);
 		}
 	}
 

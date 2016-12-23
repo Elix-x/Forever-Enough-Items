@@ -5,49 +5,29 @@ import code.elix_x.mods.fei.config.FEIConfiguration;
 import code.elix_x.mods.fei.permission.FEIPermissionsManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 
 public class OnPlayerJoinEvent {
 
 	@SubscribeEvent
-<<<<<<< Updated upstream
-	public void join(EntityJoinWorldEvent event){
-		if(event.getEntity() instanceof EntityPlayer && !event.getEntity().worldObj.isRemote){
-			final EntityPlayer player = (EntityPlayer) event.getEntity();
-			if(FEIConfiguration.developerMode){
-				FEIPermissionsManager.setPermissionLevels(player, FEIPermissionLevel.OWNER);
-			} else if(!player.worldObj.getMinecraftServer().isDedicatedServer()){
-				Minecraft.getMinecraft().addScheduledTask(new Runnable(){
-
-					@Override
-					public void run(){
-=======
 	public void join(PlayerLoggedInEvent event){
-		if(!event.player.worldObj.isRemote){
+		if(!event.player.world.isRemote){
 			final EntityPlayer player = event.player;
 			FEIPermissionsManager.syncWith(player);
 			if(FEIConfiguration.developerMode){
 				FEIPermissionsManager.setPermissionLevels(player, FEIPermissionLevel.OWNER);
-			} else if(!player.worldObj.getMinecraftServer().isDedicatedServer()){
+			} else if(!player.world.getMinecraftServer().isDedicatedServer()){
 				new Thread(new Runnable(){
 
 					@Override
 					public void run(){
-						while(Minecraft.getMinecraft().thePlayer == null) sleep();
->>>>>>> Stashed changes
-						if(EntityPlayer.getUUID(Minecraft.getMinecraft().thePlayer.getGameProfile()).equals(EntityPlayer.getUUID(player.getGameProfile()))){
-							if(player.canCommandSenderUseCommand(4, "feiop")){
+						while(Minecraft.getMinecraft().player == null)
+							sleep();
+						if(EntityPlayer.getUUID(Minecraft.getMinecraft().player.getGameProfile()).equals(EntityPlayer.getUUID(player.getGameProfile()))){
+							if(player.canUseCommand(4, "feiop")){
 								FEIPermissionsManager.setPermissionLevels(player, FEIPermissionLevel.OWNER);
 							}
-<<<<<<< Updated upstream
-						}
-					}
-
-				});
-			}
-			FEIPermissionsManager.syncWith(player);
-=======
 						}
 					}
 
@@ -61,7 +41,6 @@ public class OnPlayerJoinEvent {
 
 				}).run();
 			}
->>>>>>> Stashed changes
 		}
 	}
 

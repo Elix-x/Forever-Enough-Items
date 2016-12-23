@@ -30,7 +30,7 @@ public class TimeFEIUtil extends PermissionRequiredSyncedForFEIUtil<Integer> imp
 
 	@Override
 	public void onSelect(Integer i, EntityPlayer player, boolean permission){
-		if(permission) player.worldObj.setWorldTime(i * 6000);
+		if(permission) player.world.setWorldTime(i * 6000);
 	}
 
 	@Override
@@ -51,7 +51,7 @@ public class TimeFEIUtil extends PermissionRequiredSyncedForFEIUtil<Integer> imp
 	@Override
 	@SideOnly(Side.CLIENT)
 	public Integer getCurrent(){
-		return Math.min((int) Minecraft.getMinecraft().theWorld.getWorldTime() / 6000, 3);
+		return Math.min((int) Minecraft.getMinecraft().world.getWorldTime() / 6000, 3);
 	}
 
 }

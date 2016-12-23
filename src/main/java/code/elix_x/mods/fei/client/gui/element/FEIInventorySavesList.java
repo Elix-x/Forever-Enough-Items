@@ -11,8 +11,8 @@ import org.apache.logging.log4j.Logger;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import code.elix_x.excomms.color.RGBA;
 import code.elix_x.excore.utils.client.gui.elements.ListGuiElement;
-import code.elix_x.excore.utils.color.RGBA;
 import code.elix_x.mods.fei.ForeverEnoughItemsBase;
 import code.elix_x.mods.fei.api.client.gui.FEIGuiOverride;
 import code.elix_x.mods.fei.api.client.gui.elements.IConfigurableFEIGuiElement;
@@ -189,7 +189,7 @@ public class FEIInventorySavesList extends ListGuiElement<FEIGuiOverride> implem
 			} else{
 				button = new GuiButtonExt(0, x, relY, width, elementY, name);
 			}
-			button.enabled = FEIPermissionsManager.getPermissionLevels(Minecraft.getMinecraft().thePlayer).isHigherOrEqual(FEIPermissionLevel.MODERATOR);
+			button.enabled = FEIPermissionsManager.getPermissionLevels(Minecraft.getMinecraft().player).isHigherOrEqual(FEIPermissionLevel.MODERATOR);
 			button.drawButton(gui.mc, mouseX, mouseY);
 			if(this == edit) editf.drawTextBox();
 		}
@@ -200,7 +200,7 @@ public class FEIInventorySavesList extends ListGuiElement<FEIGuiOverride> implem
 				if(key == 0){
 					if(!gui.isShiftKeyDown()){
 						ForeverEnoughItemsBase.net.sendToServer(new LoadInventoryPacket(inventory));
-					} else if(FEIPermissionsManager.getPermissionLevels(Minecraft.getMinecraft().thePlayer).isHigherOrEqual(FEIPermissionLevel.MODERATOR)){
+					} else if(FEIPermissionsManager.getPermissionLevels(Minecraft.getMinecraft().player).isHigherOrEqual(FEIPermissionLevel.MODERATOR)){
 						load();
 					}
 					return true;
@@ -223,7 +223,7 @@ public class FEIInventorySavesList extends ListGuiElement<FEIGuiOverride> implem
 		}
 
 		public void load(){
-			MinecraftForge.EVENT_BUS.post(new FEIInventorySaveEvent(Minecraft.getMinecraft().thePlayer, inventory));
+			MinecraftForge.EVENT_BUS.post(new FEIInventorySaveEvent(Minecraft.getMinecraft().player, inventory));
 			FEIGuiOverride.saveToCurrentProfile();
 		}
 

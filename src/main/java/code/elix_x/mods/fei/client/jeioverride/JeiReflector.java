@@ -7,20 +7,14 @@ import java.util.List;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import code.elix_x.excomms.reflection.ReflectionHelper.AClass;
+import code.elix_x.excomms.reflection.ReflectionHelper.AField;
 import code.elix_x.excore.utils.client.gui.elements.IGuiElement;
-import code.elix_x.excore.utils.reflection.AdvancedReflectionHelper.AField;
-<<<<<<< Updated upstream
-import code.elix_x.mods.fei.api.gui.FEIGuiOverride;
-import code.elix_x.mods.fei.api.gui.elements.IConfigurableFEIGuiElement;
-import code.elix_x.mods.fei.api.gui.elements.INotDisableableFEIGuiElement;
-import code.elix_x.mods.fei.api.gui.elements.ISaveableFEIGuiElement;
-import code.elix_x.mods.fei.api.profile.FEIChangeProfileEvent;
-=======
 import code.elix_x.mods.fei.api.client.gui.FEIGuiOverride;
 import code.elix_x.mods.fei.api.client.gui.elements.IConfigurableFEIGuiElement;
 import code.elix_x.mods.fei.api.client.gui.elements.INotDisableableFEIGuiElement;
 import code.elix_x.mods.fei.api.client.gui.elements.ISaveableFEIGuiElement;
->>>>>>> Stashed changes
+import code.elix_x.mods.fei.api.profile.FEIChangeProfileEvent;
 import code.elix_x.mods.fei.api.profile.Profile;
 import code.elix_x.mods.fei.config.FEIConfiguration;
 import mezz.jei.Internal;
@@ -52,15 +46,15 @@ public class JeiReflector implements IModPlugin, IGuiElement<FEIGuiOverride>, IN
 
 	public static final Gson gson = new Gson();
 
-	private static final AField<JeiRuntime, ItemListOverlay> itemListOverlay = new AField(JeiRuntime.class, "itemListOverlay").setAccessible(true).setFinal(false);
-	private static final AField<StackHelper, Boolean> uidCacheEnabled = new AField(StackHelper.class, "uidCacheEnabled").setAccessible(true);
-	private static final AField<ItemListOverlay, List<IAdvancedGuiHandler<?>>> advancedGuiHandlers = new AField(ItemListOverlay.class, "advancedGuiHandlers").setAccessible(true);
-	private static final AField<ProxyCommonClient, List<IModPlugin>> plugins = new AField(ProxyCommonClient.class, "plugins").setAccessible(true);
-	private static final AField<Config, LocalizedConfiguration> itemBlacklistConfig = new AField(Config.class, "itemBlacklistConfig").setAccessible(true);
-	private static final AField<Config, LocalizedConfiguration> searchColorsConfig = new AField(Config.class, "searchColorsConfig").setAccessible(true);
-	private static final AField<Config, Boolean> centerSearchBarEnabled = new AField(Config.class, "centerSearchBarEnabled").setAccessible(true);
-	private static final AField<Configuration, File> file = new AField(Configuration.class, "file").setAccessible(true);
-	private static final AField<Configuration, Boolean> changed = new AField(Configuration.class, "changed").setAccessible(true);
+	private static final AField<JeiRuntime, ItemListOverlay> itemListOverlay = new AClass<>(JeiRuntime.class).<ItemListOverlay>getDeclaredField("itemListOverlay").setAccessible(true).setFinal(false);
+	private static final AField<StackHelper, Boolean> uidCacheEnabled = new AClass<>(StackHelper.class).<Boolean>getDeclaredField("uidCacheEnabled").setAccessible(true);
+	private static final AField<ItemListOverlay, List<IAdvancedGuiHandler<?>>> advancedGuiHandlers = new AClass<>(ItemListOverlay.class).<List<IAdvancedGuiHandler<?>>>getDeclaredField("advancedGuiHandlers").setAccessible(true);
+	private static final AField<ProxyCommonClient, List<IModPlugin>> plugins = new AClass<>(ProxyCommonClient.class).<List<IModPlugin>>getDeclaredField("plugins").setAccessible(true);
+	private static final AField<Config, LocalizedConfiguration> itemBlacklistConfig = new AClass<>(Config.class).<LocalizedConfiguration>getDeclaredField("itemBlacklistConfig").setAccessible(true);
+	private static final AField<Config, LocalizedConfiguration> searchColorsConfig = new AClass<>(Config.class).<LocalizedConfiguration>getDeclaredField("searchColorsConfig").setAccessible(true);
+	private static final AField<Config, Boolean> centerSearchBarEnabled = new AClass<>(Config.class).<Boolean>getDeclaredField("centerSearchBarEnabled").setAccessible(true);
+	private static final AField<Configuration, File> file = new AClass<>(Configuration.class).<File>getDeclaredField("file").setAccessible(true);
+	private static final AField<Configuration, Boolean> changed = new AClass<>(Configuration.class).<Boolean>getDeclaredField("changed").setAccessible(true);
 
 	public static final JeiReflector INSTANCE = null;
 
@@ -74,7 +68,7 @@ public class JeiReflector implements IModPlugin, IGuiElement<FEIGuiOverride>, IN
 		if(INSTANCE != null) throw new IllegalArgumentException("An instance already exists!");
 		FEIGuiOverride.addElement(this);
 		MinecraftForge.EVENT_BUS.register(this);
-		new AField(JeiReflector.class, "INSTANCE").setFinal(false).set(null, INSTANCE);
+		new AClass(JeiReflector.class).getDeclaredField("INSTANCE").setFinal(false).set(null, INSTANCE);
 	}
 
 	public void reloadItemListOverlay(final IJeiRuntime runtime){
@@ -178,7 +172,7 @@ public class JeiReflector implements IModPlugin, IGuiElement<FEIGuiOverride>, IN
 			colors.load();
 		}
 
-		MinecraftForge.EVENT_BUS.post(new OnConfigChangedEvent(mezz.jei.config.Constants.MOD_ID, "", Minecraft.getMinecraft().theWorld != null, false));
+		MinecraftForge.EVENT_BUS.post(new OnConfigChangedEvent(mezz.jei.config.Constants.MOD_ID, "", Minecraft.getMinecraft().world != null, false));
 	}
 
 	@Override

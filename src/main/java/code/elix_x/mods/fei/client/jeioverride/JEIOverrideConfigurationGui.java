@@ -1,11 +1,11 @@
 package code.elix_x.mods.fei.client.jeioverride;
 
+import code.elix_x.excomms.color.RGBA;
 import code.elix_x.excore.utils.client.gui.ElementalGuiScreen;
 import code.elix_x.excore.utils.client.gui.elements.ButtonGuiElement;
 import code.elix_x.excore.utils.client.gui.elements.CheckBoxGuiElement;
 import code.elix_x.excore.utils.client.gui.elements.IntegralIncrementerGuiElement;
 import code.elix_x.excore.utils.client.gui.elements.StringGuiElement;
-import code.elix_x.excore.utils.color.RGBA;
 import mezz.jei.JustEnoughItems;
 import mezz.jei.config.Config;
 import mezz.jei.config.JEIModConfigGui;

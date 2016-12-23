@@ -22,8 +22,8 @@ public class BinFEIUtil extends SinglePermissionRequiredSyncedFEIUtilProperty im
 	@SideOnly(Side.CLIENT)
 	public void onSelect(){
 		super.onSelect();
-		if(FEIPermissionsManager.getPermissionLevels(Minecraft.getMinecraft().thePlayer).isHigherOrEqual(permissionLevel))
-			Minecraft.getMinecraft().thePlayer.inventory.setItemStack(null);
+		if(FEIPermissionsManager.getPermissionLevels(Minecraft.getMinecraft().player).isHigherOrEqual(permissionLevel))
+			Minecraft.getMinecraft().player.inventory.setItemStack(null);
 	}
 
 	@Override

@@ -1,6 +1,6 @@
 package code.elix_x.mods.fei.utils;
 
-import code.elix_x.excore.utils.color.RGBA;
+import code.elix_x.excomms.color.RGBA;
 import code.elix_x.mods.fei.ForeverEnoughItemsBase;
 import code.elix_x.mods.fei.api.client.IRenderable;
 import code.elix_x.mods.fei.api.client.IRenderable.ResourceLocationRenderable;

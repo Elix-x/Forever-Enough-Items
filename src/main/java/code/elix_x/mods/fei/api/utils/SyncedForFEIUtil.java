@@ -7,7 +7,6 @@ import com.google.common.collect.Iterables;
 import code.elix_x.mods.fei.api.client.IRenderable;
 import code.elix_x.mods.fei.api.utils.SyncedForFEIUtil.SyncedCirculatingFEIUtilProperty;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 

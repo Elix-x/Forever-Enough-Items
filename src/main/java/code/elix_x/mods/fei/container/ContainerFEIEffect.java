@@ -20,6 +20,7 @@ import net.minecraft.inventory.IContainerListener;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.Slot;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.potion.Potion;
@@ -77,6 +78,10 @@ public class ContainerFEIEffect extends Container {
 
 	public ItemStack getCurrentStack(){
 		return getSlot(0).getStack();
+	}
+	
+	private void setCurrentItem(Item item){
+		getSlot(0).putStack(new ItemStack(item, getCurrentStack().getCount(), getCurrentStack().getMetadata()));
 	}
 
 	private void transferEffects(ItemStack itemstack){
@@ -142,13 +147,13 @@ public class ContainerFEIEffect extends Container {
 	public boolean enchantItem(EntityPlayer playerIn, int id){
 		switch(id & 7){
 			case 0:
-				getCurrentStack().setItem(Items.POTIONITEM);
+				setCurrentItem(Items.POTIONITEM);
 				break;
 			case 1:
-				getCurrentStack().setItem(Items.SPLASH_POTION);
+				setCurrentItem(Items.SPLASH_POTION);
 				break;
 			case 2:
-				getCurrentStack().setItem(Items.LINGERING_POTION);
+				setCurrentItem(Items.LINGERING_POTION);
 				break;
 			case 3:
 				for(Entry<Potion, Pair<Integer, Integer>> e : effects.entrySet()){
@@ -190,26 +195,26 @@ public class ContainerFEIEffect extends Container {
 					return null;
 				}
 
-				if(itemstack1.hasTagCompound() && itemstack1.stackSize == 1){
+				if(itemstack1.hasTagCompound() && itemstack1.getCount() == 1){
 					((Slot) this.inventorySlots.get(0)).putStack(itemstack1.copy());
-					itemstack1.stackSize = 0;
-				} else if(itemstack1.stackSize >= 1){
+					itemstack1.setCount(0);
+				} else if(itemstack1.getCount() >= 1){
 					((Slot) this.inventorySlots.get(0)).putStack(new ItemStack(itemstack1.getItem(), 1, itemstack1.getMetadata()));
-					--itemstack1.stackSize;
+					itemstack1.shrink(1);
 				}
 			}
 
-			if(itemstack1.stackSize == 0){
+			if(itemstack1.getCount() == 0){
 				slot.putStack((ItemStack) null);
 			} else{
 				slot.onSlotChanged();
 			}
 
-			if(itemstack1.stackSize == itemstack.stackSize){
+			if(itemstack1.getCount() == itemstack.getCount()){
 				return null;
 			}
 
-			slot.onPickupFromSlot(playerIn, itemstack1);
+			slot.onTake(playerIn, itemstack1);
 		}
 
 		return itemstack;

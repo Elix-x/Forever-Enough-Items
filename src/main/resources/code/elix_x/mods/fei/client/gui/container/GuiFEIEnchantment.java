@@ -6,14 +6,13 @@ import java.util.Random;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.util.glu.Project;
 
+import code.elix_x.excomms.color.RGBA;
+import code.elix_x.excomms.math.IntUtils;
 import code.elix_x.excore.utils.client.gui.elements.CheckBoxGuiElement;
 import code.elix_x.excore.utils.client.gui.elements.GuiElement;
 import code.elix_x.excore.utils.client.gui.elements.IGuiElement;
 import code.elix_x.excore.utils.client.gui.elements.IGuiElementsHandler;
-import code.elix_x.excore.utils.client.gui.elements.IntegralLogorithmicSliderGuiElement;
 import code.elix_x.excore.utils.client.gui.elements.ListGuiElement;
-import code.elix_x.excore.utils.color.RGBA;
-import code.elix_x.excore.utils.math.IntUtils;
 import code.elix_x.mods.fei.container.ContainerFEIEnchantment;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;

@@ -46,7 +46,7 @@ public abstract class PermissionRequiredSyncedForFEIUtil<T> extends FEIUtil<Perm
 
 	@SideOnly(Side.CLIENT)
 	public boolean isEnabled(T t){
-		return FEIPermissionsManager.getPermissionLevels(Minecraft.getMinecraft().thePlayer).isHigherOrEqual(getPermissionLevel(t));
+		return FEIPermissionsManager.getPermissionLevels(Minecraft.getMinecraft().player).isHigherOrEqual(getPermissionLevel(t));
 	}
 
 	public abstract FEIPermissionLevel getPermissionLevel(T t);

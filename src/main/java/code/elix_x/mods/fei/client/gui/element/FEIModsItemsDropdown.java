@@ -14,10 +14,10 @@ import com.google.common.collect.TreeMultimap;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import code.elix_x.excomms.color.RGBA;
 import code.elix_x.excore.utils.client.gui.elements.ListGuiElement;
 import code.elix_x.excore.utils.client.gui.elements.RectangularGuiElement;
-import code.elix_x.excore.utils.client.render.ItemStackRenderer;
-import code.elix_x.excore.utils.color.RGBA;
+import code.elix_x.excore.utils.client.render.item.ItemStackRenderer;
 import code.elix_x.mods.fei.api.client.gui.FEIGuiOverride;
 import code.elix_x.mods.fei.api.client.gui.elements.IConfigurableFEIGuiElement;
 import code.elix_x.mods.fei.api.client.gui.elements.ISaveableFEIGuiElement;
@@ -29,6 +29,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fml.client.config.GuiButtonExt;
 import net.minecraftforge.fml.common.registry.GameData;
@@ -78,7 +79,7 @@ public class FEIModsItemsDropdown extends RectangularGuiElement<FEIGuiOverride> 
 
 		for(Item item : GameData.getItemRegistry()){
 			if(item != null){
-				List<ItemStack> subItems = new ArrayList<>();
+				NonNullList<ItemStack> subItems = NonNullList.create();
 				try{
 					item.getSubItems(item, null, subItems);
 				} catch(NullPointerException e){

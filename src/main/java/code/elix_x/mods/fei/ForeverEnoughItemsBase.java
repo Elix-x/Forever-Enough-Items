@@ -12,8 +12,7 @@ import com.mojang.realmsclient.gui.ChatFormatting;
 import at.feldim2425.moreoverlays.MoreOverlays;
 import code.elix_x.excore.EXCore;
 import code.elix_x.excore.utils.mod.IMod;
-import code.elix_x.excore.utils.net.SmartGuiHandler;
-import code.elix_x.excore.utils.net.SmartNetworkWrapper;
+import code.elix_x.excore.utils.packets.SmartNetworkWrapper;
 import code.elix_x.excore.utils.proxy.IProxy;
 import code.elix_x.mods.fei.api.events.VanillaInventorySaveEvent;
 import code.elix_x.mods.fei.api.permission.FEIPermissionLevel;
@@ -55,6 +54,7 @@ import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -122,7 +122,7 @@ public class ForeverEnoughItemsBase implements IMod<ForeverEnoughItemsBase, IPro
 
 					@SideOnly(Side.CLIENT)
 					void runC(){
-						Minecraft.getMinecraft().thePlayer.getCapability(MagnetCapability.CAPABILITY, null).active = packet.on;
+						Minecraft.getMinecraft().player.getCapability(MagnetCapability.CAPABILITY, null).active = packet.on;
 					}
 
 				};
@@ -157,7 +157,7 @@ public class ForeverEnoughItemsBase implements IMod<ForeverEnoughItemsBase, IPro
 						if(FEIConfiguration.canLoadInventory(player)){
 							MinecraftForge.EVENT_BUS.post(new FEIInventoryLoadEvent(player, inventory));
 						} else{
-							player.addChatComponentMessage(new TextComponentString(String.format(ChatFormatting.RED + I18n.translateToLocal("fei.lowlevel.inventorysaves"), FEIPermissionLevel.MODERATOR)));
+							player.sendMessage(new TextComponentString(String.format(ChatFormatting.RED + I18n.translateToLocal("fei.lowlevel.inventorysaves"), FEIPermissionLevel.MODERATOR)));
 						}
 					}
 

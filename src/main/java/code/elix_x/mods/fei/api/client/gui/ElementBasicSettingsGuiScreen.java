@@ -2,6 +2,7 @@ package code.elix_x.mods.fei.api.client.gui;
 
 import org.lwjgl.util.Rectangle;
 
+import code.elix_x.excomms.color.RGBA;
 import code.elix_x.excore.utils.client.gui.ColorSelectorGuiScreen;
 import code.elix_x.excore.utils.client.gui.ElementalGuiScreen;
 import code.elix_x.excore.utils.client.gui.elements.ButtonGuiElement;
@@ -9,7 +10,6 @@ import code.elix_x.excore.utils.client.gui.elements.CenteredStringGuiElement;
 import code.elix_x.excore.utils.client.gui.elements.CheckBoxGuiElement;
 import code.elix_x.excore.utils.client.gui.elements.IntegralIncrementerGuiElement;
 import code.elix_x.excore.utils.client.gui.elements.StringGuiElement;
-import code.elix_x.excore.utils.color.RGBA;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.text.translation.I18n;
 

@@ -23,7 +23,7 @@ public class OnPlayerTickEvent {
 					double speedxz = 0.05D;
 					double speedy = 0.07000000000000001D;
 
-					for(EntityItem item : new Sphere(player.posX, player.posY, player.posZ, FEIConfiguration.magnetRadius).getAffectedEntities(player.worldObj, EntityItem.class)){
+					for(EntityItem item : new Sphere(player.posX, player.posY, player.posZ, FEIConfiguration.magnetRadius).getAffectedEntities(player.world, EntityItem.class)){
 						if(!item.cannotPickup()){
 							double dx = player.posX - item.posX;
 							double dy = player.posY + player.getEyeHeight() - item.posY;

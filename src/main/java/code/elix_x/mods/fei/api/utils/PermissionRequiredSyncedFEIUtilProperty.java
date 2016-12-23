@@ -24,7 +24,7 @@ public abstract class PermissionRequiredSyncedFEIUtilProperty extends SyncedFEIU
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean isEnabled(){
-		return FEIPermissionsManager.getPermissionLevels(Minecraft.getMinecraft().thePlayer).isHigherOrEqual(getPermissionLevel());
+		return FEIPermissionsManager.getPermissionLevels(Minecraft.getMinecraft().player).isHigherOrEqual(getPermissionLevel());
 	}
 
 	@Override

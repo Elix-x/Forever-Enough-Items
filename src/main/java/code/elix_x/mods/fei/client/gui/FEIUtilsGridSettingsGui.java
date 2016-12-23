@@ -2,10 +2,10 @@ package code.elix_x.mods.fei.client.gui;
 
 import org.lwjgl.util.Rectangle;
 
+import code.elix_x.excomms.color.RGBA;
 import code.elix_x.excore.utils.client.gui.elements.ButtonGuiElement;
 import code.elix_x.excore.utils.client.gui.elements.IntegralIncrementerGuiElement;
 import code.elix_x.excore.utils.client.gui.elements.StringGuiElement;
-import code.elix_x.excore.utils.color.RGBA;
 import code.elix_x.mods.fei.api.client.gui.ElementBasicSettingsGuiScreen;
 import code.elix_x.mods.fei.api.client.gui.FEIGuiOverride;
 import code.elix_x.mods.fei.client.gui.element.FEIUtilsGrid;
