@@ -29,7 +29,7 @@ public class BaublesInventorySaveEvent {
 			for(int i = 0; i < baubles.getSizeInventory(); i++){
 				NBTTagCompound tag = nbt.getCompoundTag("Slot " + i);
 				if(tag != null){
-					if(tag.getSize() > 0) baubles.setInventorySlotContents(i, ItemStack.loadItemStackFromNBT(tag));
+					if(tag.getSize() > 0) baubles.setInventorySlotContents(i, new ItemStack(tag));
 					else baubles.setInventorySlotContents(i, null);
 				}
 			}

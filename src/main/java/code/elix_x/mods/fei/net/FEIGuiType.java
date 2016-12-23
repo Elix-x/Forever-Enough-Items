@@ -4,7 +4,7 @@ import javax.annotation.Nullable;
 
 import org.apache.commons.lang3.mutable.MutableObject;
 
-import code.elix_x.excore.utils.net.SmartGuiHandler.ISingleGuiHandler;
+import code.elix_x.excore.utils.net.gui.SmartGuiHandler;
 import code.elix_x.mods.fei.client.gui.container.GuiFEIEffect;
 import code.elix_x.mods.fei.client.gui.container.GuiFEIEnchantment;
 import code.elix_x.mods.fei.container.ContainerFEIEffect;
@@ -16,7 +16,7 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
-public enum FEIGuiType implements ISingleGuiHandler {
+public enum FEIGuiType implements SmartGuiHandler.SmartGuiHandlerElement {
 
 	REPAIR{
 
@@ -35,7 +35,7 @@ public enum FEIGuiType implements ISingleGuiHandler {
 				protected Slot addSlotToContainer(Slot slot){
 					if(slot.getSlotIndex() == 2){
 						final Slot sslot = slot;
-						slot = new Slot(slot.inventory, slot.getSlotIndex(), slot.xDisplayPosition, slot.yDisplayPosition){
+						slot = new Slot(slot.inventory, slot.getSlotIndex(), slot.xPos, slot.yPos){
 
 							public boolean isItemValid(@Nullable ItemStack stack){
 								return sslot.isItemValid(stack);
@@ -48,7 +48,7 @@ public enum FEIGuiType implements ISingleGuiHandler {
 							public void onPickupFromSlot(EntityPlayer player, ItemStack stack){
 								boolean c = player.capabilities.isCreativeMode;
 								player.capabilities.isCreativeMode = true;
-								sslot.onPickupFromSlot(player, stack);
+								sslot.onTake(player, stack);
 								player.capabilities.isCreativeMode = c;
 							}
 
