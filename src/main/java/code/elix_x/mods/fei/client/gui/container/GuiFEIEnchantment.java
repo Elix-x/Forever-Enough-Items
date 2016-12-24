@@ -53,7 +53,7 @@ public class GuiFEIEnchantment extends GuiContainer implements IGuiElementsHandl
 	public float flipA;
 	public float open;
 	public float oOpen;
-	ItemStack last;
+	ItemStack last = ItemStack.EMPTY;
 
 	CheckBoxGuiElement<GuiFEIEnchantment> checkbox;
 	EnchantmentsList list;

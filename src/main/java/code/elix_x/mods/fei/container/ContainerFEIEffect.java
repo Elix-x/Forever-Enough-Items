@@ -47,7 +47,7 @@ public class ContainerFEIEffect extends Container {
 
 			@Override
 			public void setInventorySlotContents(int index, ItemStack stack){
-				if(stack != null) super.setInventorySlotContents(index, stack);
+				if(!stack.isEmpty()) super.setInventorySlotContents(index, stack);
 			}
 
 			public void markDirty(){
@@ -205,16 +205,20 @@ public class ContainerFEIEffect extends Container {
 			}
 
 			if(itemstack1.getCount() == 0){
-				slot.putStack((ItemStack) null);
+				slot.putStack(ItemStack.EMPTY);
 			} else{
 				slot.onSlotChanged();
 			}
 
 			if(itemstack1.getCount() == itemstack.getCount()){
-				return null;
+				return ItemStack.EMPTY;
 			}
 
 			slot.onTake(playerIn, itemstack1);
+			System.out.println("take");
+			if(index == 0){
+				slot.putStack(itemstack1.copy());
+			}
 		}
 
 		return itemstack;

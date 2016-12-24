@@ -15,12 +15,14 @@ import code.elix_x.excore.utils.client.gui.elements.IGuiElement;
 import code.elix_x.excore.utils.client.gui.elements.IGuiElementsHandler;
 import code.elix_x.excore.utils.client.gui.elements.IntegralLogorithmicSliderGuiElement;
 import code.elix_x.excore.utils.client.gui.elements.ListGuiElement;
+import code.elix_x.excore.utils.client.render.item.ItemStackRenderer;
 import code.elix_x.mods.fei.container.ContainerFEIEffect;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.model.ModelBook;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
@@ -93,6 +95,12 @@ public class GuiFEIEffect extends GuiContainer implements IGuiElementsHandler<IG
 		add(new ButtonGuiElement("Potion", x, y, 16, 16, 0, 0, ""){
 
 			@Override
+			public void drawGuiPost(IGuiElementsHandler handler, GuiScreen gui, int mouseX, int mouseY){
+				super.drawGuiPost(handler, gui, mouseX, mouseY);
+				ItemStackRenderer.renderItemStack(mc, xPos - guiLeft, yPos - guiTop, new ItemStack(Items.POTIONITEM, 1, container.getCurrentStack().getMetadata()));
+			}
+
+			@Override
 			public void drawGuiPostPost(IGuiElementsHandler handler, GuiScreen gui, int mouseX, int mouseY){
 				if(inside(mouseX, mouseY))
 					drawTooltipWithBackgroundTranslate(fontRendererObj, mouseX - guiLeft, mouseY - guiTop, false, true, "fei.gui.effect.potion");
@@ -106,6 +114,12 @@ public class GuiFEIEffect extends GuiContainer implements IGuiElementsHandler<IG
 
 		});
 		add(new ButtonGuiElement("Splash", x + 16, y, 16, 16, 0, 0, ""){
+
+			@Override
+			public void drawGuiPost(IGuiElementsHandler handler, GuiScreen gui, int mouseX, int mouseY){
+				super.drawGuiPost(handler, gui, mouseX, mouseY);
+				ItemStackRenderer.renderItemStack(mc, xPos - guiLeft, yPos - guiTop, new ItemStack(Items.SPLASH_POTION, 1, container.getCurrentStack().getMetadata()));
+			}
 
 			@Override
 			public void drawGuiPostPost(IGuiElementsHandler handler, GuiScreen gui, int mouseX, int mouseY){
@@ -123,6 +137,12 @@ public class GuiFEIEffect extends GuiContainer implements IGuiElementsHandler<IG
 		add(new ButtonGuiElement("Lingering", x, y + 16, 16, 16, 0, 0, ""){
 
 			@Override
+			public void drawGuiPost(IGuiElementsHandler handler, GuiScreen gui, int mouseX, int mouseY){
+				super.drawGuiPost(handler, gui, mouseX, mouseY);
+				ItemStackRenderer.renderItemStack(mc, xPos - guiLeft, yPos - guiTop, new ItemStack(Items.LINGERING_POTION, 1, container.getCurrentStack().getMetadata()));
+			}
+
+			@Override
 			public void drawGuiPostPost(IGuiElementsHandler handler, GuiScreen gui, int mouseX, int mouseY){
 				if(inside(mouseX, mouseY))
 					drawTooltipWithBackgroundTranslate(fontRendererObj, mouseX - guiLeft, mouseY - guiTop, false, true, "fei.gui.effect.lingering");
@@ -136,6 +156,12 @@ public class GuiFEIEffect extends GuiContainer implements IGuiElementsHandler<IG
 
 		});
 		add(new ButtonGuiElement("Apply", x + 16, y + 16, 16, 16, 0, 0, ""){
+
+			@Override
+			public void drawGuiPost(IGuiElementsHandler handler, GuiScreen gui, int mouseX, int mouseY){
+				super.drawGuiPost(handler, gui, mouseX, mouseY);
+				drawString(fontRendererObj, "/", xPos - guiLeft + (16 - fontRendererObj.getCharWidth('/')) / 2, yPos - guiTop + 4, new RGBA(1f, 1f, 1f));
+			}
 
 			@Override
 			public void drawGuiPostPost(IGuiElementsHandler handler, GuiScreen gui, int mouseX, int mouseY){
