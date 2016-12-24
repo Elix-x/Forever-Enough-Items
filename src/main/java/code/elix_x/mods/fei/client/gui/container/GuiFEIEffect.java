@@ -97,7 +97,7 @@ public class GuiFEIEffect extends GuiContainer implements IGuiElementsHandler<IG
 			@Override
 			public void drawGuiPost(IGuiElementsHandler handler, GuiScreen gui, int mouseX, int mouseY){
 				super.drawGuiPost(handler, gui, mouseX, mouseY);
-				ItemStackRenderer.renderItemStack(mc, xPos - guiLeft, yPos - guiTop, new ItemStack(Items.POTIONITEM, 1, container.getCurrentStack().getMetadata()));
+				ItemStackRenderer.renderItemStack(mc, xPos, yPos, new ItemStack(Items.POTIONITEM, 1, container.getCurrentStack().getMetadata()));
 			}
 
 			@Override
@@ -118,7 +118,7 @@ public class GuiFEIEffect extends GuiContainer implements IGuiElementsHandler<IG
 			@Override
 			public void drawGuiPost(IGuiElementsHandler handler, GuiScreen gui, int mouseX, int mouseY){
 				super.drawGuiPost(handler, gui, mouseX, mouseY);
-				ItemStackRenderer.renderItemStack(mc, xPos - guiLeft, yPos - guiTop, new ItemStack(Items.SPLASH_POTION, 1, container.getCurrentStack().getMetadata()));
+				ItemStackRenderer.renderItemStack(mc, xPos, yPos, new ItemStack(Items.SPLASH_POTION, 1, container.getCurrentStack().getMetadata()));
 			}
 
 			@Override
@@ -139,7 +139,7 @@ public class GuiFEIEffect extends GuiContainer implements IGuiElementsHandler<IG
 			@Override
 			public void drawGuiPost(IGuiElementsHandler handler, GuiScreen gui, int mouseX, int mouseY){
 				super.drawGuiPost(handler, gui, mouseX, mouseY);
-				ItemStackRenderer.renderItemStack(mc, xPos - guiLeft, yPos - guiTop, new ItemStack(Items.LINGERING_POTION, 1, container.getCurrentStack().getMetadata()));
+				ItemStackRenderer.renderItemStack(mc, xPos, yPos, new ItemStack(Items.LINGERING_POTION, 1, container.getCurrentStack().getMetadata()));
 			}
 
 			@Override
@@ -160,7 +160,7 @@ public class GuiFEIEffect extends GuiContainer implements IGuiElementsHandler<IG
 			@Override
 			public void drawGuiPost(IGuiElementsHandler handler, GuiScreen gui, int mouseX, int mouseY){
 				super.drawGuiPost(handler, gui, mouseX, mouseY);
-				drawString(fontRendererObj, "/", xPos - guiLeft + (16 - fontRendererObj.getCharWidth('/')) / 2, yPos - guiTop + 4, new RGBA(1f, 1f, 1f));
+				drawString(fontRendererObj, "/", xPos + (16 - fontRendererObj.getCharWidth('/')) / 2, yPos + 4, new RGBA(1f, 1f, 1f));
 			}
 
 			@Override
