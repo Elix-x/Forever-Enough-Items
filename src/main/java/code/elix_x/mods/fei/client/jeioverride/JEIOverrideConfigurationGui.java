@@ -6,7 +6,6 @@ import code.elix_x.excore.utils.client.gui.elements.ButtonGuiElement;
 import code.elix_x.excore.utils.client.gui.elements.CheckBoxGuiElement;
 import code.elix_x.excore.utils.client.gui.elements.IntegralIncrementerGuiElement;
 import code.elix_x.excore.utils.client.gui.elements.StringGuiElement;
-import mezz.jei.JustEnoughItems;
 import mezz.jei.config.Config;
 import mezz.jei.config.JEIModConfigGui;
 import net.minecraft.client.gui.GuiScreen;
@@ -106,7 +105,7 @@ public class JEIOverrideConfigurationGui extends ElementalGuiScreen {
 
 	@Override
 	protected void onClose(){
-		JustEnoughItems.getProxy().restartJEI();
+
 	}
 
 }

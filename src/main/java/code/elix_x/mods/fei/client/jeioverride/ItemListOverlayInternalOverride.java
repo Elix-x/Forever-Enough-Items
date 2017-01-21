@@ -15,6 +15,7 @@ import code.elix_x.mods.fei.ForeverEnoughItemsBase;
 import code.elix_x.mods.fei.config.FEIConfiguration;
 import code.elix_x.mods.fei.net.FEIGiveItemStackPacket;
 import mezz.jei.Internal;
+import mezz.jei.JeiRuntime;
 import mezz.jei.JustEnoughItems;
 import mezz.jei.api.gui.IAdvancedGuiHandler;
 import mezz.jei.api.ingredients.IIngredientRegistry;
@@ -26,12 +27,9 @@ import mezz.jei.gui.TooltipRenderer;
 import mezz.jei.gui.ingredients.GuiIngredientFast;
 import mezz.jei.gui.ingredients.GuiIngredientFastList;
 import mezz.jei.gui.ingredients.GuiItemStackGroup;
-import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.input.ClickedIngredient;
 import mezz.jei.input.GuiTextFieldFilter;
 import mezz.jei.input.IClickedIngredient;
-import mezz.jei.input.IMouseHandler;
-import mezz.jei.input.IShowsRecipeFocuses;
 import mezz.jei.network.packets.PacketDeletePlayerItem;
 import mezz.jei.util.Java6Helper;
 import mezz.jei.util.MathUtil;
@@ -225,7 +223,7 @@ public class ItemListOverlayInternalOverride extends ItemListOverlayInternal {
 		return false;
 	}
 
-	public void updateLayout() {
+	public void updateLayout(){
 		if(parent == null) return;
 		ImmutableList<Object> ingredientList = parent.getItemFilter().getIngredientList();
 		guiIngredientList.set(firstItemIndex, ingredientList);
@@ -318,8 +316,9 @@ public class ItemListOverlayInternalOverride extends ItemListOverlayInternal {
 	private boolean shouldShowDeleteItemTooltip(Minecraft minecraft){
 		if(canDeleteItems && FEIConfiguration.canDeleteItems(Minecraft.getMinecraft().player)){
 			EntityPlayer player = minecraft.player;
-			if (!player.inventory.getItemStack().isEmpty()) {
-				return true;
+			if(!player.inventory.getItemStack().isEmpty()){
+				JeiRuntime runtime = Internal.getRuntime();
+				return runtime == null || !runtime.getRecipesGui().isOpen();
 			}
 		}
 		return false;
@@ -383,28 +382,31 @@ public class ItemListOverlayInternalOverride extends ItemListOverlayInternal {
 			return false;
 		}
 
-		if(Minecraft.getMinecraft().player.inventory.getItemStack().isEmpty()){
- 			ClickedIngredient<?> f = guiIngredientList.getIngredientUnderMouse(mouseX, mouseY);
- 			if(f != null && f.getValue() instanceof ItemStack && canGiveItems && FEIConfiguration.canGiveItems(Minecraft.getMinecraft().player)){
- 				ItemStack itemstack = ((ItemStack) f.getValue()).copy();
- 				if(mouseButton == 0) itemstack.setCount(itemstack.getMaxStackSize());
- 				else itemstack.setCount(1);
- 				ForeverEnoughItemsBase.net.sendToServer(new FEIGiveItemStackPacket(itemstack));
- 				return true;
- 			}
- 		} else{
- 			if(canDeleteItems && FEIConfiguration.canDeleteItems(Minecraft.getMinecraft().player)){
- 				Minecraft minecraft = Minecraft.getMinecraft();
- 				EntityPlayerSP player = minecraft.player;
- 				ItemStack itemStack = player.inventory.getItemStack();
- 				if(itemStack != null){
- 					player.inventory.setItemStack(ItemStack.EMPTY);
- 					PacketDeletePlayerItem packet = new PacketDeletePlayerItem(itemStack);
- 					JustEnoughItems.getProxy().sendPacketToServer(packet);
- 					return true;
- 				}
- 			} else if(Minecraft.getMinecraft().player.isCreative()){
-				return true;
+		JeiRuntime runtime = Internal.getRuntime();
+		if(runtime == null || !runtime.getRecipesGui().isOpen()){
+			if(Minecraft.getMinecraft().player.inventory.getItemStack().isEmpty()){
+				ClickedIngredient<?> f = guiIngredientList.getIngredientUnderMouse(mouseX, mouseY);
+				if(f != null && f.getValue() instanceof ItemStack && canGiveItems && FEIConfiguration.canGiveItems(Minecraft.getMinecraft().player)){
+					ItemStack itemstack = ((ItemStack) f.getValue()).copy();
+					if(mouseButton == 0) itemstack.setCount(itemstack.getMaxStackSize());
+					else itemstack.setCount(1);
+					ForeverEnoughItemsBase.net.sendToServer(new FEIGiveItemStackPacket(itemstack));
+					return true;
+				}
+			} else{
+				if(canDeleteItems && FEIConfiguration.canDeleteItems(Minecraft.getMinecraft().player)){
+					Minecraft minecraft = Minecraft.getMinecraft();
+					EntityPlayerSP player = minecraft.player;
+					ItemStack itemStack = player.inventory.getItemStack();
+					if(itemStack != null){
+						player.inventory.setItemStack(ItemStack.EMPTY);
+						PacketDeletePlayerItem packet = new PacketDeletePlayerItem(itemStack);
+						JustEnoughItems.getProxy().sendPacketToServer(packet);
+						return true;
+					}
+				} else if(Minecraft.getMinecraft().player.isCreative()){
+					return true;
+				}
 			}
 		}
 
@@ -466,9 +468,9 @@ public class ItemListOverlayInternalOverride extends ItemListOverlayInternal {
 	public boolean onKeyPressed(char typedChar, int keyCode){
 		if(hasKeyboardFocus()){
 			boolean handled = searchField.textboxKeyTyped(typedChar, keyCode);
-			if (handled) {
+			if(handled){
 				boolean changed = Config.setFilterText(searchField.getText());
-				if (changed) {
+				if(changed){
 					firstItemIndex = 0;
 					updateLayout();
 				}
@@ -535,7 +537,7 @@ public class ItemListOverlayInternalOverride extends ItemListOverlayInternal {
 		updateLayout();
 	}
 
-	public static void setToFirstPage() {
+	public static void setToFirstPage(){
 		firstItemIndex = 0;
 	}
 
