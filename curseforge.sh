@@ -20,6 +20,7 @@ GAMEVERSIONS=$(groovy gameversions.groovy $MINECRAFTVERSION $JAVAVERSION)
 rm gameversions.json
 
 CHANGELOG=$(git log --format=%B -n 1 $TRAVIS_COMMIT)
+CHANGELOG=$(sed 's/\\/\\\\/g' <<< "$CHANGELOG")
 CHANGELOG=$(sed ':a;N;$!ba;s/\n/\\n/g' <<< "$CHANGELOG")
 CHANGELOG=$(sed 's/\"/\\\"/g' <<< "$CHANGELOG")
 
