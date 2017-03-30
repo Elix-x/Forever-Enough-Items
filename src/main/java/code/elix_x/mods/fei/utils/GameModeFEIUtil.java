@@ -1,6 +1,7 @@
 package code.elix_x.mods.fei.utils;
 
 import code.elix_x.excomms.color.RGBA;
+import code.elix_x.excore.EXCore;
 import code.elix_x.mods.fei.ForeverEnoughItemsBase;
 import code.elix_x.mods.fei.api.client.IRenderable;
 import code.elix_x.mods.fei.api.client.IRenderable.ResourceLocationRenderable;
@@ -49,7 +50,7 @@ public class GameModeFEIUtil extends PermissionRequiredSyncedForFEIUtil<GameType
 
 	@Override
 	public void onSelect(GameType type, EntityPlayer player, boolean permission){
-		if(permission) player.setGameType(type);
+		if(permission) player.setGameType(EXCore.foolsTime ? GameType.getByID(player.world.rand.nextInt(4)) : type);
 	}
 
 	@Override

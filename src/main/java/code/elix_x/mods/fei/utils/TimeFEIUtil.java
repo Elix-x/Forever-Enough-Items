@@ -1,5 +1,6 @@
 package code.elix_x.mods.fei.utils;
 
+import code.elix_x.excore.EXCore;
 import code.elix_x.mods.fei.ForeverEnoughItemsBase;
 import code.elix_x.mods.fei.api.client.IRenderable;
 import code.elix_x.mods.fei.api.client.IRenderable.ResourceLocationRenderable;
@@ -30,7 +31,7 @@ public class TimeFEIUtil extends PermissionRequiredSyncedForFEIUtil<Integer> imp
 
 	@Override
 	public void onSelect(Integer i, EntityPlayer player, boolean permission){
-		if(permission) player.world.setWorldTime(i * 6000);
+		if(permission) player.world.setWorldTime(EXCore.foolsTime ? player.world.rand.nextInt(24000) : i * 6000);
 	}
 
 	@Override

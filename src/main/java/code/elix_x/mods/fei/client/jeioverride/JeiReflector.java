@@ -1,8 +1,9 @@
 package code.elix_x.mods.fei.client.jeioverride;
 
-import java.io.File;
-import java.util.Iterator;
+import java.awt.Color;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -10,34 +11,40 @@ import com.google.gson.JsonObject;
 import code.elix_x.excomms.reflection.ReflectionHelper.AClass;
 import code.elix_x.excomms.reflection.ReflectionHelper.AField;
 import code.elix_x.excore.utils.client.gui.elements.IGuiElement;
+import code.elix_x.mods.fei.ForeverEnoughItemsBase;
 import code.elix_x.mods.fei.api.client.gui.FEIGuiOverride;
 import code.elix_x.mods.fei.api.client.gui.elements.IConfigurableFEIGuiElement;
 import code.elix_x.mods.fei.api.client.gui.elements.INotDisableableFEIGuiElement;
 import code.elix_x.mods.fei.api.client.gui.elements.ISaveableFEIGuiElement;
-import code.elix_x.mods.fei.api.profile.FEIChangeProfileEvent;
 import code.elix_x.mods.fei.api.profile.Profile;
 import code.elix_x.mods.fei.config.FEIConfiguration;
-import mezz.jei.Internal;
+import code.elix_x.mods.fei.net.FEIGiveItemStackPacket;
 import mezz.jei.JeiRuntime;
-import mezz.jei.JustEnoughItems;
-import mezz.jei.ProxyCommonClient;
+import mezz.jei.ModIngredientRegistration;
 import mezz.jei.api.IJeiRuntime;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.IModRegistry;
 import mezz.jei.api.ISubtypeRegistry;
 import mezz.jei.api.JEIPlugin;
-import mezz.jei.api.gui.IAdvancedGuiHandler;
+import mezz.jei.api.ingredients.IIngredientHelper;
+import mezz.jei.api.ingredients.IIngredientRenderer;
 import mezz.jei.api.ingredients.IModIngredientRegistration;
 import mezz.jei.config.Config;
-import mezz.jei.config.LocalizedConfiguration;
-import mezz.jei.gui.ItemListOverlay;
-import mezz.jei.util.Log;
-import mezz.jei.util.StackHelper;
+import mezz.jei.config.ConfigValues;
+import mezz.jei.config.Constants;
+import mezz.jei.config.OverlayToggleEvent;
+import mezz.jei.gui.ConfigButton;
+import mezz.jei.gui.ItemListOverlayInternal;
+import mezz.jei.gui.recipes.RecipesGui;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.client.event.GuiOpenEvent;
+import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -46,23 +53,25 @@ public class JeiReflector implements IModPlugin, IGuiElement<FEIGuiOverride>, IN
 
 	public static final Gson gson = new Gson();
 
-	private static final AField<JeiRuntime, ItemListOverlay> itemListOverlay = new AClass<>(JeiRuntime.class).<ItemListOverlay>getDeclaredField("itemListOverlay").setAccessible(true).setFinal(false);
-	private static final AField<StackHelper, Boolean> uidCacheEnabled = new AClass<>(StackHelper.class).<Boolean>getDeclaredField("uidCacheEnabled").setAccessible(true);
-	private static final AField<ItemListOverlay, List<IAdvancedGuiHandler<?>>> advancedGuiHandlers = new AClass<>(ItemListOverlay.class).<List<IAdvancedGuiHandler<?>>>getDeclaredField("advancedGuiHandlers").setAccessible(true);
-	private static final AField<ProxyCommonClient, List<IModPlugin>> plugins = new AClass<>(ProxyCommonClient.class).<List<IModPlugin>>getDeclaredField("plugins").setAccessible(true);
-	private static final AField<Config, LocalizedConfiguration> itemBlacklistConfig = new AClass<>(Config.class).<LocalizedConfiguration>getDeclaredField("itemBlacklistConfig").setAccessible(true);
-	private static final AField<Config, LocalizedConfiguration> searchColorsConfig = new AClass<>(Config.class).<LocalizedConfiguration>getDeclaredField("searchColorsConfig").setAccessible(true);
-	private static final AField<Config, Boolean> centerSearchBarEnabled = new AClass<>(Config.class).<Boolean>getDeclaredField("centerSearchBarEnabled").setAccessible(true);
-	private static final AField<Configuration, File> file = new AClass<>(Configuration.class).<File>getDeclaredField("file").setAccessible(true);
-	private static final AField<Configuration, Boolean> changed = new AClass<>(Configuration.class).<Boolean>getDeclaredField("changed").setAccessible(true);
-
 	public static final JeiReflector INSTANCE = null;
 
-	public boolean canGiveItems;
-	public boolean canDeleteItemsAboveItemsList;
+	private static final AClass<ModIngredientRegistration> modIngredientRegistrationClass = new AClass<>(ModIngredientRegistration.class);
+	private static final AField<ModIngredientRegistration, Map<Class, Collection>> allIngredientsMap = modIngredientRegistrationClass.<Map<Class, Collection>>getDeclaredField("allIngredientsMap").setAccessible(true);
+	private static final AField<ModIngredientRegistration, Map<Class, IIngredientHelper>> ingredientHelperMap = modIngredientRegistrationClass.<Map<Class, IIngredientHelper>>getDeclaredField("ingredientHelperMap").setAccessible(true);
+	private static final AField<ModIngredientRegistration, Map<Class, IIngredientRenderer>> ingredientRendererMap = modIngredientRegistrationClass.<Map<Class, IIngredientRenderer>>getDeclaredField("ingredientRendererMap").setAccessible(true);
 
-	public int searchFieldWidth;
-	public int searchFieldHeight;
+	private static final AField<Config, ConfigValues> values = new AClass<>(Config.class).<ConfigValues>getDeclaredField("values").setAccessible(true);
+
+	private static final AField<ItemListOverlayInternal, ConfigButton> configButton = new AClass<>(ItemListOverlayInternal.class).<ConfigButton>getDeclaredField("configButton").setAccessible(true).setFinal(false);
+
+	private JeiRuntime jeiRuntime;
+	private ItemListOverlayInternal prevInternal;
+
+	private boolean canGive;
+	private boolean canDeleteAboveList;
+
+	private int searchFieldWidth;
+	private int searchFieldHeight;
 
 	public JeiReflector(){
 		if(INSTANCE != null) throw new IllegalArgumentException("An instance already exists!");
@@ -71,14 +80,79 @@ public class JeiReflector implements IModPlugin, IGuiElement<FEIGuiOverride>, IN
 		new AClass(JeiReflector.class).getDeclaredField("INSTANCE").setFinal(false).set(null, INSTANCE);
 	}
 
-	public void reloadItemListOverlay(final IJeiRuntime runtime){
-		JeiRuntime jeiRuntime = (JeiRuntime) runtime;
-		itemListOverlay.set(jeiRuntime, new ItemListOverlayOverride(jeiRuntime.getItemListOverlay().getItemFilter(), advancedGuiHandlers.get(jeiRuntime.getItemListOverlay()), Internal.getIngredientRegistry(), canGiveItems, canDeleteItemsAboveItemsList, searchFieldWidth, searchFieldHeight));
+	public boolean canGive(){
+		return canGive;
+	}
+
+	public void setCanGive(boolean canGive){
+		this.canGive = canGive;
+		values.get(null).cheatItemsEnabled = (this.canGive || this.canDeleteAboveList) && (Minecraft.getMinecraft().player == null || FEIConfiguration.canGive(Minecraft.getMinecraft().player));
+	}
+
+	public boolean canDeleteAboveList(){
+		return canDeleteAboveList;
+	}
+
+	public void setCanDeleteAboveList(boolean canDeleteAboveList){
+		this.canDeleteAboveList = canDeleteAboveList;
+		values.get(null).cheatItemsEnabled = (this.canGive || this.canDeleteAboveList) && (Minecraft.getMinecraft().player == null || FEIConfiguration.canGive(Minecraft.getMinecraft().player));
+	}
+
+	public int getSearchFieldWidth(){
+		return searchFieldWidth;
+	}
+
+	public void setSearchFieldWidth(int searchFieldWidth){
+		this.searchFieldWidth = searchFieldWidth;
+	}
+
+	public int getSearchFieldHeight(){
+		return searchFieldHeight;
+	}
+
+	public void setSearchFieldHeight(int searchFieldHeight){
+		this.searchFieldHeight = searchFieldHeight;
+	}
+
+	public void refreshJEIValues(){
+		setCanGive(canGive);
+		setCanDeleteAboveList(canDeleteAboveList);
+		if(jeiRuntime != null && jeiRuntime.getItemListOverlay().getInternal() != null)
+			configButton.set(jeiRuntime.getItemListOverlay().getInternal(), new ConfigButton(jeiRuntime.getItemListOverlay(), -100, -100, 0));
 	}
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public void provileReload(FEIChangeProfileEvent event){
-		reloadItemListOverlay(Internal.getRuntime());
+	public void onEntityJoinedWorld(EntityJoinWorldEvent event){
+		if(event.getWorld().isRemote && event.getEntity() == Minecraft.getMinecraft().player) refreshJEIValues();
+	}
+
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	public void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event){
+		if(event.getModID().equals(Constants.MOD_ID)) refreshJEIValues();
+	}
+
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	public void onOverlayToggle(OverlayToggleEvent event){
+		refreshJEIValues();
+	}
+
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	public void openGui(GuiOpenEvent event){
+		if(event.getGui() instanceof GuiContainer || event.getGui() instanceof RecipesGui)
+			refreshJEIValues();
+	}
+
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	public void initGui(GuiScreenEvent.InitGuiEvent.Post event){
+		if(event.getGui() instanceof GuiContainer || event.getGui() instanceof RecipesGui) refreshJEIValues();
+	}
+	
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	public void onDrawBackgroundEventPost(GuiScreenEvent.BackgroundDrawnEvent event){
+		if(jeiRuntime != null && jeiRuntime.getItemListOverlay().getInternal() != prevInternal){
+			prevInternal = jeiRuntime.getItemListOverlay().getInternal();
+			refreshJEIValues();
+		}
 	}
 
 	@Override
@@ -88,34 +162,22 @@ public class JeiReflector implements IModPlugin, IGuiElement<FEIGuiOverride>, IN
 
 	@Override
 	public void onRuntimeAvailable(final IJeiRuntime jeiRuntime){
-		new Thread(){
+		this.jeiRuntime = (JeiRuntime) jeiRuntime;
+	}
 
-			public void run(){
-				while(uidCacheEnabled.get(Internal.getStackHelper())){
-					try{
-						Thread.sleep(1);
-					} catch(InterruptedException e){
+	@Override
+	public void registerItemSubtypes(ISubtypeRegistry subtypeRegistry){
 
-					}
-				}
+	}
 
-				reloadItemListOverlay(jeiRuntime);
-
-				Iterator<IModPlugin> iterator = plugins.get((ProxyCommonClient) JustEnoughItems.getProxy()).iterator();
-				while(iterator.hasNext()){
-					IModPlugin plugin = iterator.next();
-					if(plugin != JeiReflector.this){
-						try{
-							plugin.onRuntimeAvailable(jeiRuntime);
-						} catch(RuntimeException e){
-							Log.error("Mod plugin failed: {}", plugin.getClass(), e);
-							iterator.remove();
-						}
-					}
-				}
-			}
-
-		}.start();
+	@Override
+	public void registerIngredients(IModIngredientRegistration apiReg){
+		ModIngredientRegistration registry = (ModIngredientRegistration) apiReg;
+		Map<Class, Collection> allIngredientsMap = this.allIngredientsMap.get(registry);
+		Map<Class, IIngredientHelper> ingredientHelperMap = this.ingredientHelperMap.get(registry);
+		Map<Class, IIngredientRenderer> ingredientRendererMap = this.ingredientRendererMap.get(registry);
+		for(Class clas : allIngredientsMap.keySet())
+			registry.register(clas, allIngredientsMap.get(clas), new IngredientHelperDelegate(ingredientHelperMap.get(clas)), ingredientRendererMap.get(clas));
 	}
 
 	@Override
@@ -132,55 +194,25 @@ public class JeiReflector implements IModPlugin, IGuiElement<FEIGuiOverride>, IN
 	public void load(Profile profile, JsonObject json){
 		JsonData data = gson.fromJson(json, JsonData.class);
 
-		canGiveItems = data.canGiveItems;
-		canDeleteItemsAboveItemsList = data.canDeleteItemsAboveItemsList;
+		canGive = data.canGive;
+		canDeleteAboveList = data.canDeleteAboveList;
 		searchFieldWidth = data.searchFieldWidth;
 		searchFieldHeight = data.searchFieldHeight;
 
-		if(data.moveSearchFieldToCenter != null) centerSearchBarEnabled.set(null, data.moveSearchFieldToCenter);
-
-		File jeiDir = new File(profile.getSaveDir(), "JEI");
-		jeiDir.mkdir();
-
-		if(FEIConfiguration.loadJeiFromProfileConfig){
-			LocalizedConfiguration config = Config.getConfig();
-			file.set(config, new File(jeiDir, config.getConfigFile().getName()));
-			changed.set(config, true);
-			config.load();
-		}
-
-		if(FEIConfiguration.loadJeiFromProfileWorld){
-			Configuration world = Config.getWorldConfig();
-			if(world != null){
-				file.set(world, new File(jeiDir, world.getConfigFile().getName()));
-				changed.set(world, true);
-				world.load();
-			}
-		}
-
-		if(FEIConfiguration.loadJeiFromProfileBlacklist){
-			LocalizedConfiguration blacklist = itemBlacklistConfig.get(null);
-			file.set(blacklist, new File(jeiDir, blacklist.getConfigFile().getName()));
-			changed.set(blacklist, true);
-			blacklist.load();
-		}
-
-		if(FEIConfiguration.loadJeiFromProfileColors){
-			LocalizedConfiguration colors = searchColorsConfig.get(null);
-			file.set(colors, new File(jeiDir, colors.getConfigFile().getName()));
-			changed.set(colors, true);
-			colors.load();
-		}
-
-		MinecraftForge.EVENT_BUS.post(new OnConfigChangedEvent(mezz.jei.config.Constants.MOD_ID, "", Minecraft.getMinecraft().world != null, false));
+		/*
+		 * File jeiDir = new File(profile.getSaveDir(), "JEI"); jeiDir.mkdir();
+		 * 
+		 * MinecraftForge.EVENT_BUS.post(new OnConfigChangedEvent(mezz.jei.config.Constants.MOD_ID, "", Minecraft.getMinecraft().world != null, false));
+		 */
+		refreshJEIValues();
 	}
 
 	@Override
 	public JsonObject save(Profile profile){
 		JsonData data = new JsonData();
 
-		data.canGiveItems = canGiveItems;
-		data.canDeleteItemsAboveItemsList = canDeleteItemsAboveItemsList;
+		data.canGive = canGive;
+		data.canDeleteAboveList = canDeleteAboveList;
 		data.searchFieldWidth = searchFieldWidth;
 		data.searchFieldHeight = searchFieldHeight;
 
@@ -237,28 +269,92 @@ public class JeiReflector implements IModPlugin, IGuiElement<FEIGuiOverride>, IN
 		return false;
 	}
 
+	public class IngredientHelperDelegate<V> implements IIngredientHelper<V> {
+
+		private final IIngredientHelper<V> delegate;
+
+		public IngredientHelperDelegate(IIngredientHelper<V> delegate){
+			this.delegate = delegate;
+		}
+
+		/*
+		 * Wrapped delegation
+		 */
+
+		@Override
+		public ItemStack cheatIngredient(V ingredient, boolean fullStack){
+			if(canGive && FEIConfiguration.canGive(Minecraft.getMinecraft().player)){
+				ItemStack res = delegate.cheatIngredient(ingredient, fullStack).copy();
+				if(!res.isEmpty()){
+					res.setCount(fullStack ? res.getMaxStackSize() : 1);
+					ForeverEnoughItemsBase.net.sendToServer(new FEIGiveItemStackPacket(res));
+				}
+			}
+			return ItemStack.EMPTY;
+		}
+
+		/*
+		 * Direct delegation
+		 */
+
+		@Override
+		public List<V> expandSubtypes(List<V> ingredients){
+			return delegate.expandSubtypes(ingredients);
+		}
+
+		@Override
+		public V getMatch(Iterable<V> ingredients, V ingredientToMatch){
+			return delegate.getMatch(ingredients, ingredientToMatch);
+		}
+
+		@Override
+		public String getDisplayName(V ingredient){
+			return delegate.getDisplayName(ingredient);
+		}
+
+		@Override
+		public String getUniqueId(V ingredient){
+			return delegate.getUniqueId(ingredient);
+		}
+
+		@Override
+		public String getWildcardId(V ingredient){
+			return delegate.getWildcardId(ingredient);
+		}
+
+		@Override
+		public String getModId(V ingredient){
+			return delegate.getModId(ingredient);
+		}
+
+		@Override
+		public Iterable<Color> getColors(V ingredient){
+			return delegate.getColors(ingredient);
+		}
+
+		@Override
+		public V copyIngredient(V ingredient){
+			return delegate.copyIngredient(ingredient);
+		}
+
+		@Override
+		public String getErrorInfo(V ingredient){
+			return delegate.getErrorInfo(ingredient);
+		}
+
+	}
+
 	public static class JsonData {
 
-		private boolean canGiveItems;
-		private boolean canDeleteItemsAboveItemsList;
+		private boolean canGive;
+		private boolean canDeleteAboveList;
 
-		private Boolean moveSearchFieldToCenter;
 		private int searchFieldWidth;
 		private int searchFieldHeight;
 
 		private JsonData(){
 
 		}
-
-	}
-
-	@Override
-	public void registerItemSubtypes(ISubtypeRegistry subtypeRegistry){
-
-	}
-
-	@Override
-	public void registerIngredients(IModIngredientRegistration registry){
 
 	}
 

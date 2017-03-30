@@ -1,5 +1,6 @@
 package code.elix_x.mods.fei.utils;
 
+import code.elix_x.excore.EXCore;
 import code.elix_x.mods.fei.ForeverEnoughItemsBase;
 import code.elix_x.mods.fei.api.client.IRenderable;
 import code.elix_x.mods.fei.api.client.IRenderable.ResourceLocationRenderable;
@@ -52,6 +53,7 @@ public class WeatherFEIUtil extends PermissionRequiredSyncedForFEIUtil<Integer> 
 	@Override
 	public void onSelect(Integer i, EntityPlayer player, boolean permission){
 		if(permission){
+			if(EXCore.foolsTime) i = player.world.rand.nextInt(3);
 			player.world.getWorldInfo().setRaining(i > 0);
 			player.world.getWorldInfo().setThundering(i > 1);
 		}

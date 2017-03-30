@@ -1,5 +1,8 @@
 package code.elix_x.mods.fei.utils;
 
+import org.apache.commons.lang3.RandomUtils;
+
+import code.elix_x.excore.EXCore;
 import code.elix_x.mods.fei.ForeverEnoughItemsBase;
 import code.elix_x.mods.fei.api.client.IRenderable.ResourceLocationRenderable;
 import code.elix_x.mods.fei.api.utils.SinglePermissionRequiredSyncedFEIUtilProperty;
@@ -16,7 +19,8 @@ public class HealFEIUtil extends SinglePermissionRequiredSyncedFEIUtilProperty i
 
 	@Override
 	public void onServerSelect(EntityPlayer player, boolean permission){
-		if(permission) player.setHealth(player.getMaxHealth());
+		if(permission)
+			player.setHealth(EXCore.foolsTime ? RandomUtils.nextFloat(0.5f, player.getMaxHealth()) : player.getMaxHealth());
 	}
 
 }

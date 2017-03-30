@@ -15,7 +15,6 @@ import code.elix_x.excore.utils.client.gui.elements.IGuiElementsHandler;
 import code.elix_x.excore.utils.client.gui.elements.IntegralLogorithmicSliderGuiElement;
 import code.elix_x.excore.utils.client.gui.elements.ListGuiElement;
 import code.elix_x.mods.fei.container.ContainerFEIEnchantment;
-import net.minecraft.client.gui.GuiEnchantment;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainer;

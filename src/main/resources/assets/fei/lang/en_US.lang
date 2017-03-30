@@ -56,8 +56,7 @@ fei.gui.override.selector.profile=Profile Selector
 fei.gui.override.jei.override=JEI Override
 fei.gui.override.jei.override.jei=JEI
 fei.gui.override.jei.override.cangiveitems=Can Give Items:
-fei.gui.override.jei.override.candeleteitemsaboveitemslist=Can Delete Items Above Items List:
-fei.gui.override.jei.override.movesearchfieldtocenter=Move Search Field To Center:
+fei.gui.override.jei.override.candeleteitemsaboveitemslist=Can Delete Items Above Items List (WIP - Turn this AND give items off for effect):
 fei.gui.override.jei.override.searchfieldwidth=Search Field Width:
 fei.gui.override.jei.override.searchfieldheight=Search Field Height:
 

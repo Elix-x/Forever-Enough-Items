@@ -13,6 +13,3 @@ bin/
 .settings/
 eclipse/*
 !eclipse/codeformat.xml
-
-# PATCH
-overrides/patch.bat

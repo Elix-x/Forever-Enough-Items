@@ -5,7 +5,6 @@ import java.io.File;
 import com.mmyzd.llor.LightLevelOverlayReloaded;
 
 import at.feldim2425.moreoverlays.MoreOverlays;
-import code.elix_x.excomms.color.RGBA;
 import code.elix_x.excomms.reflection.ReflectionHelper.AClass;
 import code.elix_x.mods.fei.ForeverEnoughItemsBase;
 import code.elix_x.mods.fei.api.FEIApi;
@@ -25,11 +24,8 @@ import code.elix_x.mods.fei.permission.FEIPermissionsManager;
 import code.elix_x.mods.fei.utils.ChunkBordersFEIUtil;
 import code.elix_x.mods.fei.utils.IFEIUtilInternal;
 import code.elix_x.mods.fei.utils.LightLevelOverlayToggleFEIUtil;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiErrorScreen;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.client.CustomModLoadingErrorDisplayException;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
@@ -71,30 +67,6 @@ public class ClientProxy implements IFEIProxy {
 
 	@Override
 	public void preInit(FMLPreInitializationEvent event){
-		try{
-			Class.forName("code.elix_x.mods.fei.client.jeioverride.JeiReflector").getName();
-			Class.forName("code.elix_x.mods.fei.client.jeioverride.ItemListOverlayOverride").getName();
-		} catch(Exception e){
-			throw new CustomModLoadingErrorDisplayException("Incompatible JEI version installed", e){
-
-				@Override
-				public void initGui(GuiErrorScreen errorScreen, FontRenderer fontRenderer){
-
-				}
-
-				@Override
-				public void drawScreen(GuiErrorScreen errorScreen, FontRenderer fontRenderer, int mouseRelX, int mouseRelY, float tickTime){
-					int nextY = (errorScreen.height - 24) / 2;
-					errorScreen.drawCenteredString(fontRenderer, "FEI Detected Incompatible JEI version", errorScreen.width / 2, nextY, new RGBA(255, 0, 0, 255).argb());
-					nextY += 8;
-					errorScreen.drawCenteredString(fontRenderer, "Something changed in internal JEI classes between updates", errorScreen.width / 2, nextY, new RGBA(255, 0, 0, 255).argb());
-					nextY += 8;
-					errorScreen.drawCenteredString(fontRenderer, "For now, please report this to github (https://github.com/elix-x/Forever-Enough-Items/issues) and downgrade to JEI " + mezz.jei.config.Constants.VERSION + " if possible.", errorScreen.width / 2, nextY, new RGBA(255, 0, 0, 255).argb());
-				}
-
-			};
-		}
-
 		grid = new FEIUtilsGrid();
 		for(IFEIUtilInternal util : FEIConfiguration.utils) grid.addElement(util);
 		grid.addElement(chunkBordersCycle = new ChunkBordersFEIUtil());

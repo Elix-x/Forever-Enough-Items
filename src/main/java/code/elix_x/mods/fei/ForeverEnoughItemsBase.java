@@ -175,7 +175,7 @@ public class ForeverEnoughItemsBase implements IMod<ForeverEnoughItemsBase, IPro
 					public void run(){
 						FEIGiveItemStackPacket packet = pair.getLeft();
 						EntityPlayer player = pair.getRight().getServerHandler().player;
-						if(FEIConfiguration.canGiveItems(player))
+						if(FEIConfiguration.canGive(player))
 							player.inventory.addItemStackToInventory(packet.itemstack);
 					}
 

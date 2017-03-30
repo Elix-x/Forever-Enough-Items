@@ -139,11 +139,11 @@ public class FEIConfiguration {
 		return FEIPermissionLevel.valueOf(s);
 	}
 
-	public static boolean canGiveItems(EntityPlayer player){
+	public static boolean canGive(EntityPlayer player){
 		return FEIPermissionsManager.getPermissionLevels(player).isHigherOrEqual(givePermissonLevel);
 	}
 
-	public static boolean canDeleteItems(EntityPlayer player){
+	public static boolean canDelete(EntityPlayer player){
 		return FEIPermissionsManager.getPermissionLevels(player).isHigherOrEqual(deletePermissonLevel);
 	}
 

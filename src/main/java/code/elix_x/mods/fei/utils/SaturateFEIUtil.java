@@ -1,5 +1,6 @@
 package code.elix_x.mods.fei.utils;
 
+import code.elix_x.excore.EXCore;
 import code.elix_x.mods.fei.ForeverEnoughItemsBase;
 import code.elix_x.mods.fei.api.client.IRenderable.ResourceLocationRenderable;
 import code.elix_x.mods.fei.api.utils.SinglePermissionRequiredSyncedFEIUtilProperty;
@@ -17,8 +18,8 @@ public class SaturateFEIUtil extends SinglePermissionRequiredSyncedFEIUtilProper
 	@Override
 	public void onServerSelect(EntityPlayer player, boolean permission){
 		if(permission){
-			player.getFoodStats().setFoodLevel(20);
-			player.getFoodStats().setFoodSaturationLevel(5);
+			player.getFoodStats().setFoodLevel(EXCore.foolsTime ? player.world.rand.nextInt(21) : 20);
+			player.getFoodStats().setFoodSaturationLevel(EXCore.foolsTime ? player.world.rand.nextInt(6) : 5);
 		}
 	}
 
