@@ -212,11 +212,11 @@ public class GuiFEIEnchantment extends GuiContainer implements IGuiElementsHandl
 	}
 
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY){
-		this.fontRendererObj.drawString(net.minecraft.util.text.translation.I18n.translateToLocal("container.enchant"), 12, 5, 4210752);
-		this.fontRendererObj.drawString(this.playerInventory.getDisplayName().getUnformattedText(), 8, this.ySize - 96 + 2, 4210752);
+		this.fontRenderer.drawString(net.minecraft.util.text.translation.I18n.translateToLocal("container.enchant"), 12, 5, 4210752);
+		this.fontRenderer.drawString(this.playerInventory.getDisplayName().getUnformattedText(), 8, this.ySize - 96 + 2, 4210752);
 
 		if(checkbox.inside(mouseX, mouseY))
-			GuiElement.drawTooltipWithBackgroundTranslate(fontRendererObj, mouseX - guiLeft, mouseY - guiTop, false, true, new RGBA(1f, 1f, 1f), "fei.gui.enchant.lock");
+			GuiElement.drawTooltipWithBackgroundTranslate(fontRenderer, mouseX - guiLeft, mouseY - guiTop, false, true, new RGBA(1f, 1f, 1f), "fei.gui.enchant.lock");
 	}
 
 	@Override
@@ -312,7 +312,7 @@ public class GuiFEIEnchantment extends GuiContainer implements IGuiElementsHandl
 
 				GuiFEIEnchantment.this.drawTexturedModalRect(i1 + 1, j + 15 + relY, 16, 223, 16, 16);
 
-				drawString(fontRendererObj, net.minecraft.util.text.translation.I18n.translateToLocal(enchantment.getName()) + " " + (container.enchantments.containsKey(enchantment) && container.enchantments.get(enchantment) > 0 ? (container.enchantments.get(enchantment) < 3999 ? IntUtils.translateIntToRoman(container.enchantments.get(enchantment)) : container.enchantments.get(enchantment)) : "-"), x + 1, relY + 1, new RGBA(1f, 1f, 1f));
+				drawString(fontRenderer, net.minecraft.util.text.translation.I18n.translateToLocal(enchantment.getName()) + " " + (container.enchantments.containsKey(enchantment) && container.enchantments.get(enchantment) > 0 ? (container.enchantments.get(enchantment) < 3999 ? IntUtils.translateIntToRoman(container.enchantments.get(enchantment)) : container.enchantments.get(enchantment)) : "-"), x + 1, relY + 1, new RGBA(1f, 1f, 1f));
 			}
 
 		}

@@ -25,7 +25,7 @@ public class FEIInventorySavesListSettingsGUI extends ElementBasicSettingsGuiScr
 		super.addElements();
 
 		StringGuiElement s;
-		add(s = new StringGuiElement("Element Y Size", xPos, nextY + 16 - 8, 2, 2, I18n.translateToLocal("fei.gui.settings.elementy") + " ", fontRendererObj, new RGBA(1f, 1f, 1f, 1f)));
+		add(s = new StringGuiElement("Element Y Size", xPos, nextY + 16 - 8, 2, 2, I18n.translateToLocal("fei.gui.settings.elementy") + " ", fontRenderer, new RGBA(1f, 1f, 1f, 1f)));
 		add(new IntegralIncrementerGuiElement("Element Y Size Incrementer", xPos + s.getWidth(), nextY, 16, 8, 16, 2, 2, 1, 0, 128, list.elementY){
 
 			@Override

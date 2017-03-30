@@ -25,7 +25,7 @@ public class FEIModsItemsDropdownSettingsGui extends ElementBasicSettingsGuiScre
 		super.addElements();
 
 		StringGuiElement s;
-		add(s = new StringGuiElement("Folded Y Size", xPos, nextY + 16 - 8, 2, 2, I18n.translateToLocal("fei.gui.settings.dropdown.dropdownsize"), fontRendererObj, new RGBA(1f, 1f, 1f, 1f)));
+		add(s = new StringGuiElement("Folded Y Size", xPos, nextY + 16 - 8, 2, 2, I18n.translateToLocal("fei.gui.settings.dropdown.dropdownsize"), fontRenderer, new RGBA(1f, 1f, 1f, 1f)));
 		add(new IntegralIncrementerGuiElement("Dropdown Size Incrementer", s.getRight(), nextY, 16, 8, 16, 2, 2, 1, 20, 1028, dropdown.dropdownSize){
 
 			@Override

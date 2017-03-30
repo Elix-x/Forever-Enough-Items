@@ -137,7 +137,7 @@ public class ForeverEnoughItemsBase implements IMod<ForeverEnoughItemsBase, IPro
 
 					@Override
 					public void run(){
-						SyncedFEIUtilProperty.onClientSelectPacket(pair.getLeft().id, pair.getRight().getServerHandler().playerEntity);
+						SyncedFEIUtilProperty.onClientSelectPacket(pair.getLeft().id, pair.getRight().getServerHandler().player);
 					}
 
 				};
@@ -153,7 +153,7 @@ public class ForeverEnoughItemsBase implements IMod<ForeverEnoughItemsBase, IPro
 					@Override
 					public void run(){
 						NBTTagCompound inventory = pair.getLeft().inventory;
-						EntityPlayer player = pair.getRight().getServerHandler().playerEntity;
+						EntityPlayer player = pair.getRight().getServerHandler().player;
 						if(FEIConfiguration.canLoadInventory(player)){
 							MinecraftForge.EVENT_BUS.post(new FEIInventoryLoadEvent(player, inventory));
 						} else{
@@ -174,7 +174,7 @@ public class ForeverEnoughItemsBase implements IMod<ForeverEnoughItemsBase, IPro
 					@Override
 					public void run(){
 						FEIGiveItemStackPacket packet = pair.getLeft();
-						EntityPlayer player = pair.getRight().getServerHandler().playerEntity;
+						EntityPlayer player = pair.getRight().getServerHandler().player;
 						if(FEIConfiguration.canGiveItems(player))
 							player.inventory.addItemStackToInventory(packet.itemstack);
 					}

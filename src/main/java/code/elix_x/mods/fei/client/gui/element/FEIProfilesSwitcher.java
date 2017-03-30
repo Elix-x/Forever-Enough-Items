@@ -111,7 +111,7 @@ public class FEIProfilesSwitcher extends ListGuiElement<FEIGuiOverride> implemen
 			new GuiButtonExt(0, getXPos() + borderX, getYPos() + borderY, 20, 20, "").drawButton(gui.mc, mouseX, mouseY);
 			renderItemStackFull(Profile.getCurrentProfile().getIcon(), getXPos() + borderX + 2, getYPos() + borderY + 2);
 			if(inside(mouseX, mouseY)){
-				drawTooltip(gui.mc.fontRendererObj, mouseX, mouseY, false, true, 0, textColor, tooltipBackground, false, Profile.getCurrentProfile().getName());
+				drawTooltip(gui.mc.fontRenderer, mouseX, mouseY, false, true, 0, textColor, tooltipBackground, false, Profile.getCurrentProfile().getName());
 			}
 		}
 	}
@@ -174,7 +174,7 @@ public class FEIProfilesSwitcher extends ListGuiElement<FEIGuiOverride> implemen
 		public void drawGuiPostPost(FEIGuiOverride fei, GuiScreen gui, int index, int x, int relY, int mouseX, int mouseY){
 			if(inside(relY, mouseX, mouseY)){
 				scissorsPost();
-				drawTooltip(gui.mc.fontRendererObj, mouseX, mouseY, false, true, 0, textColor, tooltipBackground, false, profile.getName());
+				drawTooltip(gui.mc.fontRenderer, mouseX, mouseY, false, true, 0, textColor, tooltipBackground, false, profile.getName());
 				scissorsPre();
 			}
 		}

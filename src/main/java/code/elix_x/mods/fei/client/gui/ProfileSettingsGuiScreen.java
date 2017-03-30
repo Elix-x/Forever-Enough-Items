@@ -45,14 +45,14 @@ public class ProfileSettingsGuiScreen extends ElementalGuiScreen {
 		int w;
 
 		String nameSetting = I18n.translateToLocal("fei.gui.profile.settings.name") + " ";
-		w = mc.fontRendererObj.getStringWidth(nameSetting);
-		add(new StringGuiElement("Profile Name", xPos, nextY + 12 - 8, 2, 2, nameSetting, fontRendererObj, textColor));
-		add(name = new TextFieldGuiElement("Profile Name Text Box", xPos + 2 + w, nextY, guiWidth - w - 6, 12, 2, 2, mc.fontRendererObj, name != null ? name.getCurrentText() : profile.getName()));
+		w = mc.fontRenderer.getStringWidth(nameSetting);
+		add(new StringGuiElement("Profile Name", xPos, nextY + 12 - 8, 2, 2, nameSetting, fontRenderer, textColor));
+		add(name = new TextFieldGuiElement("Profile Name Text Box", xPos + 2 + w, nextY, guiWidth - w - 6, 12, 2, 2, mc.fontRenderer, name != null ? name.getCurrentText() : profile.getName()));
 		nextY += 2 + 12 + 2;
 
 		String iconSetting = I18n.translateToLocal("fei.gui.profile.settings.icon") + " ";
-		w = mc.fontRendererObj.getStringWidth(iconSetting);
-		add(new StringGuiElement("Profile Icon", xPos, nextY + 20 - 8, 2, 2, iconSetting, fontRendererObj, textColor));
+		w = mc.fontRenderer.getStringWidth(iconSetting);
+		add(new StringGuiElement("Profile Icon", xPos, nextY + 20 - 8, 2, 2, iconSetting, fontRenderer, textColor));
 		add(icon = new ItemStackButtonGuiElement("Profile Icon Text Box", xPos + 2 + w, yPos + 2 + 12 + 2, 20, 20, 2, 2, icon != null ? icon.getItemStack() : profile.getIcon()){
 
 			@Override
@@ -64,7 +64,7 @@ public class ProfileSettingsGuiScreen extends ElementalGuiScreen {
 		});
 		nextY += 2 + 20 + 2;
 
-		add(new StringGuiElement("Elements", xPos, nextY, 2, 2, I18n.translateToLocal("fei.gui.profile.settings.elements"), fontRendererObj, textColor));
+		add(new StringGuiElement("Elements", xPos, nextY, 2, 2, I18n.translateToLocal("fei.gui.profile.settings.elements"), fontRenderer, textColor));
 		nextY += 2 + 8 + 2;
 
 		add(elementsList = new ListGuiElement("Elements List", xPos, nextY, guiWidth, 128, 20, 2, 2, new RGBA(0, 0, 0, 0)){
@@ -82,7 +82,7 @@ public class ProfileSettingsGuiScreen extends ElementalGuiScreen {
 			public void drawGuiPost(IGuiElementsHandler handler, GuiScreen gui, int mouseX, int mouseY){
 				super.drawGuiPost(handler, gui, mouseX, mouseY);
 				if(inside(mouseX, mouseY) && isShiftKeyDown()){
-					drawTooltipWithBackgroundTranslate(fontRendererObj, mouseX, mouseY, false, true, "fei.gui.profile.settings.elements.leftlick", "fei.gui.profile.settings.elements.rightclick");
+					drawTooltipWithBackgroundTranslate(fontRenderer, mouseX, mouseY, false, true, "fei.gui.profile.settings.elements.leftlick", "fei.gui.profile.settings.elements.rightclick");
 				}
 			}
 

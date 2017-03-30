@@ -38,9 +38,9 @@ public class FEIUtilsGridSettingsGui extends ElementBasicSettingsGuiScreen {
 
 		String ex;
 		String ey;
-		int sw = Math.max(fontRendererObj.getStringWidth(ex = I18n.translateToLocal("fei.gui.settings.grid.elementx") + " "), fontRendererObj.getStringWidth(ey = I18n.translateToLocal("fei.gui.settings.elementy") + " "));
+		int sw = Math.max(fontRenderer.getStringWidth(ex = I18n.translateToLocal("fei.gui.settings.grid.elementx") + " "), fontRenderer.getStringWidth(ey = I18n.translateToLocal("fei.gui.settings.elementy") + " "));
 
-		add(new StringGuiElement("Element X", xPos, nextY + 16 - 8, 2, 2, ex, fontRendererObj, new RGBA(1f, 1f, 1f, 1f)));
+		add(new StringGuiElement("Element X", xPos, nextY + 16 - 8, 2, 2, ex, fontRenderer, new RGBA(1f, 1f, 1f, 1f)));
 		add(new IntegralIncrementerGuiElement("Element X Incrementer", xPos + 2 + sw + 2, nextY, 24, 8, 16, 2, 2, 1, 2, 64, grid.elementX){
 
 			@Override
@@ -58,7 +58,7 @@ public class FEIUtilsGridSettingsGui extends ElementBasicSettingsGuiScreen {
 		});
 		nextY += 2 + 16 + 2;
 
-		add(new StringGuiElement("Element Y", xPos, nextY + 16 - 8, 2, 2, ey, fontRendererObj, new RGBA(1f, 1f, 1f, 1f)));
+		add(new StringGuiElement("Element Y", xPos, nextY + 16 - 8, 2, 2, ey, fontRenderer, new RGBA(1f, 1f, 1f, 1f)));
 		add(new IntegralIncrementerGuiElement("Element Y Incrementer", xPos + 2 + sw + 2, nextY, 24, 8, 16, 2, 2, 1, 2, 64, grid.elementY){
 
 			@Override

@@ -123,7 +123,7 @@ public class FEIUtilsGrid extends GridGuiElement<FEIGuiOverride> implements ISav
 	public void drawGuiPost(FEIGuiOverride fei, GuiScreen gui, int mouseX, int mouseY){
 		super.drawGuiPost(fei, gui, mouseX, mouseY);
 		if(gui.isShiftKeyDown() && (inside(mouseX, mouseY) || (currentSelected != null && currentSelected.isInsideExtended(calcAbsX(getX(currentSelected)), calcAbsY(getY(currentSelected)), mouseX, mouseY)))){
-			drawTooltip(gui.mc.fontRendererObj, mouseX, mouseY, true, true, 4, textColor, tooltipBackground, true, "fei.gui.override.grid.utils.leftclick", "fei.gui.override.grid.utils.rightclick");
+			drawTooltip(gui.mc.fontRenderer, mouseX, mouseY, true, true, 4, textColor, tooltipBackground, true, "fei.gui.override.grid.utils.leftclick", "fei.gui.override.grid.utils.rightclick");
 		}
 	}
 
@@ -234,12 +234,12 @@ public class FEIUtilsGrid extends GridGuiElement<FEIGuiOverride> implements ISav
 					button.drawButton(gui.mc, mouseX, mouseY);
 					prop.getRenderable().render(new Rectangle(relX + 2, y + 2, elementX - 4, elementY - 4), gui.mc);
 					if(button.isMouseOver()){
-						drawTooltip(gui.mc.fontRendererObj, mouseX, mouseY, false, true, 0, textColor, tooltipBackground, false, prop.getDesc());
+						drawTooltip(gui.mc.fontRenderer, mouseX, mouseY, false, true, 0, textColor, tooltipBackground, false, prop.getDesc());
 					}
 				}
 			} else{
 				if(inside(relX, relY, mouseX, mouseY)){
-					drawTooltip(gui.mc.fontRendererObj, mouseX, mouseY, false, true, 0, textColor, tooltipBackground, false, getNextProperty().getDesc());
+					drawTooltip(gui.mc.fontRenderer, mouseX, mouseY, false, true, 0, textColor, tooltipBackground, false, getNextProperty().getDesc());
 				}
 			}
 		}

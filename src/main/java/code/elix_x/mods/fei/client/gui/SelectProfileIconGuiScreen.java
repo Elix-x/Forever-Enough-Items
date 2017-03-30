@@ -158,7 +158,7 @@ public class SelectProfileIconGuiScreen extends GuiScreen {
 
 			int searchFieldY = this.screenHeight - searchHeight - borderPadding - 2;
 			int searchFieldWidth = rightEdge - leftEdge;
-			FontRenderer fontRenderer = Minecraft.getMinecraft().fontRendererObj;
+			FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
 			searchField = new GuiTextFieldFilter(0, fontRenderer, leftEdge, searchFieldY, searchFieldWidth, searchHeight, itemFilter);
 			setKeyboardFocus(false);
 
@@ -190,12 +190,12 @@ public class SelectProfileIconGuiScreen extends GuiScreen {
 			ImmutableList<Object> itemList = itemFilter.getIngredientList();
 			guiItemStacks.set(firstItemIndex, itemList);
 
-			FontRenderer fontRendererObj = Minecraft.getMinecraft().fontRendererObj;
+			FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
 
 			pageNumDisplayString = (getPageNum() + 1) + "/" + getPageCount();
-			int pageDisplayWidth = fontRendererObj.getStringWidth(pageNumDisplayString);
+			int pageDisplayWidth = fontRenderer.getStringWidth(pageNumDisplayString);
 			pageNumDisplayX = ((backButton.xPosition + backButton.width) + nextButton.xPosition) / 2 - (pageDisplayWidth / 2);
-			pageNumDisplayY = backButton.yPosition + Math.round((backButton.height - fontRendererObj.FONT_HEIGHT) / 2.0f);
+			pageNumDisplayY = backButton.yPosition + Math.round((backButton.height - fontRenderer.FONT_HEIGHT) / 2.0f);
 
 			searchField.update();
 		}
@@ -236,7 +236,7 @@ public class SelectProfileIconGuiScreen extends GuiScreen {
 		public void drawScreen(@Nonnull Minecraft minecraft, int mouseX, int mouseY){
 			GlStateManager.disableLighting();
 
-			minecraft.fontRendererObj.drawString(pageNumDisplayString, pageNumDisplayX, pageNumDisplayY, Color.white.getRGB(), true);
+			minecraft.fontRenderer.drawString(pageNumDisplayString, pageNumDisplayX, pageNumDisplayY, Color.white.getRGB(), true);
 			searchField.drawTextBox();
 
 			nextButton.drawButton(minecraft, mouseX, mouseY);

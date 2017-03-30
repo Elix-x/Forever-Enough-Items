@@ -67,9 +67,9 @@ public class ElementBasicSettingsGuiScreen extends ElementalGuiScreen {
 		String borderXS;
 		String borderYS;
 
-		int bsw = Math.max(mc.fontRendererObj.getStringWidth(borderXS = I18n.translateToLocal("fei.gui.settings.borderx") + " "), mc.fontRendererObj.getStringWidth(borderYS = I18n.translateToLocal("fei.gui.settings.bordery") + " "));
+		int bsw = Math.max(mc.fontRenderer.getStringWidth(borderXS = I18n.translateToLocal("fei.gui.settings.borderx") + " "), mc.fontRenderer.getStringWidth(borderYS = I18n.translateToLocal("fei.gui.settings.bordery") + " "));
 
-		add(new StringGuiElement("Border X", xPos, nextY + 16 - 8, 2, 2, borderXS, fontRendererObj, new RGBA(1f, 1f, 1f, 1f)));
+		add(new StringGuiElement("Border X", xPos, nextY + 16 - 8, 2, 2, borderXS, fontRenderer, new RGBA(1f, 1f, 1f, 1f)));
 		add(new IntegralIncrementerGuiElement("Border X Selector", xPos + bsw, nextY, 16, 8, 16, 2, 2, 1, 0, 32, borderX){
 
 			@Override
@@ -85,7 +85,7 @@ public class ElementBasicSettingsGuiScreen extends ElementalGuiScreen {
 
 		});
 		nextY += 2 + 16 + 2;
-		add(new StringGuiElement("Border Y", xPos, nextY + 16 - 8, 2, 2, borderYS, fontRendererObj, new RGBA(1f, 1f, 1f, 1f)));
+		add(new StringGuiElement("Border Y", xPos, nextY + 16 - 8, 2, 2, borderYS, fontRenderer, new RGBA(1f, 1f, 1f, 1f)));
 		add(new IntegralIncrementerGuiElement("Border Y Selector", xPos + bsw, nextY, 16, 8, 16, 2, 2, 1, 0, 32, borderY){
 
 			@Override
@@ -111,7 +111,7 @@ public class ElementBasicSettingsGuiScreen extends ElementalGuiScreen {
 			}
 
 		});
-		add(new CenteredStringGuiElement("Background Color", xPos + guiWidth / 2, nextY + (20 - 8) / 2, 2, 2, I18n.translateToLocal("fei.gui.settings.backgroundcolor"), fontRendererObj, backgroundColor));
+		add(new CenteredStringGuiElement("Background Color", xPos + guiWidth / 2, nextY + (20 - 8) / 2, 2, 2, I18n.translateToLocal("fei.gui.settings.backgroundcolor"), fontRenderer, backgroundColor));
 		nextY += 2 + 20 + 2;
 
 		add(new ButtonGuiElement("Text Color Button", xPos, nextY, guiWidth - borderX - borderX, 20, 2, 2, ""){
@@ -123,12 +123,12 @@ public class ElementBasicSettingsGuiScreen extends ElementalGuiScreen {
 			}
 
 		});
-		add(new CenteredStringGuiElement("Text Color", xPos + guiWidth / 2, nextY + (20 - 8) / 2, 2, 2, I18n.translateToLocal("fei.gui.settings.textcolor"), fontRendererObj, textColor));
+		add(new CenteredStringGuiElement("Text Color", xPos + guiWidth / 2, nextY + (20 - 8) / 2, 2, 2, I18n.translateToLocal("fei.gui.settings.textcolor"), fontRenderer, textColor));
 		nextY += 2 + 20 + 2;
 
 		String tooltipBackground;
-		bsw = fontRendererObj.getStringWidth(tooltipBackground = I18n.translateToLocal("fei.gui.settings.tooltipbackground") + " ");
-		add(new StringGuiElement("Tooltip Background", xPos, nextY + 12 - 8, 2, 2, tooltipBackground, fontRendererObj, new RGBA(1f, 1f, 1f, 1f)));
+		bsw = fontRenderer.getStringWidth(tooltipBackground = I18n.translateToLocal("fei.gui.settings.tooltipbackground") + " ");
+		add(new StringGuiElement("Tooltip Background", xPos, nextY + 12 - 8, 2, 2, tooltipBackground, fontRenderer, new RGBA(1f, 1f, 1f, 1f)));
 		add(new CheckBoxGuiElement("Tooltip Background Checkbox", xPos + 2 + bsw, nextY, 12, 12, 2, 2, this.tooltipBackground){
 
 			@Override

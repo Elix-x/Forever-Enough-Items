@@ -136,7 +136,7 @@ public class FEIInventorySavesList extends ListGuiElement<FEIGuiOverride> implem
 	public void drawGuiPost(FEIGuiOverride fei, GuiScreen gui, int mouseX, int mouseY){
 		super.drawGuiPost(fei, gui, mouseX, mouseY);
 		if(gui.isShiftKeyDown() && inside(mouseX, mouseY)){
-			drawTooltip(gui.mc.fontRendererObj, mouseX, mouseY, true, true, 4, textColor, tooltipBackground, true, "fei.gui.override.list.inventorysaves.leftlick", "fei.gui.override.list.inventorysaves.rightclick", "fei.gui.override.list.inventorysaves.shiftleftclick", "fei.gui.override.list.inventorysaves.shiftrightclick");
+			drawTooltip(gui.mc.fontRenderer, mouseX, mouseY, true, true, 4, textColor, tooltipBackground, true, "fei.gui.override.list.inventorysaves.leftlick", "fei.gui.override.list.inventorysaves.rightclick", "fei.gui.override.list.inventorysaves.shiftleftclick", "fei.gui.override.list.inventorysaves.shiftrightclick");
 		}
 	}
 
@@ -206,7 +206,7 @@ public class FEIInventorySavesList extends ListGuiElement<FEIGuiOverride> implem
 					return true;
 				} else if(key == 1){
 					if(!gui.isShiftKeyDown()){
-						editf = new GuiTextField(0, gui.mc.fontRendererObj, x + borderX * 2, relY + borderY * 2, width - borderX * 4, elementY - borderY * 4);
+						editf = new GuiTextField(0, gui.mc.fontRenderer, x + borderX * 2, relY + borderY * 2, width - borderX * 4, elementY - borderY * 4);
 						editf.setText(name);
 						editf.setFocused(true);
 						edit = this;
@@ -244,7 +244,7 @@ public class FEIInventorySavesList extends ListGuiElement<FEIGuiOverride> implem
 		public boolean handleMouseEvent(FEIGuiOverride fei, GuiScreen gui, int index, int x, int relY, int mouseX, int mouseY, boolean down, int key){
 			if(down && key == 0 && inside(relY, mouseX, mouseY)){
 				edit = new FEIInventorySavesListLoadElement("", new NBTTagCompound());
-				edit.editf = new GuiTextField(0, gui.mc.fontRendererObj, x + borderX * 2, relY + borderY * 2, width - borderX * 4, elementY - borderY * 4);
+				edit.editf = new GuiTextField(0, gui.mc.fontRenderer, x + borderX * 2, relY + borderY * 2, width - borderX * 4, elementY - borderY * 4);
 				edit.editf.setFocused(true);
 				edit.load();
 				add(edit, index);

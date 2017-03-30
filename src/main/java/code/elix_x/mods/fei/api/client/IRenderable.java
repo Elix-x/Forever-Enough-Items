@@ -49,7 +49,7 @@ public interface IRenderable {
 
 		@Override
 		public void render(Rectangle element, Minecraft minecraft){
-			FontRenderer fontRenderer = (this.fontRenderer != null ? this.fontRenderer : minecraft.fontRendererObj);
+			FontRenderer fontRenderer = (this.fontRenderer != null ? this.fontRenderer : minecraft.fontRenderer);
 			fontRenderer.drawString(text, element.getX() + (element.getWidth() - fontRenderer.getStringWidth(text)) / 2, element.getY() + (element.getHeight() - 8) / 2, color.argb());
 		}
 

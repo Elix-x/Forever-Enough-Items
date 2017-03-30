@@ -103,7 +103,7 @@ public class GuiFEIEffect extends GuiContainer implements IGuiElementsHandler<IG
 			@Override
 			public void drawGuiPostPost(IGuiElementsHandler handler, GuiScreen gui, int mouseX, int mouseY){
 				if(inside(mouseX, mouseY))
-					drawTooltipWithBackgroundTranslate(fontRendererObj, mouseX - guiLeft, mouseY - guiTop, false, true, "fei.gui.effect.potion");
+					drawTooltipWithBackgroundTranslate(fontRenderer, mouseX - guiLeft, mouseY - guiTop, false, true, "fei.gui.effect.potion");
 			}
 
 			@Override
@@ -124,7 +124,7 @@ public class GuiFEIEffect extends GuiContainer implements IGuiElementsHandler<IG
 			@Override
 			public void drawGuiPostPost(IGuiElementsHandler handler, GuiScreen gui, int mouseX, int mouseY){
 				if(inside(mouseX, mouseY))
-					drawTooltipWithBackgroundTranslate(fontRendererObj, mouseX - guiLeft, mouseY - guiTop, false, true, "fei.gui.effect.splash");
+					drawTooltipWithBackgroundTranslate(fontRenderer, mouseX - guiLeft, mouseY - guiTop, false, true, "fei.gui.effect.splash");
 			}
 
 			@Override
@@ -145,7 +145,7 @@ public class GuiFEIEffect extends GuiContainer implements IGuiElementsHandler<IG
 			@Override
 			public void drawGuiPostPost(IGuiElementsHandler handler, GuiScreen gui, int mouseX, int mouseY){
 				if(inside(mouseX, mouseY))
-					drawTooltipWithBackgroundTranslate(fontRendererObj, mouseX - guiLeft, mouseY - guiTop, false, true, "fei.gui.effect.lingering");
+					drawTooltipWithBackgroundTranslate(fontRenderer, mouseX - guiLeft, mouseY - guiTop, false, true, "fei.gui.effect.lingering");
 			}
 
 			@Override
@@ -160,13 +160,13 @@ public class GuiFEIEffect extends GuiContainer implements IGuiElementsHandler<IG
 			@Override
 			public void drawGuiPost(IGuiElementsHandler handler, GuiScreen gui, int mouseX, int mouseY){
 				super.drawGuiPost(handler, gui, mouseX, mouseY);
-				drawString(fontRendererObj, "/", xPos + (16 - fontRendererObj.getCharWidth('/')) / 2, yPos + 4, new RGBA(1f, 1f, 1f));
+				drawString(fontRenderer, "/", xPos + (16 - fontRenderer.getCharWidth('/')) / 2, yPos + 4, new RGBA(1f, 1f, 1f));
 			}
 
 			@Override
 			public void drawGuiPostPost(IGuiElementsHandler handler, GuiScreen gui, int mouseX, int mouseY){
 				if(inside(mouseX, mouseY))
-					drawTooltipWithBackgroundTranslate(fontRendererObj, mouseX - guiLeft, mouseY - guiTop, false, true, "fei.gui.effect.apply");
+					drawTooltipWithBackgroundTranslate(fontRenderer, mouseX - guiLeft, mouseY - guiTop, false, true, "fei.gui.effect.apply");
 			}
 
 			@Override
@@ -219,8 +219,8 @@ public class GuiFEIEffect extends GuiContainer implements IGuiElementsHandler<IG
 	}
 
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY){
-		this.fontRendererObj.drawString(net.minecraft.util.text.translation.I18n.translateToLocal("container.brewing"), 12, 5, 4210752);
-		this.fontRendererObj.drawString(this.playerInventory.getDisplayName().getUnformattedText(), 8, this.ySize - 96 + 2, 4210752);
+		this.fontRenderer.drawString(net.minecraft.util.text.translation.I18n.translateToLocal("container.brewing"), 12, 5, 4210752);
+		this.fontRenderer.drawString(this.playerInventory.getDisplayName().getUnformattedText(), 8, this.ySize - 96 + 2, 4210752);
 		for(IGuiElement element : elements){
 			element.drawGuiPostPost(this, this, mouseX, mouseY);
 		}
@@ -333,7 +333,7 @@ public class GuiFEIEffect extends GuiContainer implements IGuiElementsHandler<IG
 				Pair<Integer, Integer> p = container.effects.get(potion);
 				int duration = p != null ? p.getLeft() : 0;
 				int amplifier = p != null ? p.getRight() : 0;
-				drawString(fontRendererObj, net.minecraft.util.text.translation.I18n.translateToLocal(potion.getName()) + " " + (amplifier > 0 ? (amplifier < 3999 ? IntUtils.translateIntToRoman(amplifier) : amplifier) : "-") + " " + (duration > 0 ? Potion.getPotionDurationString(new PotionEffect(potion, duration * 20), 1) : "-"), x + 1, relY + 1, new RGBA(1f, 1f, 1f));
+				drawString(fontRenderer, net.minecraft.util.text.translation.I18n.translateToLocal(potion.getName()) + " " + (amplifier > 0 ? (amplifier < 3999 ? IntUtils.translateIntToRoman(amplifier) : amplifier) : "-") + " " + (duration > 0 ? Potion.getPotionDurationString(new PotionEffect(potion, duration * 20), 1) : "-"), x + 1, relY + 1, new RGBA(1f, 1f, 1f));
 			}
 
 		}

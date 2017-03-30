@@ -45,7 +45,7 @@ public class ProfilesGuiScreen extends ElementalGuiScreen {
 			public void drawGuiPost(ElementalGuiScreen handler, GuiScreen gui, int mouseX, int mouseY){
 				super.drawGuiPost(handler, gui, mouseX, mouseY);
 				if(isShiftKeyDown() && inside(mouseX, mouseY)){
-					drawTooltipWithBackgroundTranslate(fontRendererObj, mouseX, mouseY, false, true, "fei.gui.profiles.leftlick", "fei.gui.profiles.rightclick", "fei.gui.profiles.shiftleftclick", "fei.gui.profiles.shiftrightclick");
+					drawTooltipWithBackgroundTranslate(fontRenderer, mouseX, mouseY, false, true, "fei.gui.profiles.leftlick", "fei.gui.profiles.rightclick", "fei.gui.profiles.shiftleftclick", "fei.gui.profiles.shiftrightclick");
 				}
 			}
 
